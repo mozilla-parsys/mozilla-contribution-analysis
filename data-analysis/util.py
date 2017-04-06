@@ -8,7 +8,7 @@ from elasticsearch_dsl import Search
 def ESConnection():
 
     parser = configparser.ConfigParser()
-    parser.read('settings')
+    parser.read('.settings')
 
     section = parser['ElasticSearch']
     user = section['user']
