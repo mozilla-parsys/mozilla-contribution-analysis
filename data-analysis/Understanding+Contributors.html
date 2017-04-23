@@ -11809,7 +11809,6 @@ div#notebook {
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Metric-Calculations">Metric Calculations<a class="anchor-link" href="#Metric-Calculations">&#182;</a></h3><p>First we need to load a connection against the proper ES instance. We use an external module to load credentials from a file that will not be shared. If you want to run this, please use your own credentials, just put them in a file named '.settings' (in the same directory as this notebook) following the example file 'settings.sample'.</p>
-<p><strong>TODO</strong>: Add bot and merges filtering.</p>
 
 </div>
 </div>
@@ -11835,6 +11834,159 @@ div#notebook {
 </div>
 
 </div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">create_search</span><span class="p">(</span><span class="n">source</span><span class="p">):</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">Search</span><span class="p">(</span><span class="n">using</span><span class="o">=</span><span class="n">es_conn</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">source</span><span class="p">)</span>
+    <span class="c1"># TODO: Add bot and merges filtering.</span>
+    <span class="c1">#s = s.filter(&#39;range&#39;, grimoire_creation_date={&#39;gt&#39;: &#39;now/M-2y&#39;, &#39;lt&#39;: &#39;now/M&#39;})</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">params</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">s</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">print_result</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;In case you need to check query response, call this function</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()[</span><span class="s1">&#39;aggregations&#39;</span><span class="p">])</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">print_df</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">group_field</span><span class="p">,</span> <span class="n">value_field</span><span class="p">,</span> <span class="n">group_column</span><span class="p">,</span> <span class="n">value_column</span><span class="p">):</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()[</span><span class="s1">&#39;aggregations&#39;</span><span class="p">][</span><span class="n">group_field</span><span class="p">][</span><span class="s1">&#39;buckets&#39;</span><span class="p">])</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;doc_count&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="n">value_field</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">value_field</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])</span>
+    <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">[[</span><span class="s1">&#39;key&#39;</span><span class="p">,</span> <span class="n">value_field</span><span class="p">]]</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">group_column</span><span class="p">,</span> <span class="n">value_column</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">df</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">stack_by</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">group_column</span><span class="p">,</span> <span class="n">time_column</span><span class="p">,</span> <span class="n">value_column</span><span class="p">,</span> <span class="n">group_field</span><span class="p">,</span> <span class="n">time_field</span><span class="p">,</span> <span class="n">value_field</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Creates a dataframe based on group and time values</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">group_column</span><span class="p">,</span> <span class="n">time_column</span><span class="p">,</span> <span class="n">value_column</span><span class="p">])</span>
+
+    <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()[</span><span class="s1">&#39;aggregations&#39;</span><span class="p">][</span><span class="n">group_field</span><span class="p">][</span><span class="s1">&#39;buckets&#39;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">b</span><span class="p">[</span><span class="n">time_field</span><span class="p">][</span><span class="s1">&#39;buckets&#39;</span><span class="p">]:</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">],</span> <span class="n">i</span><span class="p">[</span><span class="s1">&#39;key_as_string&#39;</span><span class="p">],</span> <span class="n">i</span><span class="p">[</span><span class="n">value_field</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]]</span>
+    
+    <span class="k">return</span> <span class="n">df</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">stack_by_cusum</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">group_column</span><span class="p">,</span> <span class="n">time_column</span><span class="p">,</span> <span class="n">value_column</span><span class="p">,</span> <span class="n">group_field</span><span class="p">,</span> <span class="n">time_field</span><span class="p">,</span> <span class="n">value_field</span><span class="p">,</span>\
+                   <span class="n">staff_org_names</span><span class="p">,</span> <span class="n">staff_org</span><span class="p">):</span>
+    <span class="n">authors_org_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">group_column</span><span class="p">,</span> <span class="n">time_column</span><span class="p">,</span> <span class="n">value_column</span><span class="p">])</span>
+
+    <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()[</span><span class="s1">&#39;aggregations&#39;</span><span class="p">][</span><span class="n">group_field</span><span class="p">][</span><span class="s1">&#39;buckets&#39;</span><span class="p">]:</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">b</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">staff_org_names</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">staff_org</span>
+        <span class="k">else</span><span class="p">:</span>    
+            <span class="n">key</span>  <span class="o">=</span> <span class="s1">&#39;Other&#39;</span>    
+
+        <span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">],</span> <span class="s1">&#39;-&gt;&#39;</span> <span class="p">,</span><span class="n">key</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">b</span><span class="p">[</span><span class="n">time_field</span><span class="p">][</span><span class="s1">&#39;buckets&#39;</span><span class="p">]:</span>
+
+            <span class="n">time</span> <span class="o">=</span> <span class="n">i</span><span class="p">[</span><span class="s1">&#39;key_as_string&#39;</span><span class="p">]</span>
+            <span class="n">contributors</span> <span class="o">=</span> <span class="n">i</span><span class="p">[</span><span class="n">value_field</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">authors_org_df</span><span class="p">[</span><span class="n">group_column</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span> \
+                <span class="ow">and</span> <span class="n">time</span> <span class="ow">in</span> <span class="n">authors_org_df</span><span class="p">[</span><span class="n">authors_org_df</span><span class="p">[</span><span class="n">group_column</span><span class="p">]</span> <span class="o">==</span> <span class="n">key</span><span class="p">][</span><span class="n">time_column</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">():</span>
+
+                <span class="n">authors_org_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">authors_org_df</span><span class="p">[</span><span class="n">group_column</span><span class="p">]</span> <span class="o">==</span> <span class="n">key</span><span class="p">)</span> \
+                                     <span class="o">&amp;</span> <span class="p">(</span><span class="n">authors_org_df</span><span class="p">[</span><span class="n">time_column</span><span class="p">]</span> <span class="o">==</span> <span class="n">time</span><span class="p">),</span>\
+                                   <span class="n">value_column</span><span class="p">]</span> <span class="o">+=</span> <span class="n">contributors</span>
+                <span class="c1">#print(&#39;1&#39;, key,  time, contributors)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">authors_org_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">authors_org_df</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">contributors</span><span class="p">]</span>
+                <span class="c1">#print(&#39;2&#39;, key,  time, contributors)</span>
+    
+    <span class="k">return</span> <span class="n">authors_org_df</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">print_stacked_bar</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">time_field</span><span class="p">,</span> <span class="n">value_field</span><span class="p">,</span> <span class="n">group_field</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Print stacked bar chart from dataframe based on time_field,</span>
+<span class="sd">    grouped by group field.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">plotly</span><span class="o">.</span><span class="n">offline</span><span class="o">.</span><span class="n">init_notebook_mode</span><span class="p">(</span><span class="n">connected</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">bars</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">df</span><span class="p">[</span><span class="n">group_field</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
+        <span class="n">group_slice_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">group_field</span><span class="p">]</span> <span class="o">==</span> <span class="n">group</span><span class="p">]</span>
+        <span class="n">bars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">go</span><span class="o">.</span><span class="n">Bar</span><span class="p">(</span>
+            <span class="n">x</span><span class="o">=</span><span class="n">group_slice_df</span><span class="p">[</span><span class="n">time_field</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+            <span class="n">y</span><span class="o">=</span><span class="n">group_slice_df</span><span class="p">[</span><span class="n">value_field</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">group</span><span class="p">))</span>
+
+    <span class="n">layout</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Layout</span><span class="p">(</span>
+        <span class="n">barmode</span><span class="o">=</span><span class="s1">&#39;stack&#39;</span>
+    <span class="p">)</span>
+
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">bars</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="n">layout</span><span class="p">)</span>
+    <span class="n">plotly</span><span class="o">.</span><span class="n">offline</span><span class="o">.</span><span class="n">iplot</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;stacked-bar&#39;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="prompt input_prompt">
 </div>
@@ -11847,18 +11999,15 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[53]:</div>
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">Search</span><span class="p">(</span><span class="n">using</span><span class="o">=</span><span class="n">es_conn</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">create_search</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
 
 <span class="c1"># Unique count of Commits by Project (max 100 projects)</span>
 <span class="n">s</span><span class="o">.</span><span class="n">aggs</span><span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;projects&#39;</span><span class="p">,</span> <span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;project&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>\
     <span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s1">&#39;commits&#39;</span><span class="p">,</span> <span class="s1">&#39;cardinality&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;hash&#39;</span><span class="p">,</span> <span class="n">precision_threshold</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
-
-<span class="c1"># In case you need to check response, uncomment line below</span>
-<span class="c1">#print(result.to_dict()[&#39;aggregations&#39;])</span>
 </pre></div>
 
 </div>
@@ -11868,18 +12017,11 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[54]:</div>
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
-
-<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()[</span><span class="s1">&#39;aggregations&#39;</span><span class="p">][</span><span class="s1">&#39;projects&#39;</span><span class="p">][</span><span class="s1">&#39;buckets&#39;</span><span class="p">])</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;doc_count&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">df</span><span class="p">[</span><span class="s1">&#39;commits&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;commits&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])</span>
-<span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">[[</span><span class="s1">&#39;key&#39;</span><span class="p">,</span> <span class="s1">&#39;commits&#39;</span><span class="p">]]</span>
-<span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Project&#39;</span><span class="p">,</span> <span class="s1">&#39;# Commits&#39;</span><span class="p">]</span>
-
-<span class="n">df</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">print_df</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="n">result</span><span class="p">,</span> <span class="n">group_field</span><span class="o">=</span><span class="s1">&#39;projects&#39;</span><span class="p">,</span> <span class="n">value_field</span><span class="o">=</span><span class="s1">&#39;commits&#39;</span><span class="p">,</span> \
+         <span class="n">group_column</span><span class="o">=</span><span class="s1">&#39;Project&#39;</span><span class="p">,</span> <span class="n">value_column</span><span class="o">=</span><span class="s1">&#39;# Commits&#39;</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -11890,7 +12032,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[54]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[9]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 <div>
@@ -11906,72 +12048,72 @@ div#notebook {
     <tr>
       <th>0</th>
       <td>mozilla</td>
-      <td>1902323</td>
+      <td>1905232</td>
     </tr>
     <tr>
       <th>1</th>
       <td>mozilla-services</td>
-      <td>147526</td>
+      <td>148022</td>
     </tr>
     <tr>
       <th>2</th>
       <td>rust-lang</td>
-      <td>135992</td>
+      <td>137277</td>
     </tr>
     <tr>
       <th>3</th>
       <td>servo</td>
-      <td>78163</td>
+      <td>78712</td>
     </tr>
     <tr>
       <th>4</th>
       <td>mdn</td>
-      <td>12750</td>
+      <td>12785</td>
     </tr>
     <tr>
       <th>5</th>
       <td>moztw</td>
-      <td>8618</td>
+      <td>8625</td>
     </tr>
     <tr>
       <th>6</th>
       <td>mozilla-mobile</td>
-      <td>9105</td>
+      <td>9344</td>
     </tr>
     <tr>
       <th>7</th>
       <td>aframevr</td>
-      <td>7160</td>
+      <td>7263</td>
     </tr>
     <tr>
       <th>8</th>
       <td>mozilla-japan</td>
-      <td>5787</td>
+      <td>5798</td>
     </tr>
     <tr>
       <th>9</th>
       <td>mozmar</td>
-      <td>5415</td>
+      <td>5569</td>
     </tr>
     <tr>
       <th>10</th>
       <td>MozillaCZ</td>
-      <td>4433</td>
+      <td>4452</td>
     </tr>
     <tr>
       <th>11</th>
       <td>mozillascience</td>
-      <td>3871</td>
+      <td>3893</td>
     </tr>
     <tr>
       <th>12</th>
       <td>Mozilla-TWQA</td>
-      <td>3748</td>
+      <td>3830</td>
     </tr>
     <tr>
       <th>13</th>
       <td>mozillach</td>
-      <td>3676</td>
+      <td>3677</td>
     </tr>
     <tr>
       <th>14</th>
@@ -11981,12 +12123,12 @@ div#notebook {
     <tr>
       <th>15</th>
       <td>mozfr</td>
-      <td>2059</td>
+      <td>2060</td>
     </tr>
     <tr>
       <th>16</th>
       <td>browserhtml</td>
-      <td>1977</td>
+      <td>1981</td>
     </tr>
     <tr>
       <th>17</th>
@@ -12001,12 +12143,12 @@ div#notebook {
     <tr>
       <th>19</th>
       <td>MozillaTN</td>
-      <td>1191</td>
+      <td>1213</td>
     </tr>
     <tr>
       <th>20</th>
       <td>MozillaFoundation</td>
-      <td>1153</td>
+      <td>1203</td>
     </tr>
     <tr>
       <th>21</th>
@@ -12016,7 +12158,7 @@ div#notebook {
     <tr>
       <th>22</th>
       <td>mozdevs</td>
-      <td>883</td>
+      <td>889</td>
     </tr>
     <tr>
       <th>23</th>
@@ -12065,18 +12207,15 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[55]:</div>
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">Search</span><span class="p">(</span><span class="n">using</span><span class="o">=</span><span class="n">es_conn</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">create_search</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
 
 <span class="c1"># Unique count of Commits by Project (max 100 projects)</span>
 <span class="n">s</span><span class="o">.</span><span class="n">aggs</span><span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;projects&#39;</span><span class="p">,</span> <span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;project&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>\
     <span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s1">&#39;contributors&#39;</span><span class="p">,</span> <span class="s1">&#39;cardinality&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_uuid&#39;</span><span class="p">,</span> <span class="n">precision_threshold</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
-
-<span class="c1"># In case you need to check response, uncomment line below</span>
-<span class="c1">#print(result.to_dict()[&#39;aggregations&#39;])</span>
 </pre></div>
 
 </div>
@@ -12086,18 +12225,11 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[56]:</div>
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
-
-<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()[</span><span class="s1">&#39;aggregations&#39;</span><span class="p">][</span><span class="s1">&#39;projects&#39;</span><span class="p">][</span><span class="s1">&#39;buckets&#39;</span><span class="p">])</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;doc_count&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">df</span><span class="p">[</span><span class="s1">&#39;contributors&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;contributors&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])</span>
-<span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">[[</span><span class="s1">&#39;key&#39;</span><span class="p">,</span> <span class="s1">&#39;contributors&#39;</span><span class="p">]]</span>
-<span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Project&#39;</span><span class="p">,</span> <span class="s1">&#39;# Contributors&#39;</span><span class="p">]</span>
-
-<span class="n">df</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">print_df</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="n">result</span><span class="p">,</span> <span class="n">group_field</span><span class="o">=</span><span class="s1">&#39;projects&#39;</span><span class="p">,</span> <span class="n">value_field</span><span class="o">=</span><span class="s1">&#39;contributors&#39;</span><span class="p">,</span> \
+         <span class="n">group_column</span><span class="o">=</span><span class="s1">&#39;Project&#39;</span><span class="p">,</span> <span class="n">value_column</span><span class="o">=</span><span class="s1">&#39;# Contributors&#39;</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -12108,7 +12240,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[56]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[11]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 <div>
@@ -12124,22 +12256,22 @@ div#notebook {
     <tr>
       <th>0</th>
       <td>mozilla</td>
-      <td>10965</td>
+      <td>10991</td>
     </tr>
     <tr>
       <th>1</th>
       <td>mozilla-services</td>
-      <td>2122</td>
+      <td>2128</td>
     </tr>
     <tr>
       <th>2</th>
       <td>rust-lang</td>
-      <td>2444</td>
+      <td>2453</td>
     </tr>
     <tr>
       <th>3</th>
       <td>servo</td>
-      <td>1384</td>
+      <td>1397</td>
     </tr>
     <tr>
       <th>4</th>
@@ -12154,12 +12286,12 @@ div#notebook {
     <tr>
       <th>6</th>
       <td>mozilla-mobile</td>
-      <td>108</td>
+      <td>109</td>
     </tr>
     <tr>
       <th>7</th>
       <td>aframevr</td>
-      <td>205</td>
+      <td>217</td>
     </tr>
     <tr>
       <th>8</th>
@@ -12219,12 +12351,12 @@ div#notebook {
     <tr>
       <th>19</th>
       <td>MozillaTN</td>
-      <td>47</td>
+      <td>48</td>
     </tr>
     <tr>
       <th>20</th>
       <td>MozillaFoundation</td>
-      <td>112</td>
+      <td>113</td>
     </tr>
     <tr>
       <th>21</th>
@@ -12234,7 +12366,7 @@ div#notebook {
     <tr>
       <th>22</th>
       <td>mozdevs</td>
-      <td>14</td>
+      <td>16</td>
     </tr>
     <tr>
       <th>23</th>
@@ -12277,18 +12409,16 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Number-of-contributors-by-project-over-time">Number of contributors by project over time<a class="anchor-link" href="#Number-of-contributors-by-project-over-time">&#182;</a></h4><p><strong>TODO</strong>: provide a plot similar to <a href="https://analytics.mozilla.community:443/goto/9523b9b00de0b35645de488a1a06514e">https://analytics.mozilla.community:443/goto/9523b9b00de0b35645de488a1a06514e</a></p>
-
+<h4 id="Number-of-contributors-by-project-over-time">Number of contributors by project over time<a class="anchor-link" href="#Number-of-contributors-by-project-over-time">&#182;</a></h4>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">Search</span><span class="p">(</span><span class="n">using</span><span class="o">=</span><span class="n">es_conn</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
-<span class="n">s</span><span class="o">.</span><span class="n">params</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">create_search</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
 
 <span class="c1"># Unique count of Commits by Project (max 100 projects)</span>
 <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;range&#39;</span><span class="p">,</span> <span class="n">grimoire_creation_date</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;gt&#39;</span><span class="p">:</span> <span class="s1">&#39;now/M-2y&#39;</span><span class="p">,</span> <span class="s1">&#39;lt&#39;</span><span class="p">:</span> <span class="s1">&#39;now/M&#39;</span><span class="p">})</span>
@@ -12296,11 +12426,10 @@ div#notebook {
     <span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;date_histogram&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;grimoire_creation_date&#39;</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="s1">&#39;quarter&#39;</span><span class="p">)</span>\
     <span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s1">&#39;contributors&#39;</span><span class="p">,</span> <span class="s1">&#39;cardinality&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_uuid&#39;</span><span class="p">,</span> <span class="n">precision_threshold</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span>
 
-<span class="c1">#print(s.to_dict())</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
-
-<span class="c1"># In case you need to check response, uncomment line below</span>
-<span class="c1">#print(result.to_dict()[&#39;aggregations&#39;])</span>
+            
+<span class="n">df</span> <span class="o">=</span> <span class="n">stack_by</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="n">result</span><span class="p">,</span> <span class="n">group_column</span><span class="o">=</span><span class="s1">&#39;Project&#39;</span><span class="p">,</span> <span class="n">time_column</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">value_column</span><span class="o">=</span><span class="s1">&#39;# Contributors&#39;</span><span class="p">,</span>\
+        <span class="n">group_field</span><span class="o">=</span><span class="s1">&#39;projects&#39;</span><span class="p">,</span> <span class="n">time_field</span><span class="o">=</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="n">value_field</span><span class="o">=</span><span class="s1">&#39;contributors&#39;</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -12310,51 +12439,10 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Project&#39;</span><span class="p">,</span> <span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;# Contributors&#39;</span><span class="p">])</span>
-
-<span class="n">result</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()[</span><span class="s1">&#39;aggregations&#39;</span><span class="p">][</span><span class="s1">&#39;projects&#39;</span><span class="p">][</span><span class="s1">&#39;buckets&#39;</span><span class="p">]</span>
-<span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()[</span><span class="s1">&#39;aggregations&#39;</span><span class="p">][</span><span class="s1">&#39;projects&#39;</span><span class="p">][</span><span class="s1">&#39;buckets&#39;</span><span class="p">]:</span>
-    <span class="c1">#print(b[&#39;key&#39;])</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">b</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">][</span><span class="s1">&#39;buckets&#39;</span><span class="p">]:</span>
-        <span class="c1">#print(&quot;\tdate: &quot;, i[&#39;key_as_string&#39;], &#39;value: &#39;,i[&#39;contributors&#39;][&#39;value&#39;])</span>
-        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">],</span> <span class="n">i</span><span class="p">[</span><span class="s1">&#39;key_as_string&#39;</span><span class="p">],</span> <span class="n">i</span><span class="p">[</span><span class="s1">&#39;contributors&#39;</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]]</span>  
-
-<span class="c1">#df</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[9]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">plotly</span><span class="o">.</span><span class="n">offline</span><span class="o">.</span><span class="n">init_notebook_mode</span><span class="p">(</span><span class="n">connected</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-<span class="c1"># Select rows by unique column value</span>
-<span class="c1">#for project in df.Project.unique():</span>
-<span class="c1">#    print(df.loc[df[&#39;Project&#39;] == project])</span>
-
-<span class="n">bars</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="k">for</span> <span class="n">project</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">Project</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
-    <span class="n">project_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;Project&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">project</span><span class="p">]</span>
-    <span class="n">bars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">go</span><span class="o">.</span><span class="n">Bar</span><span class="p">(</span>
-        <span class="n">x</span><span class="o">=</span><span class="n">project_df</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
-        <span class="n">y</span><span class="o">=</span><span class="n">project_df</span><span class="p">[</span><span class="s1">&#39;# Contributors&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
-        <span class="n">name</span><span class="o">=</span><span class="n">project</span><span class="p">))</span>
-
-<span class="n">layout</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Layout</span><span class="p">(</span>
-    <span class="n">barmode</span><span class="o">=</span><span class="s1">&#39;stack&#39;</span>
-<span class="p">)</span>
-
-<span class="n">fig</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">bars</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="n">layout</span><span class="p">)</span>
-<span class="n">plotly</span><span class="o">.</span><span class="n">offline</span><span class="o">.</span><span class="n">iplot</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;stacked-bar&#39;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">print_stacked_bar</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">time_field</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">value_field</span><span class="o">=</span><span class="s1">&#39;# Contributors&#39;</span><span class="p">,</span> <span class="n">group_field</span><span class="o">=</span><span class="s1">&#39;Project&#39;</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -12376,7 +12464,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="5c26a655-bf48-416e-94a2-6bd9a4212cb5" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("5c26a655-bf48-416e-94a2-6bd9a4212cb5", [{"x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "name": "mozilla", "type": "bar", "y": [1107.0, 1337.0, 1500.0, 1534.0, 1459.0, 1433.0, 1223.0, 1300.0]}, {"x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "name": "rust-lang", "type": "bar", "y": [298.0, 276.0, 305.0, 339.0, 302.0, 361.0, 213.0, 248.0]}, {"x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "name": "servo", "type": "bar", "y": [90.0, 122.0, 149.0, 168.0, 176.0, 169.0, 160.0, 172.0]}, {"x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "name": "mozilla-services", "type": "bar", "y": [56.0, 87.0, 95.0, 109.0, 84.0, 74.0, 77.0, 111.0]}, {"x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "name": "mozilla-mobile", "type": "bar", "y": [21.0, 26.0, 26.0, 24.0, 20.0, 16.0, 23.0, 36.0]}, {"x": ["2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "name": "aframevr", "type": "bar", "y": [7.0, 20.0, 44.0, 38.0, 42.0, 52.0, 72.0]}, {"x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "name": "mdn", "type": "bar", "y": [23.0, 29.0, 36.0, 37.0, 33.0, 39.0, 50.0, 30.0]}, {"x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "name": "mozmar", "type": "bar", "y": [7.0, 8.0, 6.0, 11.0, 7.0, 12.0, 11.0, 13.0]}, {"x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "name": "mozillascience", "type": "bar", "y": [12.0, 27.0, 25.0, 33.0, 25.0, 13.0, 17.0, 21.0]}, {"x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "name": "Mozilla-TWQA", "type": "bar", "y": [8.0, 6.0, 4.0, 6.0, 10.0, 6.0, 6.0, 7.0]}], {"barmode": "stack"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="85e6ab6e-e6e8-4030-83d7-f79161a276e7" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("85e6ab6e-e6e8-4030-83d7-f79161a276e7", [{"x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "name": "mozilla", "type": "bar", "y": [1107.0, 1337.0, 1500.0, 1534.0, 1459.0, 1433.0, 1223.0, 1300.0]}, {"x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "name": "rust-lang", "type": "bar", "y": [298.0, 276.0, 305.0, 339.0, 302.0, 361.0, 213.0, 249.0]}, {"x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "name": "servo", "type": "bar", "y": [90.0, 122.0, 149.0, 168.0, 176.0, 169.0, 160.0, 172.0]}, {"x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "name": "mozilla-services", "type": "bar", "y": [56.0, 87.0, 95.0, 109.0, 84.0, 74.0, 77.0, 111.0]}, {"x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "name": "mozilla-mobile", "type": "bar", "y": [21.0, 26.0, 26.0, 24.0, 20.0, 16.0, 23.0, 36.0]}, {"x": ["2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "name": "aframevr", "type": "bar", "y": [7.0, 20.0, 44.0, 38.0, 42.0, 52.0, 72.0]}, {"x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "name": "mdn", "type": "bar", "y": [23.0, 29.0, 36.0, 37.0, 33.0, 39.0, 50.0, 30.0]}, {"x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "name": "mozmar", "type": "bar", "y": [7.0, 8.0, 6.0, 11.0, 7.0, 12.0, 11.0, 13.0]}, {"x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "name": "mozillascience", "type": "bar", "y": [12.0, 27.0, 25.0, 33.0, 25.0, 13.0, 17.0, 21.0]}, {"x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "name": "Mozilla-TWQA", "type": "bar", "y": [8.0, 6.0, 4.0, 6.0, 10.0, 6.0, 6.0, 7.0]}], {"barmode": "stack"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -12396,18 +12484,15 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[59]:</div>
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">Search</span><span class="p">(</span><span class="n">using</span><span class="o">=</span><span class="n">es_conn</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">create_search</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
 
 <span class="c1"># Unique count of Commits by Project (max 100 projects)</span>
 <span class="n">s</span><span class="o">.</span><span class="n">aggs</span><span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;organizations&#39;</span><span class="p">,</span> <span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_org_name&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>\
     <span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s1">&#39;commits&#39;</span><span class="p">,</span> <span class="s1">&#39;cardinality&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;hash&#39;</span><span class="p">,</span> <span class="n">precision_threshold</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
-
-<span class="c1"># In case you need to check response, uncomment line below</span>
-<span class="c1">#print(result.to_dict()[&#39;aggregations&#39;])</span>
 </pre></div>
 
 </div>
@@ -12417,18 +12502,11 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[60]:</div>
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
-
-<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()[</span><span class="s1">&#39;aggregations&#39;</span><span class="p">][</span><span class="s1">&#39;organizations&#39;</span><span class="p">][</span><span class="s1">&#39;buckets&#39;</span><span class="p">])</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;doc_count&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">df</span><span class="p">[</span><span class="s1">&#39;commits&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;commits&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])</span>
-<span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">[[</span><span class="s1">&#39;key&#39;</span><span class="p">,</span> <span class="s1">&#39;commits&#39;</span><span class="p">]]</span>
-<span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Organization&#39;</span><span class="p">,</span> <span class="s1">&#39;# Commits&#39;</span><span class="p">]</span>
-
-<span class="n">df</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">print_df</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="n">result</span><span class="p">,</span> <span class="n">group_field</span><span class="o">=</span><span class="s1">&#39;organizations&#39;</span><span class="p">,</span> <span class="n">value_field</span><span class="o">=</span><span class="s1">&#39;commits&#39;</span><span class="p">,</span> \
+         <span class="n">group_column</span><span class="o">=</span><span class="s1">&#39;Organization&#39;</span><span class="p">,</span> <span class="n">value_column</span><span class="o">=</span><span class="s1">&#39;# Commits&#39;</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -12439,7 +12517,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[60]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[15]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 <div>
@@ -12455,22 +12533,22 @@ div#notebook {
     <tr>
       <th>0</th>
       <td>Mozilla Staff</td>
-      <td>1371711</td>
+      <td>1374637</td>
     </tr>
     <tr>
       <th>1</th>
       <td>Community</td>
-      <td>967091</td>
+      <td>970174</td>
     </tr>
     <tr>
       <th>2</th>
       <td>Mozilla Reps</td>
-      <td>624</td>
+      <td>631</td>
     </tr>
     <tr>
       <th>3</th>
       <td>Unknown</td>
-      <td>34</td>
+      <td>137</td>
     </tr>
   </tbody>
 </table>
@@ -12494,18 +12572,15 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[61]:</div>
+<div class="prompt input_prompt">In&nbsp;[16]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">Search</span><span class="p">(</span><span class="n">using</span><span class="o">=</span><span class="n">es_conn</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">create_search</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
 
 <span class="c1"># Unique count of Commits by Project (max 100 projects)</span>
 <span class="n">s</span><span class="o">.</span><span class="n">aggs</span><span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;organizations&#39;</span><span class="p">,</span> <span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_org_name&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span><span class="o">.</span>\
     <span class="n">metric</span><span class="p">(</span><span class="s1">&#39;contributors&#39;</span><span class="p">,</span> <span class="s1">&#39;cardinality&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_uuid&#39;</span><span class="p">,</span> <span class="n">precision_threshold</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
-
-<span class="c1"># In case you need to check response, uncomment line below</span>
-<span class="c1">#print(result.to_dict()[&#39;aggregations&#39;])</span>
 </pre></div>
 
 </div>
@@ -12515,18 +12590,11 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[62]:</div>
+<div class="prompt input_prompt">In&nbsp;[17]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
-
-<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()[</span><span class="s1">&#39;aggregations&#39;</span><span class="p">][</span><span class="s1">&#39;organizations&#39;</span><span class="p">][</span><span class="s1">&#39;buckets&#39;</span><span class="p">])</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;doc_count&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">df</span><span class="p">[</span><span class="s1">&#39;contributors&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;contributors&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])</span>
-<span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">[[</span><span class="s1">&#39;key&#39;</span><span class="p">,</span> <span class="s1">&#39;contributors&#39;</span><span class="p">]]</span>
-<span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Organization&#39;</span><span class="p">,</span> <span class="s1">&#39;# Contributors&#39;</span><span class="p">]</span>
-
-<span class="n">df</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">print_df</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="n">result</span><span class="p">,</span> <span class="n">group_field</span><span class="o">=</span><span class="s1">&#39;organizations&#39;</span><span class="p">,</span> <span class="n">value_field</span><span class="o">=</span><span class="s1">&#39;contributors&#39;</span><span class="p">,</span> \
+         <span class="n">group_column</span><span class="o">=</span><span class="s1">&#39;Organization&#39;</span><span class="p">,</span> <span class="n">value_column</span><span class="o">=</span><span class="s1">&#39;# Contributors&#39;</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -12537,7 +12605,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[62]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[17]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 <div>
@@ -12558,7 +12626,7 @@ div#notebook {
     <tr>
       <th>1</th>
       <td>Community</td>
-      <td>13074</td>
+      <td>13083</td>
     </tr>
     <tr>
       <th>2</th>
@@ -12568,7 +12636,7 @@ div#notebook {
     <tr>
       <th>3</th>
       <td>Unknown</td>
-      <td>20</td>
+      <td>77</td>
     </tr>
   </tbody>
 </table>
@@ -12586,20 +12654,157 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Number-of-contributors-by-organization-over-time">Number of contributors by organization over time<a class="anchor-link" href="#Number-of-contributors-by-organization-over-time">&#182;</a></h4><p><strong>TODO</strong>: provide a plot similar to <a href="https://analytics.mozilla.community:443/goto/5dce2b36ec14405a09827860169ae234">https://analytics.mozilla.community:443/goto/5dce2b36ec14405a09827860169ae234</a></p>
+<h4 id="Number-of-contributors-by-organization-over-time">Number of contributors by organization over time<a class="anchor-link" href="#Number-of-contributors-by-organization-over-time">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[18]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">create_search</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
+
+<span class="c1"># Unique count of Commits by Project (max 100 projects)</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;range&#39;</span><span class="p">,</span> <span class="n">grimoire_creation_date</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;gt&#39;</span><span class="p">:</span> <span class="s1">&#39;now/M-2y&#39;</span><span class="p">,</span> <span class="s1">&#39;lt&#39;</span><span class="p">:</span> <span class="s1">&#39;now/M&#39;</span><span class="p">})</span>
+<span class="n">s</span><span class="o">.</span><span class="n">aggs</span><span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;org&#39;</span><span class="p">,</span> <span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_org_name&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>\
+    <span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;date_histogram&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;grimoire_creation_date&#39;</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="s1">&#39;quarter&#39;</span><span class="p">)</span>\
+    <span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s1">&#39;contributors&#39;</span><span class="p">,</span> <span class="s1">&#39;cardinality&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_uuid&#39;</span><span class="p">,</span> <span class="n">precision_threshold</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+
+<span class="n">authors_org_df</span> <span class="o">=</span> <span class="n">stack_by</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="n">result</span><span class="p">,</span> <span class="n">group_column</span><span class="o">=</span><span class="s1">&#39;Organization&#39;</span><span class="p">,</span> <span class="n">time_column</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">value_column</span><span class="o">=</span><span class="s1">&#39;# Contributors&#39;</span><span class="p">,</span>\
+        <span class="n">group_field</span><span class="o">=</span><span class="s1">&#39;org&#39;</span><span class="p">,</span> <span class="n">time_field</span><span class="o">=</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="n">value_field</span><span class="o">=</span><span class="s1">&#39;contributors&#39;</span><span class="p">)</span>
+</pre></div>
 
 </div>
 </div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[19]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">print_stacked_bar</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">authors_org_df</span><span class="p">,</span> <span class="n">time_field</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">value_field</span><span class="o">=</span><span class="s1">&#39;# Contributors&#39;</span><span class="p">,</span> <span class="n">group_field</span><span class="o">=</span><span class="s1">&#39;Organization&#39;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<div id="6f042623-5781-4923-833e-6ce4b3ad1887" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("6f042623-5781-4923-833e-6ce4b3ad1887", [{"x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "name": "Mozilla Staff", "type": "bar", "y": [606.0, 694.0, 683.0, 686.0, 693.0, 677.0, 607.0, 623.0]}, {"x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "name": "Community", "type": "bar", "y": [915.0, 1089.0, 1298.0, 1406.0, 1281.0, 1282.0, 1059.0, 1187.0]}, {"x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "name": "Mozilla Reps", "type": "bar", "y": [2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0]}, {"x": ["2017-01-01T00:00:00.000Z"], "name": "Unknown", "type": "bar", "y": [3.0]}], {"barmode": "stack"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+</div>
+
+</div>
+
+</div>
+</div>
+
 </div>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Contributors-by-groups:-hired-by-Mozilla,-the-rest">Contributors by groups: hired by Mozilla, the rest<a class="anchor-link" href="#Contributors-by-groups:-hired-by-Mozilla,-the-rest">&#182;</a></h4><p><strong>TODO</strong>: needs to know who are hired by Mozilla</p>
+<h4 id="Contributors-by-groups:-hired-by-Mozilla,-the-rest">Contributors by groups: hired by Mozilla, the rest<a class="anchor-link" href="#Contributors-by-groups:-hired-by-Mozilla,-the-rest">&#182;</a></h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[20]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">create_search</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
+
+<span class="c1"># Unique count of Commits by Project (max 100 projects)</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;range&#39;</span><span class="p">,</span> <span class="n">grimoire_creation_date</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;gt&#39;</span><span class="p">:</span> <span class="s1">&#39;now/M-2y&#39;</span><span class="p">,</span> <span class="s1">&#39;lt&#39;</span><span class="p">:</span> <span class="s1">&#39;now/M&#39;</span><span class="p">})</span>
+<span class="n">s</span><span class="o">.</span><span class="n">aggs</span><span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;org&#39;</span><span class="p">,</span> <span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_org_name&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>\
+    <span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;date_histogram&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;grimoire_creation_date&#39;</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="s1">&#39;quarter&#39;</span><span class="p">)</span>\
+    <span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s1">&#39;contributors&#39;</span><span class="p">,</span> <span class="s1">&#39;cardinality&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_uuid&#39;</span><span class="p">,</span> <span class="n">precision_threshold</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+
+<span class="n">authors_org_df</span> <span class="o">=</span> <span class="n">stack_by_cusum</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="n">result</span><span class="p">,</span> <span class="n">group_column</span><span class="o">=</span><span class="s1">&#39;Organization&#39;</span><span class="p">,</span> <span class="n">time_column</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span>\
+                                <span class="n">value_column</span><span class="o">=</span><span class="s1">&#39;# Contributors&#39;</span><span class="p">,</span> <span class="n">group_field</span><span class="o">=</span><span class="s1">&#39;org&#39;</span><span class="p">,</span> <span class="n">time_field</span><span class="o">=</span><span class="s1">&#39;time&#39;</span><span class="p">,</span>\
+                                <span class="n">value_field</span><span class="o">=</span><span class="s1">&#39;contributors&#39;</span><span class="p">,</span> <span class="n">staff_org_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Mozilla Staff&#39;</span><span class="p">],</span>\
+                                <span class="n">staff_org</span><span class="o">=</span><span class="s1">&#39;Mozilla Staff&#39;</span><span class="p">)</span>
+</pre></div>
 
 </div>
 </div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Mozilla Staff -&gt; Mozilla Staff
+Community -&gt; Other
+Mozilla Reps -&gt; Other
+Unknown -&gt; Other
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[21]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">print_stacked_bar</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">authors_org_df</span><span class="p">,</span> <span class="n">time_field</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">value_field</span><span class="o">=</span><span class="s1">&#39;# Contributors&#39;</span><span class="p">,</span> <span class="n">group_field</span><span class="o">=</span><span class="s1">&#39;Organization&#39;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<div id="01819cb2-eb5c-4694-bbd7-573cfe5c87b9" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("01819cb2-eb5c-4694-bbd7-573cfe5c87b9", [{"x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "name": "Mozilla Staff", "type": "bar", "y": [606.0, 694.0, 683.0, 686.0, 693.0, 677.0, 607.0, 623.0]}, {"x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "name": "Other", "type": "bar", "y": [917.0, 1091.0, 1300.0, 1408.0, 1283.0, 1284.0, 1061.0, 1192.0]}], {"barmode": "stack"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+</div>
+
+</div>
+
+</div>
+</div>
+
 </div>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="prompt input_prompt">
@@ -12626,7 +12831,10 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Time-of-first-and-last-commit-for-each-contributor">Time of first and last commit for each contributor<a class="anchor-link" href="#Time-of-first-and-last-commit-for-each-contributor">&#182;</a></h4>
+<h4 id="Time-of-first-and-last-commit-for-each-contributor">Time of first and last commit for each contributor<a class="anchor-link" href="#Time-of-first-and-last-commit-for-each-contributor">&#182;</a></h4><p><strong>TODO</strong> : provide plots similar to:
+Attracted developers: <a href="https://analytics.mozilla.community:443/goto/1be7d078d3dda22bf2ed097d8e465fb9">https://analytics.mozilla.community:443/goto/1be7d078d3dda22bf2ed097d8e465fb9</a>
+Last commit developers: <a href="https://analytics.mozilla.community:443/goto/647ec69fc6b9d163827aa281ed3bee61">https://analytics.mozilla.community:443/goto/647ec69fc6b9d163827aa281ed3bee61</a></p>
+
 </div>
 </div>
 </div>
@@ -12644,7 +12852,8 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Contributors-by-time-zone-(when-possible)">Contributors by time zone (when possible)<a class="anchor-link" href="#Contributors-by-time-zone-(when-possible)">&#182;</a></h4>
+<h4 id="Contributors-by-time-zone-(when-possible)">Contributors by time zone (when possible)<a class="anchor-link" href="#Contributors-by-time-zone-(when-possible)">&#182;</a></h4><p><a href="https://analytics.mozilla.community:443/goto/9e930eefe59a7c90331d922887b2aee6">https://analytics.mozilla.community:443/goto/9e930eefe59a7c90331d922887b2aee6</a></p>
+
 </div>
 </div>
 </div>
