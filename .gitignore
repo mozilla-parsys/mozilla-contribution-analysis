@@ -89,4 +89,4 @@ ENV/
 .ropeproject
 
 # ES settings
-.settings
+.settings*
