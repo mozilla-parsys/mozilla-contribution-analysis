@@ -11791,7 +11791,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span>
@@ -11812,7 +11812,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">create_search</span><span class="p">(</span><span class="n">source</span><span class="p">):</span>
@@ -11830,7 +11830,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">stack_by</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">group_column</span><span class="p">,</span> <span class="n">time_column</span><span class="p">,</span> <span class="n">value_column</span><span class="p">,</span> <span class="n">group_field</span><span class="p">,</span> <span class="n">time_field</span><span class="p">,</span> <span class="n">value_field</span><span class="p">):</span>
@@ -11852,7 +11852,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[17]:</div>
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">onion</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">bucket_column</span><span class="p">,</span> <span class="n">time_column</span><span class="p">,</span> <span class="n">value_column</span><span class="p">):</span>
@@ -11910,7 +11910,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[32]:</div>
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">print_grouped_bar</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">x_column</span><span class="p">,</span> <span class="n">value_columns</span><span class="p">,</span> <span class="n">title</span><span class="p">):</span>
@@ -11945,20 +11945,27 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Metrics">Metrics<a class="anchor-link" href="#Metrics">&#182;</a></h1><h2 id="Groups-of-contributors,-by-level-of-activity-(core,-regular,-casual)">Groups of contributors, by level of activity (core, regular, casual)<a class="anchor-link" href="#Groups-of-contributors,-by-level-of-activity-(core,-regular,-casual)">&#182;</a></h2>
+<h1 id="Metrics">Metrics<a class="anchor-link" href="#Metrics">&#182;</a></h1><h2 id="Groups-of-contributors,-by-level-of-activity:-core,-regular,-casual">Groups of contributors, by level of activity: core, regular, casual<a class="anchor-link" href="#Groups-of-contributors,-by-level-of-activity:-core,-regular,-casual">&#182;</a></h2><p>Following table and chart shows number of contributors in three groups:</p>
+<ul>
+<li>Core: minimum number of authors who made 80% of contributions.</li>
+<li>Regular: minimum number of authors who made between 80% and 95% of contributions.</li>
+<li>Casual: the rest of contributors, who made the last 5% of contributions.</li>
+</ul>
+<p>Looking at their evolution through time we can see the structure of a community at some point and its evolution.</p>
+
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[18]:</div>
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">Search</span><span class="p">(</span><span class="n">using</span><span class="o">=</span><span class="n">es_conn</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
 
 <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;range&#39;</span><span class="p">,</span> <span class="n">grimoire_creation_date</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;gt&#39;</span><span class="p">:</span> <span class="s1">&#39;now/M-2y&#39;</span><span class="p">,</span> <span class="s1">&#39;lt&#39;</span><span class="p">:</span> <span class="s1">&#39;now/M&#39;</span><span class="p">})</span>
-<span class="c1"># Unique count of Commits by Project (max 100 projects)</span>
-<span class="n">s</span><span class="o">.</span><span class="n">aggs</span><span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;authors&#39;</span><span class="p">,</span> <span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_uuid&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>\
+<span class="c1"># Unique count of Commits by Authors</span>
+<span class="n">s</span><span class="o">.</span><span class="n">aggs</span><span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;authors&#39;</span><span class="p">,</span> <span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_uuid&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span>\
     <span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;date_histogram&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;grimoire_creation_date&#39;</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="s1">&#39;quarter&#39;</span><span class="p">)</span>\
     <span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s1">&#39;commits&#39;</span><span class="p">,</span> <span class="s1">&#39;cardinality&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;hash&#39;</span><span class="p">,</span> <span class="n">precision_threshold</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
@@ -11981,7 +11988,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[18]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[9]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 <div>
@@ -12000,50 +12007,74 @@ div#notebook {
     <tr>
       <th>0</th>
       <td>2015-04-01T00:00:00.000Z</td>
-      <td>164.0</td>
-      <td>154.0</td>
-      <td>270.0</td>
+      <td>246.0</td>
+      <td>300.0</td>
+      <td>548.0</td>
       <td>2015Q2</td>
     </tr>
     <tr>
       <th>1</th>
       <td>2015-07-01T00:00:00.000Z</td>
-      <td>154.0</td>
-      <td>160.0</td>
-      <td>405.0</td>
+      <td>300.0</td>
+      <td>369.0</td>
+      <td>1206.0</td>
       <td>2015Q3</td>
     </tr>
     <tr>
       <th>2</th>
       <td>2015-10-01T00:00:00.000Z</td>
-      <td>157.0</td>
-      <td>165.0</td>
-      <td>436.0</td>
+      <td>282.0</td>
+      <td>428.0</td>
+      <td>1525.0</td>
       <td>2015Q4</td>
     </tr>
     <tr>
       <th>3</th>
       <td>2016-01-01T00:00:00.000Z</td>
-      <td>186.0</td>
-      <td>187.0</td>
-      <td>461.0</td>
+      <td>321.0</td>
+      <td>459.0</td>
+      <td>1626.0</td>
       <td>2016Q1</td>
     </tr>
     <tr>
       <th>4</th>
       <td>2016-04-01T00:00:00.000Z</td>
-      <td>198.0</td>
-      <td>190.0</td>
-      <td>395.0</td>
+      <td>330.0</td>
+      <td>422.0</td>
+      <td>1548.0</td>
       <td>2016Q2</td>
     </tr>
     <tr>
       <th>5</th>
       <td>2016-07-01T00:00:00.000Z</td>
-      <td>172.0</td>
-      <td>158.0</td>
-      <td>255.0</td>
+      <td>337.0</td>
+      <td>428.0</td>
+      <td>1500.0</td>
       <td>2016Q3</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>2016-10-01T00:00:00.000Z</td>
+      <td>282.0</td>
+      <td>359.0</td>
+      <td>1296.0</td>
+      <td>2016Q4</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>2017-01-01T00:00:00.000Z</td>
+      <td>257.0</td>
+      <td>375.0</td>
+      <td>1190.0</td>
+      <td>2017Q1</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>2017-04-01T00:00:00.000Z</td>
+      <td>151.0</td>
+      <td>256.0</td>
+      <td>469.0</td>
+      <td>2017Q2</td>
     </tr>
   </tbody>
 </table>
@@ -12058,7 +12089,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[33]:</div>
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">print_grouped_bar</span><span class="p">(</span><span class="n">onion_df</span><span class="p">,</span> <span class="s1">&#39;Quarter&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;Core&#39;</span><span class="p">,</span> <span class="s1">&#39;Regular&#39;</span><span class="p">,</span> <span class="s1">&#39;Casual&#39;</span><span class="p">],</span> <span class="s1">&#39;Global Contribution Groups&#39;</span><span class="p">)</span>
@@ -12083,7 +12114,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="7a0c658d-f6c6-4c64-b663-00e2b0c74f65" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("7a0c658d-f6c6-4c64-b663-00e2b0c74f65", [{"type": "bar", "y": [96.0, 90.0, 90.0, 106.0, 111.0, 101.0], "x": ["2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3"], "name": "Core"}, {"type": "bar", "y": [107.0, 107.0, 124.0, 130.0, 140.0, 109.0], "x": ["2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3"], "name": "Regular"}, {"type": "bar", "y": [184.0, 294.0, 313.0, 341.0, 289.0, 179.0], "x": ["2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3"], "name": "Casual"}], {"barmode": "group", "title": "Global Contribution Groups"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="bfb5d5c9-385e-44d9-af09-e043ad2c46e3" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("bfb5d5c9-385e-44d9-af09-e043ad2c46e3", [{"x": ["2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4", "2017Q1", "2017Q2"], "y": [246.0, 300.0, 282.0, 321.0, 330.0, 337.0, 282.0, 257.0, 151.0], "name": "Core", "type": "bar"}, {"x": ["2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4", "2017Q1", "2017Q2"], "y": [300.0, 369.0, 428.0, 459.0, 422.0, 428.0, 359.0, 375.0, 256.0], "name": "Regular", "type": "bar"}, {"x": ["2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4", "2017Q1", "2017Q2"], "y": [548.0, 1206.0, 1525.0, 1626.0, 1548.0, 1500.0, 1296.0, 1190.0, 469.0], "name": "Casual", "type": "bar"}], {"title": "Global Contribution Groups", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
 </div>
 
 </div>
@@ -12103,7 +12134,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[26]:</div>
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">Search</span><span class="p">(</span><span class="n">using</span><span class="o">=</span><span class="n">es_conn</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
@@ -12112,12 +12143,12 @@ div#notebook {
 
 
 <span class="c1">### CHANGE THIS TO MOZILLA STAFF ONCE AWS ES IS READY AGAIN ######</span>
-<span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">author_org_name</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Independent&#39;</span><span class="p">])</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">author_org_name</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Mozilla Staff&#39;</span><span class="p">])</span>
 <span class="c1">##################################################################</span>
 
 
 <span class="c1"># Unique count of Commits by Project (max 100 projects)</span>
-<span class="n">s</span><span class="o">.</span><span class="n">aggs</span><span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;authors&#39;</span><span class="p">,</span> <span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_uuid&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>\
+<span class="n">s</span><span class="o">.</span><span class="n">aggs</span><span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;authors&#39;</span><span class="p">,</span> <span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_uuid&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span>\
     <span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;date_histogram&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;grimoire_creation_date&#39;</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="s1">&#39;quarter&#39;</span><span class="p">)</span>\
     <span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s1">&#39;commits&#39;</span><span class="p">,</span> <span class="s1">&#39;cardinality&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;hash&#39;</span><span class="p">,</span> <span class="n">precision_threshold</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
@@ -12141,7 +12172,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[26]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[11]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 <div>
@@ -12161,55 +12192,82 @@ div#notebook {
     <tr>
       <th>0</th>
       <td>2015-04-01T00:00:00.000Z</td>
-      <td>96.0</td>
-      <td>107.0</td>
-      <td>184.0</td>
+      <td>185.0</td>
+      <td>164.0</td>
+      <td>234.0</td>
       <td>2015Q2</td>
       <td>Mozilla Staff</td>
     </tr>
     <tr>
       <th>1</th>
       <td>2015-07-01T00:00:00.000Z</td>
-      <td>90.0</td>
-      <td>107.0</td>
-      <td>294.0</td>
+      <td>222.0</td>
+      <td>195.0</td>
+      <td>369.0</td>
       <td>2015Q3</td>
       <td>Mozilla Staff</td>
     </tr>
     <tr>
       <th>2</th>
       <td>2015-10-01T00:00:00.000Z</td>
-      <td>90.0</td>
-      <td>124.0</td>
-      <td>313.0</td>
+      <td>205.0</td>
+      <td>186.0</td>
+      <td>442.0</td>
       <td>2015Q4</td>
       <td>Mozilla Staff</td>
     </tr>
     <tr>
       <th>3</th>
       <td>2016-01-01T00:00:00.000Z</td>
-      <td>106.0</td>
-      <td>130.0</td>
-      <td>341.0</td>
+      <td>225.0</td>
+      <td>176.0</td>
+      <td>448.0</td>
       <td>2016Q1</td>
       <td>Mozilla Staff</td>
     </tr>
     <tr>
       <th>4</th>
       <td>2016-04-01T00:00:00.000Z</td>
-      <td>111.0</td>
-      <td>140.0</td>
-      <td>289.0</td>
+      <td>232.0</td>
+      <td>191.0</td>
+      <td>427.0</td>
       <td>2016Q2</td>
       <td>Mozilla Staff</td>
     </tr>
     <tr>
       <th>5</th>
       <td>2016-07-01T00:00:00.000Z</td>
-      <td>101.0</td>
-      <td>109.0</td>
-      <td>179.0</td>
+      <td>235.0</td>
+      <td>184.0</td>
+      <td>402.0</td>
       <td>2016Q3</td>
+      <td>Mozilla Staff</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>2016-10-01T00:00:00.000Z</td>
+      <td>216.0</td>
+      <td>175.0</td>
+      <td>348.0</td>
+      <td>2016Q4</td>
+      <td>Mozilla Staff</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>2017-01-01T00:00:00.000Z</td>
+      <td>190.0</td>
+      <td>174.0</td>
+      <td>318.0</td>
+      <td>2017Q1</td>
+      <td>Mozilla Staff</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>2017-04-01T00:00:00.000Z</td>
+      <td>108.0</td>
+      <td>119.0</td>
+      <td>196.0</td>
+      <td>2017Q2</td>
       <td>Mozilla Staff</td>
     </tr>
   </tbody>
@@ -12225,7 +12283,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[28]:</div>
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">Search</span><span class="p">(</span><span class="n">using</span><span class="o">=</span><span class="n">es_conn</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
@@ -12234,12 +12292,12 @@ div#notebook {
 
 
 <span class="c1">### CHANGE THIS TO MOZILLA STAFF ONCE AWS ES IS READY AGAIN ######</span>
-<span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">author_org_name</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Independent&#39;</span><span class="p">])</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">author_org_name</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Mozilla Staff&#39;</span><span class="p">])</span>
 <span class="c1">##################################################################</span>
 
 
 <span class="c1"># Unique count of Commits by Project (max 100 projects)</span>
-<span class="n">s</span><span class="o">.</span><span class="n">aggs</span><span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;authors&#39;</span><span class="p">,</span> <span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_uuid&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>\
+<span class="n">s</span><span class="o">.</span><span class="n">aggs</span><span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;authors&#39;</span><span class="p">,</span> <span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_uuid&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span>\
     <span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;date_histogram&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;grimoire_creation_date&#39;</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="s1">&#39;quarter&#39;</span><span class="p">)</span>\
     <span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s1">&#39;commits&#39;</span><span class="p">,</span> <span class="s1">&#39;cardinality&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;hash&#39;</span><span class="p">,</span> <span class="n">precision_threshold</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
@@ -12263,7 +12321,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[28]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[13]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 <div>
@@ -12283,55 +12341,82 @@ div#notebook {
     <tr>
       <th>0</th>
       <td>2015-04-01T00:00:00.000Z</td>
-      <td>73.0</td>
-      <td>52.0</td>
-      <td>76.0</td>
+      <td>75.0</td>
+      <td>204.0</td>
+      <td>232.0</td>
       <td>2015Q2</td>
       <td>Other</td>
     </tr>
     <tr>
       <th>1</th>
       <td>2015-07-01T00:00:00.000Z</td>
-      <td>66.0</td>
-      <td>58.0</td>
-      <td>104.0</td>
+      <td>107.0</td>
+      <td>329.0</td>
+      <td>653.0</td>
       <td>2015Q3</td>
       <td>Other</td>
     </tr>
     <tr>
       <th>2</th>
       <td>2015-10-01T00:00:00.000Z</td>
-      <td>69.0</td>
-      <td>52.0</td>
-      <td>110.0</td>
+      <td>120.0</td>
+      <td>410.0</td>
+      <td>872.0</td>
       <td>2015Q4</td>
       <td>Other</td>
     </tr>
     <tr>
       <th>3</th>
       <td>2016-01-01T00:00:00.000Z</td>
-      <td>81.0</td>
-      <td>67.0</td>
-      <td>109.0</td>
+      <td>166.0</td>
+      <td>461.0</td>
+      <td>930.0</td>
       <td>2016Q1</td>
       <td>Other</td>
     </tr>
     <tr>
       <th>4</th>
       <td>2016-04-01T00:00:00.000Z</td>
-      <td>90.0</td>
-      <td>59.0</td>
-      <td>94.0</td>
+      <td>140.0</td>
+      <td>399.0</td>
+      <td>911.0</td>
       <td>2016Q2</td>
       <td>Other</td>
     </tr>
     <tr>
       <th>5</th>
       <td>2016-07-01T00:00:00.000Z</td>
-      <td>72.0</td>
-      <td>51.0</td>
-      <td>73.0</td>
+      <td>140.0</td>
+      <td>409.0</td>
+      <td>895.0</td>
       <td>2016Q3</td>
+      <td>Other</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>2016-10-01T00:00:00.000Z</td>
+      <td>71.0</td>
+      <td>302.0</td>
+      <td>825.0</td>
+      <td>2016Q4</td>
+      <td>Other</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>2017-01-01T00:00:00.000Z</td>
+      <td>69.0</td>
+      <td>293.0</td>
+      <td>778.0</td>
+      <td>2017Q1</td>
+      <td>Other</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>2017-04-01T00:00:00.000Z</td>
+      <td>43.0</td>
+      <td>145.0</td>
+      <td>265.0</td>
+      <td>2017Q2</td>
       <td>Other</td>
     </tr>
   </tbody>
@@ -12347,7 +12432,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[34]:</div>
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">print_grouped_bar</span><span class="p">(</span><span class="n">moz_onion_df</span><span class="p">,</span> <span class="s1">&#39;Quarter&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;Core&#39;</span><span class="p">,</span> <span class="s1">&#39;Regular&#39;</span><span class="p">,</span> <span class="s1">&#39;Casual&#39;</span><span class="p">],</span> <span class="s1">&#39;Staff Contributors&#39;</span><span class="p">)</span>
@@ -12373,7 +12458,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="7185874c-b6ba-41db-a920-6f29986054eb" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("7185874c-b6ba-41db-a920-6f29986054eb", [{"type": "bar", "y": [96.0, 90.0, 90.0, 106.0, 111.0, 101.0], "x": ["2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3"], "name": "Core"}, {"type": "bar", "y": [107.0, 107.0, 124.0, 130.0, 140.0, 109.0], "x": ["2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3"], "name": "Regular"}, {"type": "bar", "y": [184.0, 294.0, 313.0, 341.0, 289.0, 179.0], "x": ["2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3"], "name": "Casual"}], {"barmode": "group", "title": "Staff Contributors"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="27717d3d-e7a9-4573-8b3e-6f89eff0a41a" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("27717d3d-e7a9-4573-8b3e-6f89eff0a41a", [{"x": ["2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4", "2017Q1", "2017Q2"], "y": [185.0, 222.0, 205.0, 225.0, 232.0, 235.0, 216.0, 190.0, 108.0], "name": "Core", "type": "bar"}, {"x": ["2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4", "2017Q1", "2017Q2"], "y": [164.0, 195.0, 186.0, 176.0, 191.0, 184.0, 175.0, 174.0, 119.0], "name": "Regular", "type": "bar"}, {"x": ["2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4", "2017Q1", "2017Q2"], "y": [234.0, 369.0, 442.0, 448.0, 427.0, 402.0, 348.0, 318.0, 196.0], "name": "Casual", "type": "bar"}], {"title": "Staff Contributors", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
 </div>
 
 </div>
@@ -12389,7 +12474,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="b4af2e0a-d4f3-431a-96e1-a324de57b217" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("b4af2e0a-d4f3-431a-96e1-a324de57b217", [{"type": "bar", "y": [73.0, 66.0, 69.0, 81.0, 90.0, 72.0], "x": ["2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3"], "name": "Core"}, {"type": "bar", "y": [52.0, 58.0, 52.0, 67.0, 59.0, 51.0], "x": ["2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3"], "name": "Regular"}, {"type": "bar", "y": [76.0, 104.0, 110.0, 109.0, 94.0, 73.0], "x": ["2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3"], "name": "Casual"}], {"barmode": "group", "title": "Other Contributors"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="9d60d79d-8a25-497d-95b6-da6eed76a67c" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("9d60d79d-8a25-497d-95b6-da6eed76a67c", [{"x": ["2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4", "2017Q1", "2017Q2"], "y": [75.0, 107.0, 120.0, 166.0, 140.0, 140.0, 71.0, 69.0, 43.0], "name": "Core", "type": "bar"}, {"x": ["2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4", "2017Q1", "2017Q2"], "y": [204.0, 329.0, 410.0, 461.0, 399.0, 409.0, 302.0, 293.0, 145.0], "name": "Regular", "type": "bar"}, {"x": ["2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4", "2017Q1", "2017Q2"], "y": [232.0, 653.0, 872.0, 930.0, 911.0, 895.0, 825.0, 778.0, 265.0], "name": "Casual", "type": "bar"}], {"title": "Other Contributors", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
 </div>
 
 </div>

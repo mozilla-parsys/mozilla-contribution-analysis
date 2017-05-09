@@ -22,7 +22,7 @@ def ESConnection():
     connection = "https://" + user + ":" + password + "@" + host + ":" + port + "/" + path
 
     es_read = Elasticsearch([connection], use_ssl=True, verity_certs=True, ca_cert=certifi.where(), scroll='300m',
-	timeout=100)
+	timeout=1000)
 
     return es_read
 
