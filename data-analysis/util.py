@@ -27,15 +27,17 @@ def ESConnection():
     return es_read
 
 
-def to_df_by_time(result, group_column, time_column, value_column, group_field, time_field, value_field):
+def to_df_by_time(result, group_column, time_column, value_column,subgroup_column,
+		 group_field, time_field, value_field, subgroup_field):
     """Creates a dataframe based on group and time values
     """
-    df = pandas.DataFrame(columns=[group_column, time_column, value_column])
+    df = pandas.DataFrame(columns=[group_column, time_column, value_column, subgroup_column])
 
     for time in result.to_dict()['aggregations'][time_field]['buckets']:
         for group in time[group_field]['buckets']:
-            df.loc[len(df)] = [group['key'], time['key_as_string'], group[value_field]['value']]
-    
+            for subgroup in group[subgroup_field]['buckets']:
+                df.loc[len(df)] = [group['key'], time['key_as_string'], subgroup[value_field]['value'], subgroup['key']]
+
     return df
 
 
