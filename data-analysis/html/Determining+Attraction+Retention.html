@@ -11757,7 +11757,7 @@ div#notebook {
 <p><strong>Questions</strong>:</p>
 <ul>
 <li>How many contributors are joining the community?</li>
-<li>How many contributos are no longer active (leaving) in the community?</li>
+<li>How many contributors are no longer active (leaving) in the community?</li>
 <li>How is the attraction / retention ratio, and the net gain of contributors, over time?</li>
 </ul>
 <p>To answer these questions, the following metrics can be used:</p>
@@ -13860,7 +13860,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">###</span>
@@ -13883,14 +13883,15 @@ div#notebook {
     <span class="c1"># Retrieve commits before given year</span>
     <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;range&#39;</span><span class="p">,</span> <span class="n">grimoire_creation_date</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;lte&#39;</span><span class="p">:</span> <span class="s1">&#39;now-&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;y/y&#39;</span><span class="p">})</span>
 
-    <span class="c1"># Bucketize by uuid and get first and last commit</span>
-    <span class="n">s</span><span class="o">.</span><span class="n">aggs</span><span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;date_histogram&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;grimoire_creation_date&#39;</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="s1">&#39;year&#39;</span><span class="p">)</span>\
+    <span class="c1"># Bucketize by time, uuid and organization, then count commits per year</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">aggs</span><span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;date_histogram&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;grimoire_creation_date&#39;</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="s1">&#39;year&#39;</span><span class="p">)</span> \
         <span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;authors&#39;</span><span class="p">,</span> <span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_uuid&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">100000</span><span class="p">,</span> <span class="n">min_doc_count</span><span class="o">=</span><span class="n">min_commits</span><span class="p">)</span> \
+        <span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;org&#39;</span><span class="p">,</span> <span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_org_name&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> \
         <span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s1">&#39;commits&#39;</span><span class="p">,</span> <span class="s1">&#39;cardinality&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;hash&#39;</span><span class="p">,</span> <span class="n">precision_threshold</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
 
     <span class="n">r</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
     <span class="c1"># In case you need to check response, uncomment line below</span>
-    <span class="c1">#print(len(r.to_dict()[&#39;aggregations&#39;][&#39;time&#39;][&#39;buckets&#39;]))</span>
+    <span class="c1">#print(r.to_dict()[&#39;aggregations&#39;][&#39;time&#39;][&#39;buckets&#39;])</span>
         
     <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
     
@@ -13904,7 +13905,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[15]:</div>
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">###</span>
@@ -13915,7 +13916,7 @@ div#notebook {
 <span class="n">year</span> <span class="o">=</span> <span class="mi">2017</span>
 
 <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
-    <span class="n">exp_df</span> <span class="o">=</span> <span class="n">ut</span><span class="o">.</span><span class="n">to_df_by_time</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s1">&#39;Author&#39;</span><span class="p">,</span> <span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;Commits&#39;</span><span class="p">,</span> <span class="s1">&#39;authors&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;commits&#39;</span><span class="p">)</span>
+    <span class="n">exp_df</span> <span class="o">=</span> <span class="n">ut</span><span class="o">.</span><span class="n">to_df_by_time</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s1">&#39;Author&#39;</span><span class="p">,</span> <span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;Commits&#39;</span><span class="p">,</span> <span class="s1">&#39;Org&#39;</span><span class="p">,</span> <span class="s1">&#39;authors&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;commits&#39;</span><span class="p">,</span> <span class="s1">&#39;org&#39;</span><span class="p">)</span>
     <span class="n">exp_df</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">exp_df</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">pandas</span><span class="o">.</span><span class="n">Period</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="s1">&#39;A&#39;</span><span class="p">)))</span>
     
     <span class="c1">## ACTIVE CONDITION</span>
@@ -13923,7 +13924,7 @@ div#notebook {
     <span class="n">exp_df</span> <span class="o">=</span> <span class="n">exp_df</span><span class="p">[</span><span class="n">exp_df</span><span class="p">[</span><span class="s1">&#39;Commits&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">12</span><span class="p">]</span>
     
     <span class="c1">## Group by author, get MAX YEAR and NUMBER OF ROWS FOR THE GIVEN AUTHOR</span>
-    <span class="n">exp_df</span> <span class="o">=</span> <span class="n">exp_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;Author&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s1">&#39;Time&#39;</span><span class="p">:</span> <span class="s1">&#39;max&#39;</span><span class="p">,</span> <span class="s1">&#39;Commits&#39;</span><span class="p">:</span> <span class="s1">&#39;count&#39;</span><span class="p">})</span>
+    <span class="n">exp_df</span> <span class="o">=</span> <span class="n">exp_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;Author&#39;</span><span class="p">,</span> <span class="s1">&#39;Org&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s1">&#39;Time&#39;</span><span class="p">:</span> <span class="s1">&#39;max&#39;</span><span class="p">,</span> <span class="s1">&#39;Commits&#39;</span><span class="p">:</span> <span class="s1">&#39;count&#39;</span><span class="p">})</span>
     <span class="c1">## Filter those whose last active year is not the one we want</span>
     <span class="n">exp_df</span> <span class="o">=</span> <span class="n">exp_df</span><span class="p">[</span><span class="n">exp_df</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">year</span><span class="p">)]</span>
     
@@ -13947,658 +13948,658 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[15]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[9]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>[                                          exp last_active
- Author                                                   
- 000063c4e47e93ab3b30607680609e4d2500ce5d    4        2017
- 002893ffe1425c220756f8ba4c78e1e3bb0be50f    7        2017
- 00834d313bfc6fc60be1631bcc57b2c05ee2e0e3    9        2017
- 00846eff46b051d92317fc74e54041c6fdccd7cf   10        2017
- 00a40f9e9e7f7633ddab8291a99e1e487f88481c    3        2017
- 00b934012989b386ac9efc706dbc28cd6be173c6    2        2017
- 00d00a6e7530f1ccac19b98727f25b6528ed9fe3    1        2017
- 00da6ede3bff8db21a33473d7e552b76f50757eb    5        2017
- 00ed7b25063cf90c8bdeb9d45d37b73ba2317f96    6        2017
- 01307140d33369746c5013f45295092f8752d378    2        2017
- 013bbdb9412b88db677df21347e032c57b099d97    3        2017
- 016a5f2ec7191e74e984c71787b2b292d89543a1    4        2017
- 0183bd06d487bf71fd39a568ae892e3ec3079d82    5        2017
- 019ee580517ec3e8eb2c90ad0e3b2d749e9f0359    9        2017
- 01b36f5096db2e9bd47f3c2817644dec9e7dff17    8        2017
- 01d6f58dc8a5f572206162fda0d2ce132f47abcd    5        2017
- 01ed0a06c501f2d2a742a3c1784e95a2f6b18f81    4        2017
- 01f1000b22e6eaffaa64485433f92536f1b18e61    7        2017
- 01f34ad3deb857432c09281f062c4d9d7d9b70d0    7        2017
- 0228924e0c102d0eff2764ddf9891ffa168ce3da    2        2017
- 022ca58ad3637ab6a3023260dbb86b083dd2b5e8    6        2017
- 0252283062db18639ab5829674ecf042b723f47d    6        2017
- 0257e946520d0e889519cb1a757006efc6202ca9    2        2017
- 026dadb4b4a80d0784bc5dd83ba8416c9df67bef   11        2017
- 02872b802fa8e325403cf28ff1e8948388fe21d8    8        2017
- 02883a798795129e8b7a314b8435ca30d690105c    9        2017
- 02c1ff8e379e6d8417ef42f9011de68aff6cc3e2    2        2017
- 02c80b820108371e66ae5d904ce2371ef1190933   11        2017
- 02d344e7f70c10c9c47de6452e12eba9f38dcc08    1        2017
- 02d8d3650614834265cf356f6cb2b2238fe06861    7        2017
- ...                                       ...         ...
- ced64eadef2fd7f8bb1521c062be25eb8d57f032    3        2017
- cf8ac598bb9b68092e3a2e85fde3ec53637e6a94    1        2017
- d379f69c6757993e3ab91ade20316b20677cbc4a    4        2017
- d4106ca7c539ace6af9395303c348658e9ff0499    7        2017
- d6c08acba42290b83856807c0bb33f4cbd5bbb01    6        2017
- d7ccea4108e3b4d7eb751b9e6c576cad82a34818    1        2017
- dacfb0c2053d1e7807f37d530d22158ef306892b    3        2017
- dd661cf6645e223acfd2b9c6c427f80c49133e4d    2        2017
- de441866e809239796fe3bf70acb6e32d0e6a016    3        2017
- e0bbaa0dedd43a71b2b7a73983e255e6f8957801    1        2017
- e0c95e5d83fc5a9b464bf4dda46d2466258ff2e8    1        2017
- e1486ff2023c2195fc83ae27be7c817a7b68d3d2   10        2017
- e24d4dbe461ea5d94e60cede064ebd6bb5f29f05    4        2017
- e428976d8b91c3e9d2d100c6c810ea5823804721    3        2017
- e4fa12991b2903fc6118575c780c17336dbd37e5    1        2017
- e6cd4e7409dda51446818bc3f1ead66afe20129e    1        2017
- e85d4796c2abbfb42a39be8e4ae3e847994719fd    8        2017
- ea37355355042521daebc59c64204d9b2c26da55    2        2017
- ea79788927d8c92f9c215c3e36a440828bad89d6    2        2017
- ea7b2e68a84cbc87120e108283a6b5fd9ec6365a    2        2017
- ed3e484bfd090fb6acee630f393ce44829bb0067    1        2017
- ef049551e09b328e219b944d4ff90c907057036a    2        2017
- ef76b3dd54f25216c5dae4272b52352532358547    1        2017
- f2504690438d722b236d1200ddf442deda4034f3    3        2017
- f5194760b3c69840a1a6f330f0f608943bf3ccbb    5        2017
- f8070473acf5249606c1f95b013b3feea810c7cb    4        2017
- f8313c3cbb018a0d8b5312cabdb814815af36c6c    2        2017
- f858b979095ae1941d83530825f62108485e9b87    1        2017
- fdf41c92890261fb8ffc05b41f5ddd0df07f11e0    2        2017
- fe31b9d47f52171b44106ebb18e176117bd2a188    6        2017
+<pre>[                                                        exp last_active
+ Author                                   Org                           
+ 000063c4e47e93ab3b30607680609e4d2500ce5d Mozilla Staff    4        2017
+ 002893ffe1425c220756f8ba4c78e1e3bb0be50f Mozilla Staff    7        2017
+ 00834d313bfc6fc60be1631bcc57b2c05ee2e0e3 Mozilla Staff    9        2017
+ 00846eff46b051d92317fc74e54041c6fdccd7cf Mozilla Staff   10        2017
+ 00a40f9e9e7f7633ddab8291a99e1e487f88481c Community        3        2017
+ 00b934012989b386ac9efc706dbc28cd6be173c6 Mozilla Staff    2        2017
+ 00d00a6e7530f1ccac19b98727f25b6528ed9fe3 Community        1        2017
+ 00da6ede3bff8db21a33473d7e552b76f50757eb Mozilla Staff    5        2017
+ 00ed7b25063cf90c8bdeb9d45d37b73ba2317f96 Mozilla Staff    6        2017
+ 01307140d33369746c5013f45295092f8752d378 Community        2        2017
+ 013bbdb9412b88db677df21347e032c57b099d97 Community        3        2017
+ 016a5f2ec7191e74e984c71787b2b292d89543a1 Community        4        2017
+ 0183bd06d487bf71fd39a568ae892e3ec3079d82 Mozilla Staff    5        2017
+ 019ee580517ec3e8eb2c90ad0e3b2d749e9f0359 Mozilla Staff    9        2017
+ 01b36f5096db2e9bd47f3c2817644dec9e7dff17 Mozilla Staff    8        2017
+ 01d6f58dc8a5f572206162fda0d2ce132f47abcd Mozilla Staff    5        2017
+ 01ed0a06c501f2d2a742a3c1784e95a2f6b18f81 Mozilla Staff    4        2017
+ 01f1000b22e6eaffaa64485433f92536f1b18e61 Mozilla Staff    7        2017
+ 01f34ad3deb857432c09281f062c4d9d7d9b70d0 Mozilla Staff    7        2017
+ 0228924e0c102d0eff2764ddf9891ffa168ce3da Mozilla Staff    2        2017
+ 022ca58ad3637ab6a3023260dbb86b083dd2b5e8 Mozilla Staff    6        2017
+ 0252283062db18639ab5829674ecf042b723f47d Mozilla Staff    6        2017
+ 0257e946520d0e889519cb1a757006efc6202ca9 Community        2        2017
+ 026dadb4b4a80d0784bc5dd83ba8416c9df67bef Mozilla Staff   11        2017
+ 02872b802fa8e325403cf28ff1e8948388fe21d8 Mozilla Staff    8        2017
+ 02883a798795129e8b7a314b8435ca30d690105c Mozilla Staff    9        2017
+ 02c1ff8e379e6d8417ef42f9011de68aff6cc3e2 Mozilla Staff    2        2017
+ 02c80b820108371e66ae5d904ce2371ef1190933 Mozilla Staff   11        2017
+ 02d344e7f70c10c9c47de6452e12eba9f38dcc08 Mozilla Staff    1        2017
+ 02d8d3650614834265cf356f6cb2b2238fe06861 Mozilla Staff    7        2017
+ ...                                                     ...         ...
+ ced64eadef2fd7f8bb1521c062be25eb8d57f032 Community        3        2017
+ cf8ac598bb9b68092e3a2e85fde3ec53637e6a94 Community        1        2017
+ d379f69c6757993e3ab91ade20316b20677cbc4a Community        4        2017
+ d4106ca7c539ace6af9395303c348658e9ff0499 Mozilla Staff    7        2017
+ d6c08acba42290b83856807c0bb33f4cbd5bbb01 Mozilla Staff    6        2017
+ d7ccea4108e3b4d7eb751b9e6c576cad82a34818 Community        1        2017
+ dacfb0c2053d1e7807f37d530d22158ef306892b Mozilla Staff    3        2017
+ dd661cf6645e223acfd2b9c6c427f80c49133e4d Mozilla Staff    2        2017
+ de441866e809239796fe3bf70acb6e32d0e6a016 Mozilla Staff    3        2017
+ e0bbaa0dedd43a71b2b7a73983e255e6f8957801 Community        1        2017
+ e0c95e5d83fc5a9b464bf4dda46d2466258ff2e8 Community        1        2017
+ e1486ff2023c2195fc83ae27be7c817a7b68d3d2 Mozilla Staff   10        2017
+ e24d4dbe461ea5d94e60cede064ebd6bb5f29f05 Mozilla Staff    4        2017
+ e428976d8b91c3e9d2d100c6c810ea5823804721 Community        3        2017
+ e4fa12991b2903fc6118575c780c17336dbd37e5 Community        1        2017
+ e6cd4e7409dda51446818bc3f1ead66afe20129e Community        1        2017
+ e85d4796c2abbfb42a39be8e4ae3e847994719fd Mozilla Staff    8        2017
+ ea37355355042521daebc59c64204d9b2c26da55 Mozilla Staff    2        2017
+ ea79788927d8c92f9c215c3e36a440828bad89d6 Community        2        2017
+ ea7b2e68a84cbc87120e108283a6b5fd9ec6365a Mozilla Staff    2        2017
+ ed3e484bfd090fb6acee630f393ce44829bb0067 Community        1        2017
+ ef049551e09b328e219b944d4ff90c907057036a Mozilla Staff    2        2017
+ ef76b3dd54f25216c5dae4272b52352532358547 Community        1        2017
+ f2504690438d722b236d1200ddf442deda4034f3 Community        3        2017
+ f5194760b3c69840a1a6f330f0f608943bf3ccbb Community        5        2017
+ f8070473acf5249606c1f95b013b3feea810c7cb Community        4        2017
+ f8313c3cbb018a0d8b5312cabdb814815af36c6c Mozilla Staff    2        2017
+ f858b979095ae1941d83530825f62108485e9b87 Community        1        2017
+ fdf41c92890261fb8ffc05b41f5ddd0df07f11e0 Community        2        2017
+ fe31b9d47f52171b44106ebb18e176117bd2a188 Mozilla Staff    6        2017
  
  [601 rows x 2 columns],
-                                           exp last_active
- Author                                                   
- 000063c4e47e93ab3b30607680609e4d2500ce5d    3        2016
- 0002c6a09a45af6481c35e29c0ed7f3bdbecb3b8    1        2016
- 000336e205e3f5e2daa6e7a0b03e612b3b2b02d3    3        2016
- 0014e7cebbe8ef11dab9eeb5f2111e01d9eea378    6        2016
- 002893ffe1425c220756f8ba4c78e1e3bb0be50f    6        2016
- 0043f3e1632e14bb05873fc981efa44057a38652    1        2016
- 006fee3e0de309ff1e3e89c24f5e7032163c49c5    5        2016
- 0077ed8ce0df63bf273d022edae59fc2664972dc    1        2016
- 00834d313bfc6fc60be1631bcc57b2c05ee2e0e3    8        2016
- 00846eff46b051d92317fc74e54041c6fdccd7cf    9        2016
- 00a40f9e9e7f7633ddab8291a99e1e487f88481c    2        2016
- 00b934012989b386ac9efc706dbc28cd6be173c6    1        2016
- 00da6ede3bff8db21a33473d7e552b76f50757eb    4        2016
- 00ed7b25063cf90c8bdeb9d45d37b73ba2317f96    5        2016
- 01081562f7dd988d4759a2e1e9881d5f18c02d8c    6        2016
- 010d5b9a1a420396883aeaec331740086df7b9e3    1        2016
- 0113220b14954de311e9d99f69338f0272c50dc7    5        2016
- 012f9fe0064209c2affd5810083edccc723b32a9   10        2016
- 013424615bc067df0dd822f46954afcb050cf006    1        2016
- 013bbdb9412b88db677df21347e032c57b099d97    2        2016
- 016a5f2ec7191e74e984c71787b2b292d89543a1    3        2016
- 0183bd06d487bf71fd39a568ae892e3ec3079d82    4        2016
- 019ee580517ec3e8eb2c90ad0e3b2d749e9f0359    8        2016
- 01a0ffd68e3b0ac6359b920e733043b6be0dba12    6        2016
- 01b36f5096db2e9bd47f3c2817644dec9e7dff17    7        2016
- 01d087191bbd3247ba51858aa3369a617859433d    1        2016
- 01d6f58dc8a5f572206162fda0d2ce132f47abcd    4        2016
- 01ed0a06c501f2d2a742a3c1784e95a2f6b18f81    3        2016
- 01f1000b22e6eaffaa64485433f92536f1b18e61    6        2016
- 01f34ad3deb857432c09281f062c4d9d7d9b70d0    6        2016
- ...                                       ...         ...
- e88213cbf32a2a80a3e74609fd177ef70d5b6664    1        2016
- e885659e1ba02886b3188babaa0f478c85769f68    2        2016
- e92e52e075460e04eb4c0ca13a461d0641f214f2    1        2016
- e9498580e6c585a61241d0a362e409d24b8dec6a    1        2016
- e97cbc623155363f66a63083aa143e94e8be8053    1        2016
- ea37355355042521daebc59c64204d9b2c26da55    1        2016
- ea79788927d8c92f9c215c3e36a440828bad89d6    1        2016
- ea7b2e68a84cbc87120e108283a6b5fd9ec6365a    1        2016
- eaa485813108596dea731a199586a1f0951d96fb    1        2016
- eb6b80e564a38022f63806d896b97eced3befa48    1        2016
- ec53ad67f5b23f28cb0c2f2284041a826aba9c05    6        2016
- ef049551e09b328e219b944d4ff90c907057036a    1        2016
- ef7476ee05d4459d07e00d41e0ec4f024bbe34ad    1        2016
- f04c2cdd740f316ee45d3f9537b149ad789fdd28    2        2016
- f2504690438d722b236d1200ddf442deda4034f3    2        2016
- f5194760b3c69840a1a6f330f0f608943bf3ccbb    4        2016
- f554bda8bf16d35daf7a6253a77fff4bb169dab8    3        2016
- f60fde2474946baf99221f9c008948eaf2399c71    2        2016
- f7ccf0fb10375392457da74830a7d06dfeedcae4    1        2016
- f802c1a228179da47a4066d08d428f47644e6c53    8        2016
- f8070473acf5249606c1f95b013b3feea810c7cb    3        2016
- f8313c3cbb018a0d8b5312cabdb814815af36c6c    1        2016
- f88a8fed519b5f1f1f181d01244628ada78452e6    1        2016
- f922e9a6575ce81d0fd700777717c2d97d0efc45    1        2016
- f9f5dcda9670edf0a434b5610fc0ff1fecb6b5ed    1        2016
- fa92923efabac872fc2bfcdcc25c9330784dee90    2        2016
- faab0cc7448ca5de78076981eb5ecd37d7ec75fe    1        2016
- fcedd6dd863c0c32365cc1c9fc834e92873260b9    1        2016
- fdf41c92890261fb8ffc05b41f5ddd0df07f11e0    1        2016
- fe31b9d47f52171b44106ebb18e176117bd2a188    5        2016
+                                                         exp last_active
+ Author                                   Org                           
+ 000063c4e47e93ab3b30607680609e4d2500ce5d Mozilla Staff    3        2016
+ 0002c6a09a45af6481c35e29c0ed7f3bdbecb3b8 Community        1        2016
+ 000336e205e3f5e2daa6e7a0b03e612b3b2b02d3 Mozilla Staff    3        2016
+ 0014e7cebbe8ef11dab9eeb5f2111e01d9eea378 Mozilla Staff    6        2016
+ 002893ffe1425c220756f8ba4c78e1e3bb0be50f Mozilla Staff    6        2016
+ 0043f3e1632e14bb05873fc981efa44057a38652 Community        1        2016
+ 006fee3e0de309ff1e3e89c24f5e7032163c49c5 Mozilla Staff    5        2016
+ 0077ed8ce0df63bf273d022edae59fc2664972dc Mozilla Staff    1        2016
+ 00834d313bfc6fc60be1631bcc57b2c05ee2e0e3 Mozilla Staff    8        2016
+ 00846eff46b051d92317fc74e54041c6fdccd7cf Mozilla Staff    9        2016
+ 00a40f9e9e7f7633ddab8291a99e1e487f88481c Community        2        2016
+ 00b934012989b386ac9efc706dbc28cd6be173c6 Mozilla Staff    1        2016
+ 00da6ede3bff8db21a33473d7e552b76f50757eb Mozilla Staff    4        2016
+ 00ed7b25063cf90c8bdeb9d45d37b73ba2317f96 Mozilla Staff    5        2016
+ 01081562f7dd988d4759a2e1e9881d5f18c02d8c Mozilla Staff    6        2016
+ 010d5b9a1a420396883aeaec331740086df7b9e3 Mozilla Staff    1        2016
+ 0113220b14954de311e9d99f69338f0272c50dc7 Mozilla Staff    5        2016
+ 012f9fe0064209c2affd5810083edccc723b32a9 Mozilla Staff   10        2016
+ 013424615bc067df0dd822f46954afcb050cf006 Mozilla Staff    1        2016
+ 013bbdb9412b88db677df21347e032c57b099d97 Community        2        2016
+ 016a5f2ec7191e74e984c71787b2b292d89543a1 Community        3        2016
+ 0183bd06d487bf71fd39a568ae892e3ec3079d82 Mozilla Staff    4        2016
+ 019ee580517ec3e8eb2c90ad0e3b2d749e9f0359 Mozilla Staff    8        2016
+ 01a0ffd68e3b0ac6359b920e733043b6be0dba12 Community        6        2016
+ 01b36f5096db2e9bd47f3c2817644dec9e7dff17 Mozilla Staff    7        2016
+ 01d087191bbd3247ba51858aa3369a617859433d Mozilla Staff    1        2016
+ 01d6f58dc8a5f572206162fda0d2ce132f47abcd Mozilla Staff    4        2016
+ 01ed0a06c501f2d2a742a3c1784e95a2f6b18f81 Mozilla Staff    3        2016
+ 01f1000b22e6eaffaa64485433f92536f1b18e61 Mozilla Staff    6        2016
+ 01f34ad3deb857432c09281f062c4d9d7d9b70d0 Mozilla Staff    6        2016
+ ...                                                     ...         ...
+ e88213cbf32a2a80a3e74609fd177ef70d5b6664 Community        1        2016
+ e885659e1ba02886b3188babaa0f478c85769f68 Community        2        2016
+ e92e52e075460e04eb4c0ca13a461d0641f214f2 Community        1        2016
+ e9498580e6c585a61241d0a362e409d24b8dec6a Community        1        2016
+ e97cbc623155363f66a63083aa143e94e8be8053 Community        1        2016
+ ea37355355042521daebc59c64204d9b2c26da55 Mozilla Staff    1        2016
+ ea79788927d8c92f9c215c3e36a440828bad89d6 Community        1        2016
+ ea7b2e68a84cbc87120e108283a6b5fd9ec6365a Mozilla Staff    1        2016
+ eaa485813108596dea731a199586a1f0951d96fb Community        1        2016
+ eb6b80e564a38022f63806d896b97eced3befa48 Community        1        2016
+ ec53ad67f5b23f28cb0c2f2284041a826aba9c05 Community        6        2016
+ ef049551e09b328e219b944d4ff90c907057036a Mozilla Staff    1        2016
+ ef7476ee05d4459d07e00d41e0ec4f024bbe34ad Community        1        2016
+ f04c2cdd740f316ee45d3f9537b149ad789fdd28 Community        2        2016
+ f2504690438d722b236d1200ddf442deda4034f3 Community        2        2016
+ f5194760b3c69840a1a6f330f0f608943bf3ccbb Community        4        2016
+ f554bda8bf16d35daf7a6253a77fff4bb169dab8 Community        3        2016
+ f60fde2474946baf99221f9c008948eaf2399c71 Community        2        2016
+ f7ccf0fb10375392457da74830a7d06dfeedcae4 Community        1        2016
+ f802c1a228179da47a4066d08d428f47644e6c53 Community        8        2016
+ f8070473acf5249606c1f95b013b3feea810c7cb Community        3        2016
+ f8313c3cbb018a0d8b5312cabdb814815af36c6c Mozilla Staff    1        2016
+ f88a8fed519b5f1f1f181d01244628ada78452e6 Community        1        2016
+ f922e9a6575ce81d0fd700777717c2d97d0efc45 Community        1        2016
+ f9f5dcda9670edf0a434b5610fc0ff1fecb6b5ed Community        1        2016
+ fa92923efabac872fc2bfcdcc25c9330784dee90 Community        2        2016
+ faab0cc7448ca5de78076981eb5ecd37d7ec75fe Community        1        2016
+ fcedd6dd863c0c32365cc1c9fc834e92873260b9 Community        1        2016
+ fdf41c92890261fb8ffc05b41f5ddd0df07f11e0 Community        1        2016
+ fe31b9d47f52171b44106ebb18e176117bd2a188 Mozilla Staff    5        2016
  
  [1237 rows x 2 columns],
-                                           exp last_active
- Author                                                   
- 000063c4e47e93ab3b30607680609e4d2500ce5d    2        2015
- 000336e205e3f5e2daa6e7a0b03e612b3b2b02d3    2        2015
- 0014e7cebbe8ef11dab9eeb5f2111e01d9eea378    5        2015
- 002893ffe1425c220756f8ba4c78e1e3bb0be50f    5        2015
- 006fee3e0de309ff1e3e89c24f5e7032163c49c5    4        2015
- 00834d313bfc6fc60be1631bcc57b2c05ee2e0e3    7        2015
- 00846eff46b051d92317fc74e54041c6fdccd7cf    8        2015
- 00890cbe5133b67bfa1021485959d2b42c11f4f8    7        2015
- 00a40f9e9e7f7633ddab8291a99e1e487f88481c    1        2015
- 00da6ede3bff8db21a33473d7e552b76f50757eb    3        2015
- 00ed7b25063cf90c8bdeb9d45d37b73ba2317f96    4        2015
- 01081562f7dd988d4759a2e1e9881d5f18c02d8c    5        2015
- 0113220b14954de311e9d99f69338f0272c50dc7    4        2015
- 012f9fe0064209c2affd5810083edccc723b32a9    9        2015
- 0134e2ebeec7f2f1acf7c635b5b22e2c441bd3ec    6        2015
- 013bbdb9412b88db677df21347e032c57b099d97    1        2015
- 016a5f2ec7191e74e984c71787b2b292d89543a1    2        2015
- 0183bd06d487bf71fd39a568ae892e3ec3079d82    3        2015
- 019ee580517ec3e8eb2c90ad0e3b2d749e9f0359    7        2015
- 01a0ffd68e3b0ac6359b920e733043b6be0dba12    5        2015
- 01b36f5096db2e9bd47f3c2817644dec9e7dff17    6        2015
- 01d6f58dc8a5f572206162fda0d2ce132f47abcd    3        2015
- 01ed0a06c501f2d2a742a3c1784e95a2f6b18f81    2        2015
- 01f1000b22e6eaffaa64485433f92536f1b18e61    5        2015
- 01f34ad3deb857432c09281f062c4d9d7d9b70d0    5        2015
- 01f6b11405a898e4c79073f5a4505562bedc8e6b    4        2015
- 0202b7aab723eeeee876182492a008ec217648cc    5        2015
- 020e546c6211feb97546084461eeb7cdae47664a    8        2015
- 022ca58ad3637ab6a3023260dbb86b083dd2b5e8    4        2015
- 0252283062db18639ab5829674ecf042b723f47d    4        2015
- ...                                       ...         ...
- e885659e1ba02886b3188babaa0f478c85769f68    1        2015
- ea47b341f4f454fc6dc1f8bfc694cee0e48998bb    1        2015
- eae9586a58a9c9793d3738d1d3e096db178e7b39    1        2015
- ebc3918c9aa58903580c6207125d88e0f5004a26    2        2015
- ec2871cf9a129d903903661e6341b2ea36fbafcd    1        2015
- ec53ad67f5b23f28cb0c2f2284041a826aba9c05    5        2015
- ec6d0645af95e8e4eeb0b5fff0029884d08844b6    1        2015
- f04c2cdd740f316ee45d3f9537b149ad789fdd28    1        2015
- f05961e8a4a4837b003046c94b85e2f15e156bde    1        2015
- f0a7924c002325614f510297b1d15159e84cb570    1        2015
- f0c47bd9b42c9ddf9d0bca4ef49ef41b5a8e5455    1        2015
- f2504690438d722b236d1200ddf442deda4034f3    1        2015
- f366a5b9693b0592d36934a6d23b033ade3b0dd9    1        2015
- f5194760b3c69840a1a6f330f0f608943bf3ccbb    3        2015
- f554bda8bf16d35daf7a6253a77fff4bb169dab8    2        2015
- f60fde2474946baf99221f9c008948eaf2399c71    1        2015
- f6ebc9f8c697480e39a24c388239c8ec977bf94a    3        2015
- f704093012a769d1e753444fadf7f18c6a982746    1        2015
- f79dae145bb7db844d06f56202630ee98e4e2c7c    2        2015
- f802c1a228179da47a4066d08d428f47644e6c53    7        2015
- f8070473acf5249606c1f95b013b3feea810c7cb    2        2015
- f8bdb372b32076065652bc8027e8a66cf4301878    1        2015
- f8d45463d0e551e28f5d939eb1ae38053963cf60    1        2015
- f95c51b725fb353a8b4afca2b3f006b5c3192828    1        2015
- fa92923efabac872fc2bfcdcc25c9330784dee90    1        2015
- fac79d13a2cc38e67b84e2da770fac80049b61bb    2        2015
- fb9c0cb9dc4ac86cab31409bf052cc4b2a2d7d77    1        2015
- fdbf3cb3c924a576b931dd91a684729a165ece70    2        2015
- fe31b9d47f52171b44106ebb18e176117bd2a188    4        2015
- ffc37980365bfbbc76045725216a0a8e9812a869    1        2015
+                                                         exp last_active
+ Author                                   Org                           
+ 000063c4e47e93ab3b30607680609e4d2500ce5d Mozilla Staff    2        2015
+ 000336e205e3f5e2daa6e7a0b03e612b3b2b02d3 Mozilla Staff    2        2015
+ 0014e7cebbe8ef11dab9eeb5f2111e01d9eea378 Mozilla Staff    5        2015
+ 002893ffe1425c220756f8ba4c78e1e3bb0be50f Mozilla Staff    5        2015
+ 006fee3e0de309ff1e3e89c24f5e7032163c49c5 Mozilla Staff    4        2015
+ 00834d313bfc6fc60be1631bcc57b2c05ee2e0e3 Mozilla Staff    7        2015
+ 00846eff46b051d92317fc74e54041c6fdccd7cf Mozilla Staff    8        2015
+ 00890cbe5133b67bfa1021485959d2b42c11f4f8 Mozilla Staff    7        2015
+ 00a40f9e9e7f7633ddab8291a99e1e487f88481c Community        1        2015
+ 00da6ede3bff8db21a33473d7e552b76f50757eb Mozilla Staff    3        2015
+ 00ed7b25063cf90c8bdeb9d45d37b73ba2317f96 Mozilla Staff    4        2015
+ 01081562f7dd988d4759a2e1e9881d5f18c02d8c Mozilla Staff    5        2015
+ 0113220b14954de311e9d99f69338f0272c50dc7 Mozilla Staff    4        2015
+ 012f9fe0064209c2affd5810083edccc723b32a9 Mozilla Staff    9        2015
+ 0134e2ebeec7f2f1acf7c635b5b22e2c441bd3ec Mozilla Staff    6        2015
+ 013bbdb9412b88db677df21347e032c57b099d97 Community        1        2015
+ 016a5f2ec7191e74e984c71787b2b292d89543a1 Community        2        2015
+ 0183bd06d487bf71fd39a568ae892e3ec3079d82 Mozilla Staff    3        2015
+ 019ee580517ec3e8eb2c90ad0e3b2d749e9f0359 Mozilla Staff    7        2015
+ 01a0ffd68e3b0ac6359b920e733043b6be0dba12 Community        5        2015
+ 01b36f5096db2e9bd47f3c2817644dec9e7dff17 Mozilla Staff    6        2015
+ 01d6f58dc8a5f572206162fda0d2ce132f47abcd Mozilla Staff    3        2015
+ 01ed0a06c501f2d2a742a3c1784e95a2f6b18f81 Mozilla Staff    2        2015
+ 01f1000b22e6eaffaa64485433f92536f1b18e61 Mozilla Staff    5        2015
+ 01f34ad3deb857432c09281f062c4d9d7d9b70d0 Mozilla Staff    5        2015
+ 01f6b11405a898e4c79073f5a4505562bedc8e6b Mozilla Staff    4        2015
+ 0202b7aab723eeeee876182492a008ec217648cc Mozilla Staff    5        2015
+ 020e546c6211feb97546084461eeb7cdae47664a Mozilla Staff    8        2015
+ 022ca58ad3637ab6a3023260dbb86b083dd2b5e8 Mozilla Staff    4        2015
+ 0252283062db18639ab5829674ecf042b723f47d Mozilla Staff    4        2015
+ ...                                                     ...         ...
+ e885659e1ba02886b3188babaa0f478c85769f68 Community        1        2015
+ ea47b341f4f454fc6dc1f8bfc694cee0e48998bb Community        1        2015
+ eae9586a58a9c9793d3738d1d3e096db178e7b39 Community        1        2015
+ ebc3918c9aa58903580c6207125d88e0f5004a26 Community        2        2015
+ ec2871cf9a129d903903661e6341b2ea36fbafcd Community        1        2015
+ ec53ad67f5b23f28cb0c2f2284041a826aba9c05 Community        5        2015
+ ec6d0645af95e8e4eeb0b5fff0029884d08844b6 Community        1        2015
+ f04c2cdd740f316ee45d3f9537b149ad789fdd28 Community        1        2015
+ f05961e8a4a4837b003046c94b85e2f15e156bde Community        1        2015
+ f0a7924c002325614f510297b1d15159e84cb570 Community        1        2015
+ f0c47bd9b42c9ddf9d0bca4ef49ef41b5a8e5455 Community        1        2015
+ f2504690438d722b236d1200ddf442deda4034f3 Community        1        2015
+ f366a5b9693b0592d36934a6d23b033ade3b0dd9 Community        1        2015
+ f5194760b3c69840a1a6f330f0f608943bf3ccbb Community        3        2015
+ f554bda8bf16d35daf7a6253a77fff4bb169dab8 Community        2        2015
+ f60fde2474946baf99221f9c008948eaf2399c71 Community        1        2015
+ f6ebc9f8c697480e39a24c388239c8ec977bf94a Mozilla Staff    3        2015
+ f704093012a769d1e753444fadf7f18c6a982746 Community        1        2015
+ f79dae145bb7db844d06f56202630ee98e4e2c7c Community        2        2015
+ f802c1a228179da47a4066d08d428f47644e6c53 Community        7        2015
+ f8070473acf5249606c1f95b013b3feea810c7cb Community        2        2015
+ f8bdb372b32076065652bc8027e8a66cf4301878 Community        1        2015
+ f8d45463d0e551e28f5d939eb1ae38053963cf60 Community        1        2015
+ f95c51b725fb353a8b4afca2b3f006b5c3192828 Community        1        2015
+ fa92923efabac872fc2bfcdcc25c9330784dee90 Community        1        2015
+ fac79d13a2cc38e67b84e2da770fac80049b61bb Community        2        2015
+ fb9c0cb9dc4ac86cab31409bf052cc4b2a2d7d77 Community        1        2015
+ fdbf3cb3c924a576b931dd91a684729a165ece70 Community        2        2015
+ fe31b9d47f52171b44106ebb18e176117bd2a188 Mozilla Staff    4        2015
+ ffc37980365bfbbc76045725216a0a8e9812a869 Community        1        2015
  
  [1228 rows x 2 columns],
-                                           exp last_active
- Author                                                   
- 000063c4e47e93ab3b30607680609e4d2500ce5d    1        2014
- 000336e205e3f5e2daa6e7a0b03e612b3b2b02d3    1        2014
- 000b0486e1fac53a6c55b0484bf905dc3bef4fdd    1        2014
- 0014e7cebbe8ef11dab9eeb5f2111e01d9eea378    4        2014
- 002893ffe1425c220756f8ba4c78e1e3bb0be50f    4        2014
- 004e177eeed820a5e1e534401984ddf9beb87124    2        2014
- 006fee3e0de309ff1e3e89c24f5e7032163c49c5    3        2014
- 00834d313bfc6fc60be1631bcc57b2c05ee2e0e3    6        2014
- 00846eff46b051d92317fc74e54041c6fdccd7cf    7        2014
- 00cc7763cfcebc7d4a96e734d86cbcf607b24f3c    1        2014
- 00da6ede3bff8db21a33473d7e552b76f50757eb    2        2014
- 00ed7b25063cf90c8bdeb9d45d37b73ba2317f96    3        2014
- 01081562f7dd988d4759a2e1e9881d5f18c02d8c    4        2014
- 0113220b14954de311e9d99f69338f0272c50dc7    3        2014
- 012f9fe0064209c2affd5810083edccc723b32a9    8        2014
- 01307140d33369746c5013f45295092f8752d378    1        2014
- 0132a781401c6360ffcb94afaa95516617bd57cf    1        2014
- 0134e2ebeec7f2f1acf7c635b5b22e2c441bd3ec    5        2014
- 016a5f2ec7191e74e984c71787b2b292d89543a1    1        2014
- 0183bd06d487bf71fd39a568ae892e3ec3079d82    2        2014
- 019ee580517ec3e8eb2c90ad0e3b2d749e9f0359    6        2014
- 01a0ffd68e3b0ac6359b920e733043b6be0dba12    4        2014
- 01b36f5096db2e9bd47f3c2817644dec9e7dff17    5        2014
- 01c371a26cf45dcfe508a10f25a365ac513d3b7f    1        2014
- 01ca76f54387ba2d6cd783641ceef8b65e45909b    1        2014
- 01d6f58dc8a5f572206162fda0d2ce132f47abcd    2        2014
- 01ed0a06c501f2d2a742a3c1784e95a2f6b18f81    1        2014
- 01f1000b22e6eaffaa64485433f92536f1b18e61    4        2014
- 01f34ad3deb857432c09281f062c4d9d7d9b70d0    4        2014
- 01f6b11405a898e4c79073f5a4505562bedc8e6b    3        2014
- ...                                       ...         ...
- e83b57753bb28478d622b4b3747de08ff258bd14    1        2014
- e85d4796c2abbfb42a39be8e4ae3e847994719fd    5        2014
- e9c6365891d01b92181e93a1447ab205f2f0a8b0    1        2014
- e9dd4c1c16e3b1bdb1f7149e52f8a90994c275d9    1        2014
- eb2e6a19ad569807d6480936753281d14a48b7db    1        2014
- eb875fd1476048e95e32813937ddcbbbf7e74b9e    1        2014
- ebc3918c9aa58903580c6207125d88e0f5004a26    1        2014
- eec6719e3393582ba03444f083350ddb1ae4cafe    1        2014
- f0fddbdff42b482b9e7af32cfb857cb77c6b266e    2        2014
- f2cb49add0aa9b512033cbfb1ef6893280281832    4        2014
- f42ff4794cb3fc2072adbf6244975e3655477bd2    1        2014
- f446edf7f1d25dbbf3d484000f99a5c62dab8b93    3        2014
- f5194760b3c69840a1a6f330f0f608943bf3ccbb    2        2014
- f554bda8bf16d35daf7a6253a77fff4bb169dab8    1        2014
- f61e6eab4132ca67dcecb3b0cac17c94eb9d7950    1        2014
- f6ebc9f8c697480e39a24c388239c8ec977bf94a    2        2014
- f72e2f897d208cd0e7e508442f774dd3bf68d945    1        2014
- f748fcce1c0a409e73cea35446160c5553a30cd8    3        2014
- f79dae145bb7db844d06f56202630ee98e4e2c7c    1        2014
- f802c1a228179da47a4066d08d428f47644e6c53    6        2014
- f8070473acf5249606c1f95b013b3feea810c7cb    1        2014
- f9e53aab8811404b02ac49fb6a281919031998e1    1        2014
- fa96ab73e0410aa25434e502c2f5a56a921bc7ef    1        2014
- fac79d13a2cc38e67b84e2da770fac80049b61bb    1        2014
- fc1202801ecba53ad5d579d55a2bef76bd2e713c    2        2014
- fc2a4fcaf521209fc4ca44b1b5547b5af86bab9d    1        2014
- fdbf3cb3c924a576b931dd91a684729a165ece70    1        2014
- fe1f17354c916011eb93fcacb5bdf48a92d89d69    5        2014
- fe31b9d47f52171b44106ebb18e176117bd2a188    3        2014
- ffa9fc7b3289712802bcaa7ad30bfa215ae2e475    1        2014
+                                                         exp last_active
+ Author                                   Org                           
+ 000063c4e47e93ab3b30607680609e4d2500ce5d Mozilla Staff    1        2014
+ 000336e205e3f5e2daa6e7a0b03e612b3b2b02d3 Mozilla Staff    1        2014
+ 000b0486e1fac53a6c55b0484bf905dc3bef4fdd Community        1        2014
+ 0014e7cebbe8ef11dab9eeb5f2111e01d9eea378 Mozilla Staff    4        2014
+ 002893ffe1425c220756f8ba4c78e1e3bb0be50f Mozilla Staff    4        2014
+ 004e177eeed820a5e1e534401984ddf9beb87124 Mozilla Staff    2        2014
+ 006fee3e0de309ff1e3e89c24f5e7032163c49c5 Mozilla Staff    3        2014
+ 00834d313bfc6fc60be1631bcc57b2c05ee2e0e3 Mozilla Staff    6        2014
+ 00846eff46b051d92317fc74e54041c6fdccd7cf Mozilla Staff    7        2014
+ 00cc7763cfcebc7d4a96e734d86cbcf607b24f3c Community        1        2014
+ 00da6ede3bff8db21a33473d7e552b76f50757eb Mozilla Staff    2        2014
+ 00ed7b25063cf90c8bdeb9d45d37b73ba2317f96 Mozilla Staff    3        2014
+ 01081562f7dd988d4759a2e1e9881d5f18c02d8c Mozilla Staff    4        2014
+ 0113220b14954de311e9d99f69338f0272c50dc7 Mozilla Staff    3        2014
+ 012f9fe0064209c2affd5810083edccc723b32a9 Mozilla Staff    8        2014
+ 01307140d33369746c5013f45295092f8752d378 Community        1        2014
+ 0132a781401c6360ffcb94afaa95516617bd57cf Community        1        2014
+ 0134e2ebeec7f2f1acf7c635b5b22e2c441bd3ec Mozilla Staff    5        2014
+ 016a5f2ec7191e74e984c71787b2b292d89543a1 Community        1        2014
+ 0183bd06d487bf71fd39a568ae892e3ec3079d82 Mozilla Staff    2        2014
+ 019ee580517ec3e8eb2c90ad0e3b2d749e9f0359 Mozilla Staff    6        2014
+ 01a0ffd68e3b0ac6359b920e733043b6be0dba12 Community        4        2014
+ 01b36f5096db2e9bd47f3c2817644dec9e7dff17 Mozilla Staff    5        2014
+ 01c371a26cf45dcfe508a10f25a365ac513d3b7f Mozilla Staff    1        2014
+ 01ca76f54387ba2d6cd783641ceef8b65e45909b Mozilla Staff    1        2014
+ 01d6f58dc8a5f572206162fda0d2ce132f47abcd Mozilla Staff    2        2014
+ 01ed0a06c501f2d2a742a3c1784e95a2f6b18f81 Mozilla Staff    1        2014
+ 01f1000b22e6eaffaa64485433f92536f1b18e61 Mozilla Staff    4        2014
+ 01f34ad3deb857432c09281f062c4d9d7d9b70d0 Mozilla Staff    4        2014
+ 01f6b11405a898e4c79073f5a4505562bedc8e6b Mozilla Staff    3        2014
+ ...                                                     ...         ...
+ e83b57753bb28478d622b4b3747de08ff258bd14 Mozilla Staff    1        2014
+ e85d4796c2abbfb42a39be8e4ae3e847994719fd Mozilla Staff    5        2014
+ e9c6365891d01b92181e93a1447ab205f2f0a8b0 Community        1        2014
+ e9dd4c1c16e3b1bdb1f7149e52f8a90994c275d9 Community        1        2014
+ eb2e6a19ad569807d6480936753281d14a48b7db Community        1        2014
+ eb875fd1476048e95e32813937ddcbbbf7e74b9e Community        1        2014
+ ebc3918c9aa58903580c6207125d88e0f5004a26 Community        1        2014
+ eec6719e3393582ba03444f083350ddb1ae4cafe Community        1        2014
+ f0fddbdff42b482b9e7af32cfb857cb77c6b266e Community        2        2014
+ f2cb49add0aa9b512033cbfb1ef6893280281832 Community        4        2014
+ f42ff4794cb3fc2072adbf6244975e3655477bd2 Community        1        2014
+ f446edf7f1d25dbbf3d484000f99a5c62dab8b93 Community        3        2014
+ f5194760b3c69840a1a6f330f0f608943bf3ccbb Community        2        2014
+ f554bda8bf16d35daf7a6253a77fff4bb169dab8 Community        1        2014
+ f61e6eab4132ca67dcecb3b0cac17c94eb9d7950 Community        1        2014
+ f6ebc9f8c697480e39a24c388239c8ec977bf94a Mozilla Staff    2        2014
+ f72e2f897d208cd0e7e508442f774dd3bf68d945 Community        1        2014
+ f748fcce1c0a409e73cea35446160c5553a30cd8 Community        3        2014
+ f79dae145bb7db844d06f56202630ee98e4e2c7c Community        1        2014
+ f802c1a228179da47a4066d08d428f47644e6c53 Community        6        2014
+ f8070473acf5249606c1f95b013b3feea810c7cb Community        1        2014
+ f9e53aab8811404b02ac49fb6a281919031998e1 Community        1        2014
+ fa96ab73e0410aa25434e502c2f5a56a921bc7ef Community        1        2014
+ fac79d13a2cc38e67b84e2da770fac80049b61bb Community        1        2014
+ fc1202801ecba53ad5d579d55a2bef76bd2e713c Community        2        2014
+ fc2a4fcaf521209fc4ca44b1b5547b5af86bab9d Community        1        2014
+ fdbf3cb3c924a576b931dd91a684729a165ece70 Community        1        2014
+ fe1f17354c916011eb93fcacb5bdf48a92d89d69 Mozilla Staff    5        2014
+ fe31b9d47f52171b44106ebb18e176117bd2a188 Mozilla Staff    3        2014
+ ffa9fc7b3289712802bcaa7ad30bfa215ae2e475 Community        1        2014
  
  [1197 rows x 2 columns],
-                                           exp last_active
- Author                                                   
- 0008be398d86323b7ead363c4bbc11ea13ec731f    2        2013
- 0014e7cebbe8ef11dab9eeb5f2111e01d9eea378    3        2013
- 002893ffe1425c220756f8ba4c78e1e3bb0be50f    3        2013
- 006fee3e0de309ff1e3e89c24f5e7032163c49c5    2        2013
- 00834d313bfc6fc60be1631bcc57b2c05ee2e0e3    5        2013
- 00846eff46b051d92317fc74e54041c6fdccd7cf    6        2013
- 00890cbe5133b67bfa1021485959d2b42c11f4f8    6        2013
- 00c1e252b234a2133dab43e15b35a6b93e257171    1        2013
- 00da6ede3bff8db21a33473d7e552b76f50757eb    1        2013
- 00e32ac2299ebf90ac6841cb01dad97768209dd9    1        2013
- 00ed7b25063cf90c8bdeb9d45d37b73ba2317f96    2        2013
- 01081562f7dd988d4759a2e1e9881d5f18c02d8c    3        2013
- 0113220b14954de311e9d99f69338f0272c50dc7    2        2013
- 012f9fe0064209c2affd5810083edccc723b32a9    7        2013
- 0134e2ebeec7f2f1acf7c635b5b22e2c441bd3ec    4        2013
- 016dd3752addfe79920fcaa2934d0961c510d116    3        2013
- 0170d5f0fceacd5683a9749a20e7234d0d58cb45    1        2013
- 0183bd06d487bf71fd39a568ae892e3ec3079d82    1        2013
- 019ee580517ec3e8eb2c90ad0e3b2d749e9f0359    5        2013
- 01a0ffd68e3b0ac6359b920e733043b6be0dba12    3        2013
- 01b36f5096db2e9bd47f3c2817644dec9e7dff17    4        2013
- 01d6f58dc8a5f572206162fda0d2ce132f47abcd    1        2013
- 01f1000b22e6eaffaa64485433f92536f1b18e61    3        2013
- 01f34ad3deb857432c09281f062c4d9d7d9b70d0    3        2013
- 01f6b11405a898e4c79073f5a4505562bedc8e6b    2        2013
- 0202b7aab723eeeee876182492a008ec217648cc    3        2013
- 020e546c6211feb97546084461eeb7cdae47664a    6        2013
- 022ca58ad3637ab6a3023260dbb86b083dd2b5e8    2        2013
- 0252283062db18639ab5829674ecf042b723f47d    2        2013
- 025a230fb21539cf723c7592bfe38b8627695784    2        2013
- ...                                       ...         ...
- e54cc15afd5245d872c78b4b23a15e66f68f312b    1        2013
- e663cd2c83c79695ef130cd3432897097b69f7b3    3        2013
- e7a5a14f8de50a17a46a98b84e38eaa3b498f0ca    2        2013
- e85d4796c2abbfb42a39be8e4ae3e847994719fd    4        2013
- e966b00aa43653eaaf80b0310465f012e8b7bf4e    1        2013
- eaeb146ef30844308ab428bc54091f1f5a1b2f8b    1        2013
- ec0475152b9e9e63d3870b5b039f9521fbfb6d04    1        2013
- ec5966e64600a10abac30c7eceab7310ead65421    1        2013
- ed7c19b919ccb9c22105fba73c5fd68eb11acc28    1        2013
- ef24eb95864e006986e60d4539fc8c6af1a16585    1        2013
- f0fddbdff42b482b9e7af32cfb857cb77c6b266e    1        2013
- f12765edc6d8ffa8abeda3aaa3d9978f4faf4f87    2        2013
- f2271370251341e4f599306d60f3939ff6c61dde    4        2013
- f24699f4553847607b851747594fdbf92e1c7a00    1        2013
- f2cb49add0aa9b512033cbfb1ef6893280281832    3        2013
- f3b6dc42d581f624de6f2934115fd9cfc507b686    1        2013
- f42cb8f0ef7a2bfdf2d476c3967e314b749d06c3    1        2013
- f446edf7f1d25dbbf3d484000f99a5c62dab8b93    2        2013
- f5194760b3c69840a1a6f330f0f608943bf3ccbb    1        2013
- f6ebc9f8c697480e39a24c388239c8ec977bf94a    1        2013
- f748fcce1c0a409e73cea35446160c5553a30cd8    2        2013
- f802c1a228179da47a4066d08d428f47644e6c53    5        2013
- f9da691990f12855cd5c5fd919fdccc4b3880c50    1        2013
- fc1202801ecba53ad5d579d55a2bef76bd2e713c    1        2013
- fc51fff5dc2d242a2783025c9b56e6acabe5b882    1        2013
- fd1b9ea92cb9187f4f9b07f92a3b33e095698dca    1        2013
- fe1f17354c916011eb93fcacb5bdf48a92d89d69    4        2013
- fe31b9d47f52171b44106ebb18e176117bd2a188    2        2013
- fec9a42db9f14de47be9f31294f28b42a1b839fb    1        2013
- ff0c6cd0df92b5090dfd08ba4b97746c23637214    1        2013
+                                                         exp last_active
+ Author                                   Org                           
+ 0008be398d86323b7ead363c4bbc11ea13ec731f Community        2        2013
+ 0014e7cebbe8ef11dab9eeb5f2111e01d9eea378 Mozilla Staff    3        2013
+ 002893ffe1425c220756f8ba4c78e1e3bb0be50f Mozilla Staff    3        2013
+ 006fee3e0de309ff1e3e89c24f5e7032163c49c5 Mozilla Staff    2        2013
+ 00834d313bfc6fc60be1631bcc57b2c05ee2e0e3 Mozilla Staff    5        2013
+ 00846eff46b051d92317fc74e54041c6fdccd7cf Mozilla Staff    6        2013
+ 00890cbe5133b67bfa1021485959d2b42c11f4f8 Mozilla Staff    6        2013
+ 00c1e252b234a2133dab43e15b35a6b93e257171 Community        1        2013
+ 00da6ede3bff8db21a33473d7e552b76f50757eb Mozilla Staff    1        2013
+ 00e32ac2299ebf90ac6841cb01dad97768209dd9 Mozilla Staff    1        2013
+ 00ed7b25063cf90c8bdeb9d45d37b73ba2317f96 Mozilla Staff    2        2013
+ 01081562f7dd988d4759a2e1e9881d5f18c02d8c Mozilla Staff    3        2013
+ 0113220b14954de311e9d99f69338f0272c50dc7 Mozilla Staff    2        2013
+ 012f9fe0064209c2affd5810083edccc723b32a9 Mozilla Staff    7        2013
+ 0134e2ebeec7f2f1acf7c635b5b22e2c441bd3ec Mozilla Staff    4        2013
+ 016dd3752addfe79920fcaa2934d0961c510d116 Mozilla Staff    3        2013
+ 0170d5f0fceacd5683a9749a20e7234d0d58cb45 Mozilla Staff    1        2013
+ 0183bd06d487bf71fd39a568ae892e3ec3079d82 Mozilla Staff    1        2013
+ 019ee580517ec3e8eb2c90ad0e3b2d749e9f0359 Mozilla Staff    5        2013
+ 01a0ffd68e3b0ac6359b920e733043b6be0dba12 Community        3        2013
+ 01b36f5096db2e9bd47f3c2817644dec9e7dff17 Mozilla Staff    4        2013
+ 01d6f58dc8a5f572206162fda0d2ce132f47abcd Mozilla Staff    1        2013
+ 01f1000b22e6eaffaa64485433f92536f1b18e61 Mozilla Staff    3        2013
+ 01f34ad3deb857432c09281f062c4d9d7d9b70d0 Mozilla Staff    3        2013
+ 01f6b11405a898e4c79073f5a4505562bedc8e6b Mozilla Staff    2        2013
+ 0202b7aab723eeeee876182492a008ec217648cc Mozilla Staff    3        2013
+ 020e546c6211feb97546084461eeb7cdae47664a Mozilla Staff    6        2013
+ 022ca58ad3637ab6a3023260dbb86b083dd2b5e8 Mozilla Staff    2        2013
+ 0252283062db18639ab5829674ecf042b723f47d Mozilla Staff    2        2013
+ 025a230fb21539cf723c7592bfe38b8627695784 Mozilla Staff    2        2013
+ ...                                                     ...         ...
+ e54cc15afd5245d872c78b4b23a15e66f68f312b Community        1        2013
+ e663cd2c83c79695ef130cd3432897097b69f7b3 Mozilla Staff    3        2013
+ e7a5a14f8de50a17a46a98b84e38eaa3b498f0ca Community        2        2013
+ e85d4796c2abbfb42a39be8e4ae3e847994719fd Mozilla Staff    4        2013
+ e966b00aa43653eaaf80b0310465f012e8b7bf4e Community        1        2013
+ eaeb146ef30844308ab428bc54091f1f5a1b2f8b Community        1        2013
+ ec0475152b9e9e63d3870b5b039f9521fbfb6d04 Community        1        2013
+ ec5966e64600a10abac30c7eceab7310ead65421 Community        1        2013
+ ed7c19b919ccb9c22105fba73c5fd68eb11acc28 Community        1        2013
+ ef24eb95864e006986e60d4539fc8c6af1a16585 Mozilla Staff    1        2013
+ f0fddbdff42b482b9e7af32cfb857cb77c6b266e Community        1        2013
+ f12765edc6d8ffa8abeda3aaa3d9978f4faf4f87 Community        2        2013
+ f2271370251341e4f599306d60f3939ff6c61dde Community        4        2013
+ f24699f4553847607b851747594fdbf92e1c7a00 Mozilla Staff    1        2013
+ f2cb49add0aa9b512033cbfb1ef6893280281832 Community        3        2013
+ f3b6dc42d581f624de6f2934115fd9cfc507b686 Community        1        2013
+ f42cb8f0ef7a2bfdf2d476c3967e314b749d06c3 Community        1        2013
+ f446edf7f1d25dbbf3d484000f99a5c62dab8b93 Community        2        2013
+ f5194760b3c69840a1a6f330f0f608943bf3ccbb Community        1        2013
+ f6ebc9f8c697480e39a24c388239c8ec977bf94a Mozilla Staff    1        2013
+ f748fcce1c0a409e73cea35446160c5553a30cd8 Community        2        2013
+ f802c1a228179da47a4066d08d428f47644e6c53 Community        5        2013
+ f9da691990f12855cd5c5fd919fdccc4b3880c50 Community        1        2013
+ fc1202801ecba53ad5d579d55a2bef76bd2e713c Community        1        2013
+ fc51fff5dc2d242a2783025c9b56e6acabe5b882 Mozilla Staff    1        2013
+ fd1b9ea92cb9187f4f9b07f92a3b33e095698dca Community        1        2013
+ fe1f17354c916011eb93fcacb5bdf48a92d89d69 Mozilla Staff    4        2013
+ fe31b9d47f52171b44106ebb18e176117bd2a188 Mozilla Staff    2        2013
+ fec9a42db9f14de47be9f31294f28b42a1b839fb Community        1        2013
+ ff0c6cd0df92b5090dfd08ba4b97746c23637214 Community        1        2013
  
  [1025 rows x 2 columns],
-                                           exp last_active
- Author                                                   
- 0008be398d86323b7ead363c4bbc11ea13ec731f    1        2012
- 0014e7cebbe8ef11dab9eeb5f2111e01d9eea378    2        2012
- 002893ffe1425c220756f8ba4c78e1e3bb0be50f    2        2012
- 004e177eeed820a5e1e534401984ddf9beb87124    1        2012
- 005adcf96e7f9f333e5ff413f7608784aefdacee    1        2012
- 006fee3e0de309ff1e3e89c24f5e7032163c49c5    1        2012
- 00834d313bfc6fc60be1631bcc57b2c05ee2e0e3    4        2012
- 00846eff46b051d92317fc74e54041c6fdccd7cf    5        2012
- 00890cbe5133b67bfa1021485959d2b42c11f4f8    5        2012
- 00a65e9f51147e4f416ded3f494dd4bfc0977979    2        2012
- 00b52ff65a87aab1c303af9b307281582ce91676    2        2012
- 00ed7b25063cf90c8bdeb9d45d37b73ba2317f96    1        2012
- 01081562f7dd988d4759a2e1e9881d5f18c02d8c    2        2012
- 0113220b14954de311e9d99f69338f0272c50dc7    1        2012
- 012f9fe0064209c2affd5810083edccc723b32a9    6        2012
- 0134e2ebeec7f2f1acf7c635b5b22e2c441bd3ec    3        2012
- 016dd3752addfe79920fcaa2934d0961c510d116    2        2012
- 017b7dd849bb5376199cc45e8058c4d31d12d916    2        2012
- 019ee580517ec3e8eb2c90ad0e3b2d749e9f0359    4        2012
- 01a768f3e7b52159192554887669e611abab085d    1        2012
- 01b36f5096db2e9bd47f3c2817644dec9e7dff17    3        2012
- 01f1000b22e6eaffaa64485433f92536f1b18e61    2        2012
- 01f34ad3deb857432c09281f062c4d9d7d9b70d0    2        2012
- 01f6b11405a898e4c79073f5a4505562bedc8e6b    1        2012
- 0202b7aab723eeeee876182492a008ec217648cc    2        2012
- 020e546c6211feb97546084461eeb7cdae47664a    5        2012
- 022ca58ad3637ab6a3023260dbb86b083dd2b5e8    1        2012
- 0252283062db18639ab5829674ecf042b723f47d    1        2012
- 025a230fb21539cf723c7592bfe38b8627695784    1        2012
- 026522d234b638f8e9f95eb901eef6d268198e4b    1        2012
- ...                                       ...         ...
- dcd489f55fe07dd1ee5529e8b5e442d35560bee2    2        2012
- dcf0ad7c7242ee8dec15eaf5fd8070f864070f98    1        2012
- dcfa4e4ec7f5941493e5ef16df2bb067dd0ad9f4    3        2012
- dd70bc888feec947a995798b2ab13f1eaa24c8b4    2        2012
- de3fc7ffb0e2b8f3b71fe42dbb92f837a1ce8d26    2        2012
- e1486ff2023c2195fc83ae27be7c817a7b68d3d2    5        2012
- e205a50e339ef5c2ecbecccc4c9a9e7952c62766    2        2012
- e356029152a72b090c8411100b11c7307cd1541d    1        2012
- e3dd80ab4851934bb436d665ed43718273bff73d    1        2012
- e663cd2c83c79695ef130cd3432897097b69f7b3    2        2012
- e6a2f90a718952d605111ef07b92529f58b8d1f6    1        2012
- e7a5a14f8de50a17a46a98b84e38eaa3b498f0ca    1        2012
- e85d4796c2abbfb42a39be8e4ae3e847994719fd    3        2012
- ec53ad67f5b23f28cb0c2f2284041a826aba9c05    4        2012
- ecc0aedea8fc75d82d8f3dbd2c424215ef1d558c    1        2012
- ed545a1c9d4ba5a81431daaf6ea715a1335320e9    1        2012
- eda4a57313700c62c84ade6b3e80765f6ca329ab    1        2012
- ee3b8af5e0130ce4a56553dd1542fdae0e177695    1        2012
- f12765edc6d8ffa8abeda3aaa3d9978f4faf4f87    1        2012
- f2271370251341e4f599306d60f3939ff6c61dde    3        2012
- f2cb49add0aa9b512033cbfb1ef6893280281832    2        2012
- f446edf7f1d25dbbf3d484000f99a5c62dab8b93    1        2012
- f537b7e9a9d081958222825becde1eb684b72198    2        2012
- f73deafdc34c24d2b070ccd360ae625fd7f8116d    1        2012
- f748fcce1c0a409e73cea35446160c5553a30cd8    1        2012
- f802c1a228179da47a4066d08d428f47644e6c53    4        2012
- fac12cc625f7cf05596762597710825df70ff77a    2        2012
- fc0b2608dc70214afc0cd041404fa4850f562ba9    2        2012
- fe1f17354c916011eb93fcacb5bdf48a92d89d69    3        2012
- fe31b9d47f52171b44106ebb18e176117bd2a188    1        2012
+                                                         exp last_active
+ Author                                   Org                           
+ 0008be398d86323b7ead363c4bbc11ea13ec731f Community        1        2012
+ 0014e7cebbe8ef11dab9eeb5f2111e01d9eea378 Mozilla Staff    2        2012
+ 002893ffe1425c220756f8ba4c78e1e3bb0be50f Mozilla Staff    2        2012
+ 004e177eeed820a5e1e534401984ddf9beb87124 Mozilla Staff    1        2012
+ 005adcf96e7f9f333e5ff413f7608784aefdacee Mozilla Staff    1        2012
+ 006fee3e0de309ff1e3e89c24f5e7032163c49c5 Mozilla Staff    1        2012
+ 00834d313bfc6fc60be1631bcc57b2c05ee2e0e3 Mozilla Staff    4        2012
+ 00846eff46b051d92317fc74e54041c6fdccd7cf Mozilla Staff    5        2012
+ 00890cbe5133b67bfa1021485959d2b42c11f4f8 Mozilla Staff    5        2012
+ 00a65e9f51147e4f416ded3f494dd4bfc0977979 Mozilla Staff    2        2012
+ 00b52ff65a87aab1c303af9b307281582ce91676 Community        2        2012
+ 00ed7b25063cf90c8bdeb9d45d37b73ba2317f96 Mozilla Staff    1        2012
+ 01081562f7dd988d4759a2e1e9881d5f18c02d8c Mozilla Staff    2        2012
+ 0113220b14954de311e9d99f69338f0272c50dc7 Mozilla Staff    1        2012
+ 012f9fe0064209c2affd5810083edccc723b32a9 Mozilla Staff    6        2012
+ 0134e2ebeec7f2f1acf7c635b5b22e2c441bd3ec Mozilla Staff    3        2012
+ 016dd3752addfe79920fcaa2934d0961c510d116 Mozilla Staff    2        2012
+ 017b7dd849bb5376199cc45e8058c4d31d12d916 Community        2        2012
+ 019ee580517ec3e8eb2c90ad0e3b2d749e9f0359 Mozilla Staff    4        2012
+ 01a768f3e7b52159192554887669e611abab085d Mozilla Staff    1        2012
+ 01b36f5096db2e9bd47f3c2817644dec9e7dff17 Mozilla Staff    3        2012
+ 01f1000b22e6eaffaa64485433f92536f1b18e61 Mozilla Staff    2        2012
+ 01f34ad3deb857432c09281f062c4d9d7d9b70d0 Mozilla Staff    2        2012
+ 01f6b11405a898e4c79073f5a4505562bedc8e6b Mozilla Staff    1        2012
+ 0202b7aab723eeeee876182492a008ec217648cc Mozilla Staff    2        2012
+ 020e546c6211feb97546084461eeb7cdae47664a Mozilla Staff    5        2012
+ 022ca58ad3637ab6a3023260dbb86b083dd2b5e8 Mozilla Staff    1        2012
+ 0252283062db18639ab5829674ecf042b723f47d Mozilla Staff    1        2012
+ 025a230fb21539cf723c7592bfe38b8627695784 Mozilla Staff    1        2012
+ 026522d234b638f8e9f95eb901eef6d268198e4b Community        1        2012
+ ...                                                     ...         ...
+ dcd489f55fe07dd1ee5529e8b5e442d35560bee2 Mozilla Staff    2        2012
+ dcf0ad7c7242ee8dec15eaf5fd8070f864070f98 Community        1        2012
+ dcfa4e4ec7f5941493e5ef16df2bb067dd0ad9f4 Mozilla Staff    3        2012
+ dd70bc888feec947a995798b2ab13f1eaa24c8b4 Community        2        2012
+ de3fc7ffb0e2b8f3b71fe42dbb92f837a1ce8d26 Community        2        2012
+ e1486ff2023c2195fc83ae27be7c817a7b68d3d2 Mozilla Staff    5        2012
+ e205a50e339ef5c2ecbecccc4c9a9e7952c62766 Mozilla Staff    2        2012
+ e356029152a72b090c8411100b11c7307cd1541d Community        1        2012
+ e3dd80ab4851934bb436d665ed43718273bff73d Community        1        2012
+ e663cd2c83c79695ef130cd3432897097b69f7b3 Mozilla Staff    2        2012
+ e6a2f90a718952d605111ef07b92529f58b8d1f6 Community        1        2012
+ e7a5a14f8de50a17a46a98b84e38eaa3b498f0ca Community        1        2012
+ e85d4796c2abbfb42a39be8e4ae3e847994719fd Mozilla Staff    3        2012
+ ec53ad67f5b23f28cb0c2f2284041a826aba9c05 Community        4        2012
+ ecc0aedea8fc75d82d8f3dbd2c424215ef1d558c Community        1        2012
+ ed545a1c9d4ba5a81431daaf6ea715a1335320e9 Community        1        2012
+ eda4a57313700c62c84ade6b3e80765f6ca329ab Community        1        2012
+ ee3b8af5e0130ce4a56553dd1542fdae0e177695 Community        1        2012
+ f12765edc6d8ffa8abeda3aaa3d9978f4faf4f87 Community        1        2012
+ f2271370251341e4f599306d60f3939ff6c61dde Community        3        2012
+ f2cb49add0aa9b512033cbfb1ef6893280281832 Community        2        2012
+ f446edf7f1d25dbbf3d484000f99a5c62dab8b93 Community        1        2012
+ f537b7e9a9d081958222825becde1eb684b72198 Mozilla Staff    2        2012
+ f73deafdc34c24d2b070ccd360ae625fd7f8116d Community        1        2012
+ f748fcce1c0a409e73cea35446160c5553a30cd8 Community        1        2012
+ f802c1a228179da47a4066d08d428f47644e6c53 Community        4        2012
+ fac12cc625f7cf05596762597710825df70ff77a Community        2        2012
+ fc0b2608dc70214afc0cd041404fa4850f562ba9 Community        2        2012
+ fe1f17354c916011eb93fcacb5bdf48a92d89d69 Mozilla Staff    3        2012
+ fe31b9d47f52171b44106ebb18e176117bd2a188 Mozilla Staff    1        2012
  
  [862 rows x 2 columns],
-                                           exp last_active
- Author                                                   
- 0014e7cebbe8ef11dab9eeb5f2111e01d9eea378    1        2011
- 002893ffe1425c220756f8ba4c78e1e3bb0be50f    1        2011
- 00640f5b3dc155e70ea0d9811009ebbc0e7d4cba    1        2011
- 00834d313bfc6fc60be1631bcc57b2c05ee2e0e3    3        2011
- 00846eff46b051d92317fc74e54041c6fdccd7cf    4        2011
- 00890cbe5133b67bfa1021485959d2b42c11f4f8    4        2011
- 00a65e9f51147e4f416ded3f494dd4bfc0977979    1        2011
- 00b52ff65a87aab1c303af9b307281582ce91676    1        2011
- 00c38f0a5e44692e3722cd5087b3cbc0f45f56fd    1        2011
- 01081562f7dd988d4759a2e1e9881d5f18c02d8c    1        2011
- 012f9fe0064209c2affd5810083edccc723b32a9    5        2011
- 0134e2ebeec7f2f1acf7c635b5b22e2c441bd3ec    2        2011
- 015d87534f70c362eb2ce0430b2d6886e328223c    2        2011
- 016dd3752addfe79920fcaa2934d0961c510d116    1        2011
- 017b7dd849bb5376199cc45e8058c4d31d12d916    1        2011
- 019ee580517ec3e8eb2c90ad0e3b2d749e9f0359    3        2011
- 01a0ffd68e3b0ac6359b920e733043b6be0dba12    2        2011
- 01b36f5096db2e9bd47f3c2817644dec9e7dff17    2        2011
- 01f1000b22e6eaffaa64485433f92536f1b18e61    1        2011
- 01f34ad3deb857432c09281f062c4d9d7d9b70d0    1        2011
- 0202b7aab723eeeee876182492a008ec217648cc    1        2011
- 020e546c6211feb97546084461eeb7cdae47664a    4        2011
- 021020a1b3c27b55aa68b96f49c58487736abf46    3        2011
- 02228264064bde39b7dfef6d3e3e7554ad920703    1        2011
- 023f15dd0cf615a4c08b7d531f0189fce5251297    1        2011
- 026dadb4b4a80d0784bc5dd83ba8416c9df67bef    5        2011
- 02872b802fa8e325403cf28ff1e8948388fe21d8    2        2011
- 02883a798795129e8b7a314b8435ca30d690105c    3        2011
- 02b8b17f5bd2baee37ed67709df58f899f2f57b7    3        2011
- 02c80b820108371e66ae5d904ce2371ef1190933    5        2011
- ...                                       ...         ...
- d6bb8bfe87a249a68a0087dadc6c9a5ded7a7d62    1        2011
- d79a929308e748c9fdc73b70d08d536c44e7731d    1        2011
- d82920e8bc28327ae0a44e63f333d34403e0d89e    1        2011
- d8b52e41845612b356d9c893ce4b64fd44cfb58a    1        2011
- dbfacf4442af967cf4297634bc44065ac3ebf49b    1        2011
- dc3be6b2492c012b7c20cbc790a1c00b546111b1    1        2011
- dcd489f55fe07dd1ee5529e8b5e442d35560bee2    1        2011
- dcfa4e4ec7f5941493e5ef16df2bb067dd0ad9f4    2        2011
- dd02e9000d0f24865101e52846474bbca593a340    2        2011
- dd70bc888feec947a995798b2ab13f1eaa24c8b4    1        2011
- de3fc7ffb0e2b8f3b71fe42dbb92f837a1ce8d26    1        2011
- dee23623be64ed390a5b43ccc6e19e0a88bc2727    1        2011
- df3b547ef09345cdb14d54805f305481caefad95    5        2011
- e1486ff2023c2195fc83ae27be7c817a7b68d3d2    4        2011
- e205a50e339ef5c2ecbecccc4c9a9e7952c62766    1        2011
- e2bd6a350615ba3c7281ffae63394b9ddc974a55    1        2011
- e5766565e4b76e29a7cf70efbf238a90e616af63    3        2011
- e663cd2c83c79695ef130cd3432897097b69f7b3    1        2011
- e85d4796c2abbfb42a39be8e4ae3e847994719fd    2        2011
- e89691727d69fddf10322467f583178e0d9e149d    1        2011
- ec53ad67f5b23f28cb0c2f2284041a826aba9c05    3        2011
- f2271370251341e4f599306d60f3939ff6c61dde    2        2011
- f2cb49add0aa9b512033cbfb1ef6893280281832    1        2011
- f537b7e9a9d081958222825becde1eb684b72198    1        2011
- f551c301599b2aca41fe7eb200efcd63ddbbcb26    1        2011
- f7661b46d9cf1766e3c17e582e06ccf0d462f931    1        2011
- f802c1a228179da47a4066d08d428f47644e6c53    3        2011
- fac12cc625f7cf05596762597710825df70ff77a    1        2011
- fc0b2608dc70214afc0cd041404fa4850f562ba9    1        2011
- fe1f17354c916011eb93fcacb5bdf48a92d89d69    2        2011
+                                                         exp last_active
+ Author                                   Org                           
+ 0014e7cebbe8ef11dab9eeb5f2111e01d9eea378 Mozilla Staff    1        2011
+ 002893ffe1425c220756f8ba4c78e1e3bb0be50f Mozilla Staff    1        2011
+ 00640f5b3dc155e70ea0d9811009ebbc0e7d4cba Community        1        2011
+ 00834d313bfc6fc60be1631bcc57b2c05ee2e0e3 Mozilla Staff    3        2011
+ 00846eff46b051d92317fc74e54041c6fdccd7cf Mozilla Staff    4        2011
+ 00890cbe5133b67bfa1021485959d2b42c11f4f8 Mozilla Staff    4        2011
+ 00a65e9f51147e4f416ded3f494dd4bfc0977979 Mozilla Staff    1        2011
+ 00b52ff65a87aab1c303af9b307281582ce91676 Community        1        2011
+ 00c38f0a5e44692e3722cd5087b3cbc0f45f56fd Community        1        2011
+ 01081562f7dd988d4759a2e1e9881d5f18c02d8c Mozilla Staff    1        2011
+ 012f9fe0064209c2affd5810083edccc723b32a9 Mozilla Staff    5        2011
+ 0134e2ebeec7f2f1acf7c635b5b22e2c441bd3ec Mozilla Staff    2        2011
+ 015d87534f70c362eb2ce0430b2d6886e328223c Mozilla Staff    2        2011
+ 016dd3752addfe79920fcaa2934d0961c510d116 Mozilla Staff    1        2011
+ 017b7dd849bb5376199cc45e8058c4d31d12d916 Community        1        2011
+ 019ee580517ec3e8eb2c90ad0e3b2d749e9f0359 Mozilla Staff    3        2011
+ 01a0ffd68e3b0ac6359b920e733043b6be0dba12 Community        2        2011
+ 01b36f5096db2e9bd47f3c2817644dec9e7dff17 Mozilla Staff    2        2011
+ 01f1000b22e6eaffaa64485433f92536f1b18e61 Mozilla Staff    1        2011
+ 01f34ad3deb857432c09281f062c4d9d7d9b70d0 Mozilla Staff    1        2011
+ 0202b7aab723eeeee876182492a008ec217648cc Mozilla Staff    1        2011
+ 020e546c6211feb97546084461eeb7cdae47664a Mozilla Staff    4        2011
+ 021020a1b3c27b55aa68b96f49c58487736abf46 Mozilla Staff    3        2011
+ 02228264064bde39b7dfef6d3e3e7554ad920703 Mozilla Staff    1        2011
+ 023f15dd0cf615a4c08b7d531f0189fce5251297 Mozilla Staff    1        2011
+ 026dadb4b4a80d0784bc5dd83ba8416c9df67bef Mozilla Staff    5        2011
+ 02872b802fa8e325403cf28ff1e8948388fe21d8 Mozilla Staff    2        2011
+ 02883a798795129e8b7a314b8435ca30d690105c Mozilla Staff    3        2011
+ 02b8b17f5bd2baee37ed67709df58f899f2f57b7 Mozilla Staff    3        2011
+ 02c80b820108371e66ae5d904ce2371ef1190933 Mozilla Staff    5        2011
+ ...                                                     ...         ...
+ d6bb8bfe87a249a68a0087dadc6c9a5ded7a7d62 Community        1        2011
+ d79a929308e748c9fdc73b70d08d536c44e7731d Community        1        2011
+ d82920e8bc28327ae0a44e63f333d34403e0d89e Mozilla Staff    1        2011
+ d8b52e41845612b356d9c893ce4b64fd44cfb58a Community        1        2011
+ dbfacf4442af967cf4297634bc44065ac3ebf49b Mozilla Staff    1        2011
+ dc3be6b2492c012b7c20cbc790a1c00b546111b1 Community        1        2011
+ dcd489f55fe07dd1ee5529e8b5e442d35560bee2 Mozilla Staff    1        2011
+ dcfa4e4ec7f5941493e5ef16df2bb067dd0ad9f4 Mozilla Staff    2        2011
+ dd02e9000d0f24865101e52846474bbca593a340 Mozilla Staff    2        2011
+ dd70bc888feec947a995798b2ab13f1eaa24c8b4 Community        1        2011
+ de3fc7ffb0e2b8f3b71fe42dbb92f837a1ce8d26 Community        1        2011
+ dee23623be64ed390a5b43ccc6e19e0a88bc2727 Community        1        2011
+ df3b547ef09345cdb14d54805f305481caefad95 Community        5        2011
+ e1486ff2023c2195fc83ae27be7c817a7b68d3d2 Mozilla Staff    4        2011
+ e205a50e339ef5c2ecbecccc4c9a9e7952c62766 Mozilla Staff    1        2011
+ e2bd6a350615ba3c7281ffae63394b9ddc974a55 Community        1        2011
+ e5766565e4b76e29a7cf70efbf238a90e616af63 Community        3        2011
+ e663cd2c83c79695ef130cd3432897097b69f7b3 Mozilla Staff    1        2011
+ e85d4796c2abbfb42a39be8e4ae3e847994719fd Mozilla Staff    2        2011
+ e89691727d69fddf10322467f583178e0d9e149d Community        1        2011
+ ec53ad67f5b23f28cb0c2f2284041a826aba9c05 Community        3        2011
+ f2271370251341e4f599306d60f3939ff6c61dde Community        2        2011
+ f2cb49add0aa9b512033cbfb1ef6893280281832 Community        1        2011
+ f537b7e9a9d081958222825becde1eb684b72198 Mozilla Staff    1        2011
+ f551c301599b2aca41fe7eb200efcd63ddbbcb26 Community        1        2011
+ f7661b46d9cf1766e3c17e582e06ccf0d462f931 Community        1        2011
+ f802c1a228179da47a4066d08d428f47644e6c53 Community        3        2011
+ fac12cc625f7cf05596762597710825df70ff77a Community        1        2011
+ fc0b2608dc70214afc0cd041404fa4850f562ba9 Community        1        2011
+ fe1f17354c916011eb93fcacb5bdf48a92d89d69 Mozilla Staff    2        2011
  
  [674 rows x 2 columns],
-                                           exp last_active
- Author                                                   
- 0050824236a67c3ef6c84db126cc81ae8a34b638    3        2010
- 00633c4f1a29fc14c9f79d0aa0358fbfbe1b2a0c    4        2010
- 00834d313bfc6fc60be1631bcc57b2c05ee2e0e3    2        2010
- 00846eff46b051d92317fc74e54041c6fdccd7cf    3        2010
- 00890cbe5133b67bfa1021485959d2b42c11f4f8    3        2010
- 012f9fe0064209c2affd5810083edccc723b32a9    4        2010
- 0134e2ebeec7f2f1acf7c635b5b22e2c441bd3ec    1        2010
- 015d87534f70c362eb2ce0430b2d6886e328223c    1        2010
- 019ee580517ec3e8eb2c90ad0e3b2d749e9f0359    2        2010
- 01b36f5096db2e9bd47f3c2817644dec9e7dff17    1        2010
- 020e546c6211feb97546084461eeb7cdae47664a    3        2010
- 021020a1b3c27b55aa68b96f49c58487736abf46    2        2010
- 026dadb4b4a80d0784bc5dd83ba8416c9df67bef    4        2010
- 02883a798795129e8b7a314b8435ca30d690105c    2        2010
- 02b8b17f5bd2baee37ed67709df58f899f2f57b7    2        2010
- 02c80b820108371e66ae5d904ce2371ef1190933    4        2010
- 02f2b8d169c66c81e136247f012a43deecaab21c    3        2010
- 03235853357afeecb6105855d2415d307bd945c4    2        2010
- 0333479955d7323543f69ba29165c8992c75845c    4        2010
- 0390402c157799723da17fe90147833e9c953fef    1        2010
- 03b102501b7e0032c7af62613ed707911dfa1a80    2        2010
- 03bbc81cd1db89677298cd092a1ef579220029b8    4        2010
- 03e29d4afdf730f640dd755f0920defc8cd84f40    4        2010
- 03e6f642bc6fc389b280735383f34bd777f9605c    1        2010
- 0445fc29cda1773029265417533ba43ec9e47e3d    4        2010
- 044e550e4cf59c852aa382813f5268e17bbffb29    1        2010
- 045251ae5d4f5c1dd672b65f3b6dd6d856ea8457    2        2010
- 04631379bcf5f74681ac46ab9dfa868c59da1e4f    4        2010
- 04a31d7acae067d4f2b66c102337b44f4f3aad82    4        2010
- 0510befb97d662ac58d25a553a55d043d4add67a    1        2010
- ...                                       ...         ...
- c71f72642e9864e525582f46e11baa446dbaf69c    4        2010
- c7ff7fe4e3ced27da82e03acdc710bd1c53fcd57    1        2010
- c83017120ef6aaca4b6c11dcc90e8c53deaf5a53    1        2010
- cb56e6a3fe624de18c86ede631e91dff8675f1b0    2        2010
- cc419cde062cb5486860804ed7ff05ee03398eaa    1        2010
- cc65f38e3a98a59212261ea8ec7670bbf657fdc4    1        2010
- cce7970bef489955ceddc63d9917940dafd6a492    3        2010
- cdb438b714cf3fd08f928b9ce8c2c69ef8d04557    2        2010
- ce139b9b618dd6dc7e32733e84ade97792b3cff6    3        2010
- cf56f666c1e8c2ac58ea0e678b37a4faf480f45b    1        2010
- d374832554172de11e6da403a209b77a9916d44b    1        2010
- d42367cb1a3b73d7feb577b66939e2a7c3a32eb3    2        2010
- d5da984b577eef52786fe09ed94f75ae888cbbd9    3        2010
- d61a0273230104344af3820498da86a536a91e2a    1        2010
- dad5c3bd5dcf5d03f23ea811378bc84a626fb52c    1        2010
- dcfa4e4ec7f5941493e5ef16df2bb067dd0ad9f4    1        2010
- dd02e9000d0f24865101e52846474bbca593a340    1        2010
- df3b547ef09345cdb14d54805f305481caefad95    4        2010
- e1486ff2023c2195fc83ae27be7c817a7b68d3d2    3        2010
- e53c77512c4778c08de03ca0bcf82d0b17554972    1        2010
- e5766565e4b76e29a7cf70efbf238a90e616af63    2        2010
- e85d4796c2abbfb42a39be8e4ae3e847994719fd    1        2010
- ec1cab31dcd44bec325f9c40f58f6f1c0018df10    2        2010
- ec53ad67f5b23f28cb0c2f2284041a826aba9c05    2        2010
- efc639b7957be9c0e2177f35e983a51e7b663627    2        2010
- f2271370251341e4f599306d60f3939ff6c61dde    1        2010
- f3f96f241cf9c67cb8d721e14e08b814f5f1bcee    1        2010
- f802c1a228179da47a4066d08d428f47644e6c53    2        2010
- f95a1783ef46208eaea17ff682cbeb95967a757e    1        2010
- fe1f17354c916011eb93fcacb5bdf48a92d89d69    1        2010
+                                                         exp last_active
+ Author                                   Org                           
+ 0050824236a67c3ef6c84db126cc81ae8a34b638 Community        3        2010
+ 00633c4f1a29fc14c9f79d0aa0358fbfbe1b2a0c Mozilla Staff    4        2010
+ 00834d313bfc6fc60be1631bcc57b2c05ee2e0e3 Mozilla Staff    2        2010
+ 00846eff46b051d92317fc74e54041c6fdccd7cf Mozilla Staff    3        2010
+ 00890cbe5133b67bfa1021485959d2b42c11f4f8 Mozilla Staff    3        2010
+ 012f9fe0064209c2affd5810083edccc723b32a9 Mozilla Staff    4        2010
+ 0134e2ebeec7f2f1acf7c635b5b22e2c441bd3ec Mozilla Staff    1        2010
+ 015d87534f70c362eb2ce0430b2d6886e328223c Mozilla Staff    1        2010
+ 019ee580517ec3e8eb2c90ad0e3b2d749e9f0359 Mozilla Staff    2        2010
+ 01b36f5096db2e9bd47f3c2817644dec9e7dff17 Mozilla Staff    1        2010
+ 020e546c6211feb97546084461eeb7cdae47664a Mozilla Staff    3        2010
+ 021020a1b3c27b55aa68b96f49c58487736abf46 Mozilla Staff    2        2010
+ 026dadb4b4a80d0784bc5dd83ba8416c9df67bef Mozilla Staff    4        2010
+ 02883a798795129e8b7a314b8435ca30d690105c Mozilla Staff    2        2010
+ 02b8b17f5bd2baee37ed67709df58f899f2f57b7 Mozilla Staff    2        2010
+ 02c80b820108371e66ae5d904ce2371ef1190933 Mozilla Staff    4        2010
+ 02f2b8d169c66c81e136247f012a43deecaab21c Mozilla Staff    3        2010
+ 03235853357afeecb6105855d2415d307bd945c4 Mozilla Staff    2        2010
+ 0333479955d7323543f69ba29165c8992c75845c Mozilla Staff    4        2010
+ 0390402c157799723da17fe90147833e9c953fef Mozilla Staff    1        2010
+ 03b102501b7e0032c7af62613ed707911dfa1a80 Mozilla Staff    2        2010
+ 03bbc81cd1db89677298cd092a1ef579220029b8 Mozilla Staff    4        2010
+ 03e29d4afdf730f640dd755f0920defc8cd84f40 Mozilla Staff    4        2010
+ 03e6f642bc6fc389b280735383f34bd777f9605c Mozilla Staff    1        2010
+ 0445fc29cda1773029265417533ba43ec9e47e3d Mozilla Staff    4        2010
+ 044e550e4cf59c852aa382813f5268e17bbffb29 Mozilla Staff    1        2010
+ 045251ae5d4f5c1dd672b65f3b6dd6d856ea8457 Mozilla Staff    2        2010
+ 04631379bcf5f74681ac46ab9dfa868c59da1e4f Mozilla Staff    4        2010
+ 04a31d7acae067d4f2b66c102337b44f4f3aad82 Mozilla Staff    4        2010
+ 0510befb97d662ac58d25a553a55d043d4add67a Mozilla Staff    1        2010
+ ...                                                     ...         ...
+ c71f72642e9864e525582f46e11baa446dbaf69c Mozilla Staff    4        2010
+ c7ff7fe4e3ced27da82e03acdc710bd1c53fcd57 Community        1        2010
+ c83017120ef6aaca4b6c11dcc90e8c53deaf5a53 Community        1        2010
+ cb56e6a3fe624de18c86ede631e91dff8675f1b0 Community        2        2010
+ cc419cde062cb5486860804ed7ff05ee03398eaa Community        1        2010
+ cc65f38e3a98a59212261ea8ec7670bbf657fdc4 Mozilla Staff    1        2010
+ cce7970bef489955ceddc63d9917940dafd6a492 Community        3        2010
+ cdb438b714cf3fd08f928b9ce8c2c69ef8d04557 Mozilla Staff    2        2010
+ ce139b9b618dd6dc7e32733e84ade97792b3cff6 Community        3        2010
+ cf56f666c1e8c2ac58ea0e678b37a4faf480f45b Community        1        2010
+ d374832554172de11e6da403a209b77a9916d44b Community        1        2010
+ d42367cb1a3b73d7feb577b66939e2a7c3a32eb3 Mozilla Staff    2        2010
+ d5da984b577eef52786fe09ed94f75ae888cbbd9 Community        3        2010
+ d61a0273230104344af3820498da86a536a91e2a Community        1        2010
+ dad5c3bd5dcf5d03f23ea811378bc84a626fb52c Community        1        2010
+ dcfa4e4ec7f5941493e5ef16df2bb067dd0ad9f4 Mozilla Staff    1        2010
+ dd02e9000d0f24865101e52846474bbca593a340 Mozilla Staff    1        2010
+ df3b547ef09345cdb14d54805f305481caefad95 Community        4        2010
+ e1486ff2023c2195fc83ae27be7c817a7b68d3d2 Mozilla Staff    3        2010
+ e53c77512c4778c08de03ca0bcf82d0b17554972 Community        1        2010
+ e5766565e4b76e29a7cf70efbf238a90e616af63 Community        2        2010
+ e85d4796c2abbfb42a39be8e4ae3e847994719fd Mozilla Staff    1        2010
+ ec1cab31dcd44bec325f9c40f58f6f1c0018df10 Mozilla Staff    2        2010
+ ec53ad67f5b23f28cb0c2f2284041a826aba9c05 Community        2        2010
+ efc639b7957be9c0e2177f35e983a51e7b663627 Mozilla Staff    2        2010
+ f2271370251341e4f599306d60f3939ff6c61dde Community        1        2010
+ f3f96f241cf9c67cb8d721e14e08b814f5f1bcee Community        1        2010
+ f802c1a228179da47a4066d08d428f47644e6c53 Community        2        2010
+ f95a1783ef46208eaea17ff682cbeb95967a757e Community        1        2010
+ fe1f17354c916011eb93fcacb5bdf48a92d89d69 Mozilla Staff    1        2010
  
  [478 rows x 2 columns],
-                                           exp last_active
- Author                                                   
- 0050824236a67c3ef6c84db126cc81ae8a34b638    2        2009
- 00633c4f1a29fc14c9f79d0aa0358fbfbe1b2a0c    3        2009
- 00834d313bfc6fc60be1631bcc57b2c05ee2e0e3    1        2009
- 00846eff46b051d92317fc74e54041c6fdccd7cf    2        2009
- 00890cbe5133b67bfa1021485959d2b42c11f4f8    2        2009
- 012f9fe0064209c2affd5810083edccc723b32a9    3        2009
- 019ee580517ec3e8eb2c90ad0e3b2d749e9f0359    1        2009
- 01a0ffd68e3b0ac6359b920e733043b6be0dba12    1        2009
- 020e546c6211feb97546084461eeb7cdae47664a    2        2009
- 021020a1b3c27b55aa68b96f49c58487736abf46    1        2009
- 026dadb4b4a80d0784bc5dd83ba8416c9df67bef    3        2009
- 02779439f026e59032b7e8759cffc0754c76d5e7    1        2009
- 02872b802fa8e325403cf28ff1e8948388fe21d8    1        2009
- 02883a798795129e8b7a314b8435ca30d690105c    1        2009
- 02b8b17f5bd2baee37ed67709df58f899f2f57b7    1        2009
- 02c80b820108371e66ae5d904ce2371ef1190933    3        2009
- 02f2b8d169c66c81e136247f012a43deecaab21c    2        2009
- 03235853357afeecb6105855d2415d307bd945c4    1        2009
- 0333479955d7323543f69ba29165c8992c75845c    3        2009
- 038b8ab51714e69f16ec3c4caf58e23ff7bd0b57    1        2009
- 03b102501b7e0032c7af62613ed707911dfa1a80    1        2009
- 03bbc81cd1db89677298cd092a1ef579220029b8    3        2009
- 03e29d4afdf730f640dd755f0920defc8cd84f40    3        2009
- 0445fc29cda1773029265417533ba43ec9e47e3d    3        2009
- 045251ae5d4f5c1dd672b65f3b6dd6d856ea8457    1        2009
- 04631379bcf5f74681ac46ab9dfa868c59da1e4f    3        2009
- 04a31d7acae067d4f2b66c102337b44f4f3aad82    3        2009
- 0547d380aa40a0422f9a02ff623b0b23ff987dcf    3        2009
- 05734c41a088cf488daa63c98e396a4562126c62    2        2009
- 05bc91d97b5be8abf3bb1833b2a9238c2e06f661    1        2009
- ...                                       ...         ...
- bc4c082d21fee1a33c6f70db37abb371fecd0cef    2        2009
- bfb1cfd27c2638d9b8cb41bfecb9e36c0a59159b    2        2009
- c00c6ee8419f1bd0a6dcae36bdf76cff848f25fc    1        2009
- c1fb3804ef644c5acc04d74154dd978455377934    1        2009
- c57ee3483ed3e922d4c01ae3de1c90b3eb84730d    1        2009
- c71f72642e9864e525582f46e11baa446dbaf69c    3        2009
- cb56e6a3fe624de18c86ede631e91dff8675f1b0    1        2009
- cce7970bef489955ceddc63d9917940dafd6a492    2        2009
- cdb438b714cf3fd08f928b9ce8c2c69ef8d04557    1        2009
- d3545ebcc912d4f062ac8003901007025b3ccb41    1        2009
- d42367cb1a3b73d7feb577b66939e2a7c3a32eb3    1        2009
- d498e850d43b68d48c9bb399b50bfa69b8fd609f    1        2009
- d5da984b577eef52786fe09ed94f75ae888cbbd9    2        2009
- d64bcb6c790c25ee5cb4fd4e59d4ca1b1ea62a01    2        2009
- d7024f6af11b55085e91c3f0eeb4ead3f4715128    1        2009
- d879e9e25dbb1faf6d3942ebfeb7333ae0717a3a    1        2009
- dd6895920983d4c86ba106defa8f243f9972f653    1        2009
- dd9d279ddecd61db8c77ad53c4228ceb4e096b3d    1        2009
- df3b547ef09345cdb14d54805f305481caefad95    3        2009
- e13a081b74d090bd8e2b6be40e14f5a48395194a    1        2009
- e1486ff2023c2195fc83ae27be7c817a7b68d3d2    2        2009
- e2c228c165fd3c959478010db2d4b56566088f81    1        2009
- e5766565e4b76e29a7cf70efbf238a90e616af63    1        2009
- e61ba39e4ee805033d145ccb4e239e2250019984    1        2009
- ea38871aa19a20ee7fee909ec81a530fa8a76a7c    2        2009
- ebd0984fd994eab8242b2a1de60e736f26c06fa6    1        2009
- ec1cab31dcd44bec325f9c40f58f6f1c0018df10    1        2009
- ec53ad67f5b23f28cb0c2f2284041a826aba9c05    1        2009
- f802c1a228179da47a4066d08d428f47644e6c53    1        2009
- fd329a9ee03dd603390842f810a2f097cb09724b    1        2009
+                                                         exp last_active
+ Author                                   Org                           
+ 0050824236a67c3ef6c84db126cc81ae8a34b638 Community        2        2009
+ 00633c4f1a29fc14c9f79d0aa0358fbfbe1b2a0c Mozilla Staff    3        2009
+ 00834d313bfc6fc60be1631bcc57b2c05ee2e0e3 Mozilla Staff    1        2009
+ 00846eff46b051d92317fc74e54041c6fdccd7cf Mozilla Staff    2        2009
+ 00890cbe5133b67bfa1021485959d2b42c11f4f8 Mozilla Staff    2        2009
+ 012f9fe0064209c2affd5810083edccc723b32a9 Mozilla Staff    3        2009
+ 019ee580517ec3e8eb2c90ad0e3b2d749e9f0359 Mozilla Staff    1        2009
+ 01a0ffd68e3b0ac6359b920e733043b6be0dba12 Community        1        2009
+ 020e546c6211feb97546084461eeb7cdae47664a Mozilla Staff    2        2009
+ 021020a1b3c27b55aa68b96f49c58487736abf46 Mozilla Staff    1        2009
+ 026dadb4b4a80d0784bc5dd83ba8416c9df67bef Mozilla Staff    3        2009
+ 02779439f026e59032b7e8759cffc0754c76d5e7 Community        1        2009
+ 02872b802fa8e325403cf28ff1e8948388fe21d8 Mozilla Staff    1        2009
+ 02883a798795129e8b7a314b8435ca30d690105c Mozilla Staff    1        2009
+ 02b8b17f5bd2baee37ed67709df58f899f2f57b7 Mozilla Staff    1        2009
+ 02c80b820108371e66ae5d904ce2371ef1190933 Mozilla Staff    3        2009
+ 02f2b8d169c66c81e136247f012a43deecaab21c Mozilla Staff    2        2009
+ 03235853357afeecb6105855d2415d307bd945c4 Mozilla Staff    1        2009
+ 0333479955d7323543f69ba29165c8992c75845c Mozilla Staff    3        2009
+ 038b8ab51714e69f16ec3c4caf58e23ff7bd0b57 Community        1        2009
+ 03b102501b7e0032c7af62613ed707911dfa1a80 Mozilla Staff    1        2009
+ 03bbc81cd1db89677298cd092a1ef579220029b8 Mozilla Staff    3        2009
+ 03e29d4afdf730f640dd755f0920defc8cd84f40 Mozilla Staff    3        2009
+ 0445fc29cda1773029265417533ba43ec9e47e3d Mozilla Staff    3        2009
+ 045251ae5d4f5c1dd672b65f3b6dd6d856ea8457 Mozilla Staff    1        2009
+ 04631379bcf5f74681ac46ab9dfa868c59da1e4f Mozilla Staff    3        2009
+ 04a31d7acae067d4f2b66c102337b44f4f3aad82 Mozilla Staff    3        2009
+ 0547d380aa40a0422f9a02ff623b0b23ff987dcf Mozilla Staff    3        2009
+ 05734c41a088cf488daa63c98e396a4562126c62 Mozilla Staff    2        2009
+ 05bc91d97b5be8abf3bb1833b2a9238c2e06f661 Mozilla Staff    1        2009
+ ...                                                     ...         ...
+ bc4c082d21fee1a33c6f70db37abb371fecd0cef Mozilla Staff    2        2009
+ bfb1cfd27c2638d9b8cb41bfecb9e36c0a59159b Mozilla Staff    2        2009
+ c00c6ee8419f1bd0a6dcae36bdf76cff848f25fc Mozilla Staff    1        2009
+ c1fb3804ef644c5acc04d74154dd978455377934 Community        1        2009
+ c57ee3483ed3e922d4c01ae3de1c90b3eb84730d Mozilla Staff    1        2009
+ c71f72642e9864e525582f46e11baa446dbaf69c Mozilla Staff    3        2009
+ cb56e6a3fe624de18c86ede631e91dff8675f1b0 Community        1        2009
+ cce7970bef489955ceddc63d9917940dafd6a492 Community        2        2009
+ cdb438b714cf3fd08f928b9ce8c2c69ef8d04557 Mozilla Staff    1        2009
+ d3545ebcc912d4f062ac8003901007025b3ccb41 Mozilla Staff    1        2009
+ d42367cb1a3b73d7feb577b66939e2a7c3a32eb3 Mozilla Staff    1        2009
+ d498e850d43b68d48c9bb399b50bfa69b8fd609f Mozilla Staff    1        2009
+ d5da984b577eef52786fe09ed94f75ae888cbbd9 Community        2        2009
+ d64bcb6c790c25ee5cb4fd4e59d4ca1b1ea62a01 Community        2        2009
+ d7024f6af11b55085e91c3f0eeb4ead3f4715128 Mozilla Staff    1        2009
+ d879e9e25dbb1faf6d3942ebfeb7333ae0717a3a Community        1        2009
+ dd6895920983d4c86ba106defa8f243f9972f653 Community        1        2009
+ dd9d279ddecd61db8c77ad53c4228ceb4e096b3d Community        1        2009
+ df3b547ef09345cdb14d54805f305481caefad95 Community        3        2009
+ e13a081b74d090bd8e2b6be40e14f5a48395194a Community        1        2009
+ e1486ff2023c2195fc83ae27be7c817a7b68d3d2 Mozilla Staff    2        2009
+ e2c228c165fd3c959478010db2d4b56566088f81 Mozilla Staff    1        2009
+ e5766565e4b76e29a7cf70efbf238a90e616af63 Community        1        2009
+ e61ba39e4ee805033d145ccb4e239e2250019984 Community        1        2009
+ ea38871aa19a20ee7fee909ec81a530fa8a76a7c Mozilla Staff    2        2009
+ ebd0984fd994eab8242b2a1de60e736f26c06fa6 Community        1        2009
+ ec1cab31dcd44bec325f9c40f58f6f1c0018df10 Mozilla Staff    1        2009
+ ec53ad67f5b23f28cb0c2f2284041a826aba9c05 Community        1        2009
+ f802c1a228179da47a4066d08d428f47644e6c53 Community        1        2009
+ fd329a9ee03dd603390842f810a2f097cb09724b Mozilla Staff    1        2009
  
  [386 rows x 2 columns],
-                                           exp last_active
- Author                                                   
- 0040576ccb02d80fbcdca410c87481e617d30402    1        2008
- 00425929e872f86f1686ce88459d60a4d8634e36    2        2008
- 0050824236a67c3ef6c84db126cc81ae8a34b638    1        2008
- 00633c4f1a29fc14c9f79d0aa0358fbfbe1b2a0c    2        2008
- 00686716dabebbaba2a1667335b2c4ec076a3cb5    5        2008
- 00846eff46b051d92317fc74e54041c6fdccd7cf    1        2008
- 00890cbe5133b67bfa1021485959d2b42c11f4f8    1        2008
- 012f9fe0064209c2affd5810083edccc723b32a9    2        2008
- 01ab2889da57c18304a23111f495dc6ac5bc0c66    4        2008
- 020e546c6211feb97546084461eeb7cdae47664a    1        2008
- 026dadb4b4a80d0784bc5dd83ba8416c9df67bef    2        2008
- 02c80b820108371e66ae5d904ce2371ef1190933    2        2008
- 02f2b8d169c66c81e136247f012a43deecaab21c    1        2008
- 0333479955d7323543f69ba29165c8992c75845c    2        2008
- 03904533eccb74d30f19412b29507798acfc9ac4    2        2008
- 03bbc81cd1db89677298cd092a1ef579220029b8    2        2008
- 03e29d4afdf730f640dd755f0920defc8cd84f40    2        2008
- 0445fc29cda1773029265417533ba43ec9e47e3d    2        2008
- 04631379bcf5f74681ac46ab9dfa868c59da1e4f    2        2008
- 04a31d7acae067d4f2b66c102337b44f4f3aad82    2        2008
- 05250b18e0c6a02531ec4027f86477a8cb563f3f    1        2008
- 0547d380aa40a0422f9a02ff623b0b23ff987dcf    2        2008
- 05734c41a088cf488daa63c98e396a4562126c62    1        2008
- 057882a7b5594647ebc370db92604aab4395677d    2        2008
- 05dc56c424cea4c33b20b955bb430796bf8f2db9    1        2008
- 05e236dd5726cae9945b50e4396e1c2729728b1e    2        2008
- 063468063eb29c000a80376e19d7acbc65dfc61f    1        2008
- 063f6f49d542ab9617fecf9278548f538f1ae626    2        2008
- 066612ecd1623bac421614a1d08ee9933f453505    2        2008
- 06ba504eda60c956b305bc5009342de71d5464f6    8        2008
- ...                                       ...         ...
- d5579f84647c5ec3b556639b1edf4b3e5bf8bfb5    2        2008
- d5602c1008e8c35acc19edd8251ea2d21bd2994e    2        2008
- d5da984b577eef52786fe09ed94f75ae888cbbd9    1        2008
- d60c751f4d1148cebfe5e446c83b43132eac555d    2        2008
- d64bcb6c790c25ee5cb4fd4e59d4ca1b1ea62a01    1        2008
- d743f97620880dea0089f15baa5283debd24ac61    2        2008
- d837482dda56826ac9c2d2f6896bfc61c0b1a5cd    2        2008
- dc0e07babbc1d35ed89a8ad4e1f0de40c847d420    3        2008
- dd6ebf7cd63e3813ebd6f65e87f783638fa3f7e5    2        2008
- ddb77f844bd62a851a7c3ebed51509f9bcf589e5    1        2008
- def766dc42780c9c9703bce44546c9de6bd3989a    2        2008
- df14d3840c959eea82f3b5892a2da84ee97d6f9c    2        2008
- df3b547ef09345cdb14d54805f305481caefad95    2        2008
- df4efe31e7e6e20f743ed51aa1a613c6e211268c    1        2008
- df5622646ba56fffe472706b70381ec08d80e439    6        2008
- e0bd3ff7ae723c446a776719403838a0567f5308    5        2008
- e1486ff2023c2195fc83ae27be7c817a7b68d3d2    1        2008
- e2eb0fb7ae06242d7012ddb7e9539de4bc207e89    3        2008
- e8b7eb6fa2613e54ffe66c52b61c4797a562475d    1        2008
- ea38871aa19a20ee7fee909ec81a530fa8a76a7c    1        2008
- ef03145b0dc93eb10feff06e0d40f3fe3341726b    9        2008
- efc639b7957be9c0e2177f35e983a51e7b663627    1        2008
- f26636f25ce3772f1ff8938aec9f8cd2e7f58f11    5        2008
- f3329fd4821c29ad8296a283bed39919b988db93    2        2008
- f5525062fc1b00c2c3e1c0b5ba127bed88e3162b    2        2008
- f5590cdec6700a62ab39267b099a68ab3392497b    2        2008
- f5eb2857a2529a2b060a5b0bf47e6340379d7952    2        2008
- f7bf1309e96e86e655a982c12e2e983cbb10bee4    2        2008
- fbc8e2a21fd933c87895ad5da97978394c19859d    1        2008
- fc392d7c5f4bb0d275013e4746b8a30791c17f71    4        2008
+                                                         exp last_active
+ Author                                   Org                           
+ 0040576ccb02d80fbcdca410c87481e617d30402 Community        1        2008
+ 00425929e872f86f1686ce88459d60a4d8634e36 Community        2        2008
+ 0050824236a67c3ef6c84db126cc81ae8a34b638 Community        1        2008
+ 00633c4f1a29fc14c9f79d0aa0358fbfbe1b2a0c Mozilla Staff    2        2008
+ 00686716dabebbaba2a1667335b2c4ec076a3cb5 Community        5        2008
+ 00846eff46b051d92317fc74e54041c6fdccd7cf Mozilla Staff    1        2008
+ 00890cbe5133b67bfa1021485959d2b42c11f4f8 Mozilla Staff    1        2008
+ 012f9fe0064209c2affd5810083edccc723b32a9 Mozilla Staff    2        2008
+ 01ab2889da57c18304a23111f495dc6ac5bc0c66 Community        4        2008
+ 020e546c6211feb97546084461eeb7cdae47664a Mozilla Staff    1        2008
+ 026dadb4b4a80d0784bc5dd83ba8416c9df67bef Mozilla Staff    2        2008
+ 02c80b820108371e66ae5d904ce2371ef1190933 Mozilla Staff    2        2008
+ 02f2b8d169c66c81e136247f012a43deecaab21c Mozilla Staff    1        2008
+ 0333479955d7323543f69ba29165c8992c75845c Mozilla Staff    2        2008
+ 03904533eccb74d30f19412b29507798acfc9ac4 Community        2        2008
+ 03bbc81cd1db89677298cd092a1ef579220029b8 Mozilla Staff    2        2008
+ 03e29d4afdf730f640dd755f0920defc8cd84f40 Mozilla Staff    2        2008
+ 0445fc29cda1773029265417533ba43ec9e47e3d Mozilla Staff    2        2008
+ 04631379bcf5f74681ac46ab9dfa868c59da1e4f Mozilla Staff    2        2008
+ 04a31d7acae067d4f2b66c102337b44f4f3aad82 Mozilla Staff    2        2008
+ 05250b18e0c6a02531ec4027f86477a8cb563f3f Mozilla Staff    1        2008
+ 0547d380aa40a0422f9a02ff623b0b23ff987dcf Mozilla Staff    2        2008
+ 05734c41a088cf488daa63c98e396a4562126c62 Mozilla Staff    1        2008
+ 057882a7b5594647ebc370db92604aab4395677d Community        2        2008
+ 05dc56c424cea4c33b20b955bb430796bf8f2db9 Mozilla Staff    1        2008
+ 05e236dd5726cae9945b50e4396e1c2729728b1e Mozilla Staff    2        2008
+ 063468063eb29c000a80376e19d7acbc65dfc61f Mozilla Staff    1        2008
+ 063f6f49d542ab9617fecf9278548f538f1ae626 Community        2        2008
+ 066612ecd1623bac421614a1d08ee9933f453505 Mozilla Staff    2        2008
+ 06ba504eda60c956b305bc5009342de71d5464f6 Community        8        2008
+ ...                                                     ...         ...
+ d5579f84647c5ec3b556639b1edf4b3e5bf8bfb5 Community        2        2008
+ d5602c1008e8c35acc19edd8251ea2d21bd2994e Community        2        2008
+ d5da984b577eef52786fe09ed94f75ae888cbbd9 Community        1        2008
+ d60c751f4d1148cebfe5e446c83b43132eac555d Community        2        2008
+ d64bcb6c790c25ee5cb4fd4e59d4ca1b1ea62a01 Community        1        2008
+ d743f97620880dea0089f15baa5283debd24ac61 Community        2        2008
+ d837482dda56826ac9c2d2f6896bfc61c0b1a5cd Community        2        2008
+ dc0e07babbc1d35ed89a8ad4e1f0de40c847d420 Community        3        2008
+ dd6ebf7cd63e3813ebd6f65e87f783638fa3f7e5 Community        2        2008
+ ddb77f844bd62a851a7c3ebed51509f9bcf589e5 Community        1        2008
+ def766dc42780c9c9703bce44546c9de6bd3989a Community        2        2008
+ df14d3840c959eea82f3b5892a2da84ee97d6f9c Community        2        2008
+ df3b547ef09345cdb14d54805f305481caefad95 Community        2        2008
+ df4efe31e7e6e20f743ed51aa1a613c6e211268c Community        1        2008
+ df5622646ba56fffe472706b70381ec08d80e439 Community        6        2008
+ e0bd3ff7ae723c446a776719403838a0567f5308 Community        5        2008
+ e1486ff2023c2195fc83ae27be7c817a7b68d3d2 Mozilla Staff    1        2008
+ e2eb0fb7ae06242d7012ddb7e9539de4bc207e89 Community        3        2008
+ e8b7eb6fa2613e54ffe66c52b61c4797a562475d Community        1        2008
+ ea38871aa19a20ee7fee909ec81a530fa8a76a7c Mozilla Staff    1        2008
+ ef03145b0dc93eb10feff06e0d40f3fe3341726b Community        9        2008
+ efc639b7957be9c0e2177f35e983a51e7b663627 Mozilla Staff    1        2008
+ f26636f25ce3772f1ff8938aec9f8cd2e7f58f11 Community        5        2008
+ f3329fd4821c29ad8296a283bed39919b988db93 Community        2        2008
+ f5525062fc1b00c2c3e1c0b5ba127bed88e3162b Community        2        2008
+ f5590cdec6700a62ab39267b099a68ab3392497b Community        2        2008
+ f5eb2857a2529a2b060a5b0bf47e6340379d7952 Community        2        2008
+ f7bf1309e96e86e655a982c12e2e983cbb10bee4 Community        2        2008
+ fbc8e2a21fd933c87895ad5da97978394c19859d Community        1        2008
+ fc392d7c5f4bb0d275013e4746b8a30791c17f71 Community        4        2008
  
  [483 rows x 2 columns]]</pre>
 </div>
@@ -14611,14 +14612,19 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[16]:</div>
+<div class="prompt input_prompt">In&nbsp;[17]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Plot bar charts for each dataframe</span>
 <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
 <span class="k">for</span> <span class="n">exp_df</span> <span class="ow">in</span> <span class="n">exp_df_list</span><span class="p">:</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">exp_df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
-        <span class="n">print_horizontal_bar_chart</span><span class="p">(</span><span class="n">exp_df</span><span class="p">,</span> <span class="s1">&#39;exp&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="mi">2017</span> <span class="o">-</span> <span class="n">i</span><span class="p">),</span> <span class="n">min_range</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">print_horizontal_bar_chart</span><span class="p">(</span><span class="n">exp_df</span><span class="p">,</span> <span class="s1">&#39;exp&#39;</span><span class="p">,</span> 
+                                   <span class="n">title</span><span class="o">=</span><span class="s1">&#39;All &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="mi">2017</span> <span class="o">-</span> <span class="n">i</span><span class="p">),</span> <span class="n">min_range</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">print_horizontal_bar_chart</span><span class="p">(</span><span class="n">exp_df</span><span class="p">[[</span><span class="n">group2</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Mozilla Staff&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">group1</span><span class="p">,</span> <span class="n">group2</span> <span class="ow">in</span> <span class="n">exp_df</span><span class="o">.</span><span class="n">index</span><span class="p">]],</span> <span class="s1">&#39;exp&#39;</span><span class="p">,</span>
+                                   <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Mozilla &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="mi">2017</span> <span class="o">-</span> <span class="n">i</span><span class="p">),</span> <span class="n">min_range</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">print_horizontal_bar_chart</span><span class="p">(</span><span class="n">exp_df</span><span class="p">[[</span><span class="n">group2</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Mozilla Staff&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">group1</span><span class="p">,</span> <span class="n">group2</span> <span class="ow">in</span> <span class="n">exp_df</span><span class="o">.</span><span class="n">index</span><span class="p">]],</span> <span class="s1">&#39;exp&#39;</span><span class="p">,</span> 
+                                   <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Others &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="mi">2017</span> <span class="o">-</span> <span class="n">i</span><span class="p">),</span> <span class="n">min_range</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
 </pre></div>
 
@@ -14641,7 +14647,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="eb18abfa-90fb-4f98-9d83-e539fa5111e8" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("eb18abfa-90fb-4f98-9d83-e539fa5111e8", [{"type": "bar", "orientation": "h", "x": [69, 107, 83, 53, 82, 47, 58, 39, 16, 21, 25, 1], "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}], {"title": "2017", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+<div id="cb8f77df-c5a1-4627-81f1-c371a80106bf" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("cb8f77df-c5a1-4627-81f1-c371a80106bf", [{"type": "bar", "orientation": "h", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], "x": [69, 107, 83, 54, 82, 47, 57, 39, 16, 21, 25, 1]}], {"title": "All 2017", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -14657,7 +14663,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="e1294909-a8ee-4519-902b-8b1df26eb2d4" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("e1294909-a8ee-4519-902b-8b1df26eb2d4", [{"type": "bar", "orientation": "h", "x": [433, 224, 123, 123, 86, 87, 50, 38, 34, 36, 2, 0, 0, 0, 0, 0, 1], "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]}], {"title": "2016", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+<div id="bbee1eb4-8dff-41e1-9cb7-5700ba96b132" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("bbee1eb4-8dff-41e1-9cb7-5700ba96b132", [{"type": "bar", "orientation": "h", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], "x": [16, 48, 50, 39, 70, 46, 53, 37, 13, 18, 24, 1]}], {"title": "Mozilla 2017", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -14673,7 +14679,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="3edce4c7-fd9f-4e46-a07a-7ec80683c053" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("3edce4c7-fd9f-4e46-a07a-7ec80683c053", [{"type": "bar", "orientation": "h", "x": [465, 211, 163, 109, 101, 54, 42, 37, 43, 2, 0, 0, 0, 0, 0, 1], "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]}], {"title": "2015", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+<div id="bde211cf-8047-4cc9-9269-f88b225d465c" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("bde211cf-8047-4cc9-9269-f88b225d465c", [{"type": "bar", "orientation": "h", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], "x": [53, 59, 33, 15, 12, 1, 4, 2, 3, 3, 1]}], {"title": "Others 2017", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -14689,7 +14695,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="41ee6cd3-a6d5-4ce2-ab6e-2942e11aeaa1" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("41ee6cd3-a6d5-4ce2-ab6e-2942e11aeaa1", [{"type": "bar", "orientation": "h", "x": [492, 225, 154, 120, 67, 46, 42, 47, 2, 1, 0, 0, 0, 0, 1], "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]}], {"title": "2014", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+<div id="d4037c51-b28b-402a-8ddd-ad75b5f89de5" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("d4037c51-b28b-402a-8ddd-ad75b5f89de5", [{"type": "bar", "orientation": "h", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17], "x": [434, 224, 123, 123, 86, 86, 50, 38, 34, 36, 2, 0, 0, 0, 0, 0, 1]}], {"title": "All 2016", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -14705,7 +14711,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="9296a8ae-7f4e-4b00-817f-da8bfc472b44" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("9296a8ae-7f4e-4b00-817f-da8bfc472b44", [{"type": "bar", "orientation": "h", "x": [435, 206, 149, 82, 49, 48, 52, 2, 1, 0, 0, 0, 0, 1], "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]}], {"title": "2013", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+<div id="164c5086-5f5c-4d41-b2ce-f18cc02c76e1" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("164c5086-5f5c-4d41-b2ce-f18cc02c76e1", [{"type": "bar", "orientation": "h", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17], "x": [114, 103, 85, 99, 84, 77, 46, 31, 30, 35, 2, 0, 0, 0, 0, 0, 1]}], {"title": "Mozilla 2016", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -14721,7 +14727,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="4396b6a7-0719-442e-b248-dd81ed90e2bb" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("4396b6a7-0719-442e-b248-dd81ed90e2bb", [{"type": "bar", "orientation": "h", "x": [369, 211, 98, 59, 58, 62, 3, 0, 0, 1, 0, 0, 1], "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]}], {"title": "2012", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+<div id="edbcf3e9-5d69-4ef8-995a-12ccb1ee8c28" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("edbcf3e9-5d69-4ef8-995a-12ccb1ee8c28", [{"type": "bar", "orientation": "h", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "x": [320, 121, 38, 24, 2, 9, 4, 7, 4, 1]}], {"title": "Others 2016", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -14737,7 +14743,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="9711099e-282b-4d33-b1fa-21d153da93b4" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("9711099e-282b-4d33-b1fa-21d153da93b4", [{"type": "bar", "orientation": "h", "x": [312, 133, 80, 68, 74, 4, 0, 1, 1, 0, 0, 1], "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}], {"title": "2011", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+<div id="a0f8502f-23b3-4671-aa09-9f3719416467" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("a0f8502f-23b3-4671-aa09-9f3719416467", [{"type": "bar", "orientation": "h", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], "x": [465, 212, 163, 109, 100, 54, 42, 37, 43, 2, 0, 0, 0, 0, 0, 1]}], {"title": "All 2015", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -14753,7 +14759,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="7af03d33-e8ad-4b01-8f2e-4cd9a8a740ee" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("7af03d33-e8ad-4b01-8f2e-4cd9a8a740ee", [{"type": "bar", "orientation": "h", "x": [203, 106, 79, 83, 4, 0, 1, 1, 0, 0, 1], "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]}], {"title": "2010", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+<div id="aa3eb10b-efb0-4004-88c0-0159e6ccb819" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("aa3eb10b-efb0-4004-88c0-0159e6ccb819", [{"type": "bar", "orientation": "h", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], "x": [129, 117, 124, 103, 90, 50, 35, 33, 40, 2, 0, 0, 0, 0, 0, 1]}], {"title": "Mozilla 2015", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -14769,7 +14775,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="7d5be87a-6044-4e75-8d34-51dd134cc5dd" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("7d5be87a-6044-4e75-8d34-51dd134cc5dd", [{"type": "bar", "orientation": "h", "x": [180, 105, 91, 5, 0, 1, 1, 1, 1, 1], "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}], {"title": "2009", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+<div id="08cf86a8-5577-4f13-bf74-a34ef8fcd8ee" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("08cf86a8-5577-4f13-bf74-a34ef8fcd8ee", [{"type": "bar", "orientation": "h", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9], "x": [336, 95, 39, 6, 10, 4, 7, 4, 3]}], {"title": "Others 2015", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -14785,7 +14791,327 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="8d642840-dc81-4cb4-8465-e504169c3bef" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("8d642840-dc81-4cb4-8465-e504169c3bef", [{"type": "bar", "orientation": "h", "x": [180, 204, 37, 16, 18, 9, 8, 4, 6, 1], "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}], {"title": "2008", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+<div id="8b9ece15-8e54-4c5c-967f-cfcac8c1c89e" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("8b9ece15-8e54-4c5c-967f-cfcac8c1c89e", [{"type": "bar", "orientation": "h", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], "x": [493, 225, 154, 119, 67, 46, 42, 47, 2, 1, 0, 0, 0, 0, 1]}], {"title": "All 2014", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<div id="0a0c8c36-2e15-4871-8e0a-cc37b576d52a" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("0a0c8c36-2e15-4871-8e0a-cc37b576d52a", [{"type": "bar", "orientation": "h", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], "x": [188, 158, 132, 102, 59, 38, 38, 44, 2, 1, 0, 0, 0, 0, 1]}], {"title": "Mozilla 2014", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<div id="ab6f9207-1e39-4f7a-9fe0-bea418913103" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("ab6f9207-1e39-4f7a-9fe0-bea418913103", [{"type": "bar", "orientation": "h", "y": [1, 2, 3, 4, 5, 6, 7, 8], "x": [305, 67, 22, 17, 8, 8, 4, 3]}], {"title": "Others 2014", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<div id="2e7eb145-8e5f-4000-bed2-77e79fc64d79" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("2e7eb145-8e5f-4000-bed2-77e79fc64d79", [{"type": "bar", "orientation": "h", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "x": [435, 206, 149, 82, 49, 48, 52, 2, 1, 0, 0, 0, 0, 1]}], {"title": "All 2013", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<div id="c365ce28-8871-45fb-9b62-f8320a81af0c" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("c365ce28-8871-45fb-9b62-f8320a81af0c", [{"type": "bar", "orientation": "h", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "x": [226, 159, 123, 70, 42, 44, 47, 2, 1, 0, 0, 0, 0, 1]}], {"title": "Mozilla 2013", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<div id="c84b5473-a9b4-4717-a68e-7ad555c1f614" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("c84b5473-a9b4-4717-a68e-7ad555c1f614", [{"type": "bar", "orientation": "h", "y": [1, 2, 3, 4, 5, 6, 7], "x": [209, 47, 26, 12, 7, 4, 5]}], {"title": "Others 2013", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<div id="7d0823cc-a1fd-42d2-9b2f-899167cb67b6" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("7d0823cc-a1fd-42d2-9b2f-899167cb67b6", [{"type": "bar", "orientation": "h", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], "x": [369, 211, 98, 59, 58, 62, 3, 0, 0, 1, 0, 0, 1]}], {"title": "All 2012", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<div id="312e2f2f-eff7-4d41-a407-0170b7d74538" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("312e2f2f-eff7-4d41-a407-0170b7d74538", [{"type": "bar", "orientation": "h", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], "x": [219, 152, 75, 48, 51, 56, 3, 0, 0, 1, 0, 0, 1]}], {"title": "Mozilla 2012", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<div id="67f12c2d-c37d-46c9-a2d5-4ff8df18eba8" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("67f12c2d-c37d-46c9-a2d5-4ff8df18eba8", [{"type": "bar", "orientation": "h", "y": [1, 2, 3, 4, 5, 6], "x": [150, 59, 23, 11, 7, 6]}], {"title": "Others 2012", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<div id="6cd531c9-1c57-4b57-8fab-78c4e5da54cc" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("6cd531c9-1c57-4b57-8fab-78c4e5da54cc", [{"type": "bar", "orientation": "h", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], "x": [312, 133, 80, 68, 74, 4, 0, 1, 1, 0, 0, 1]}], {"title": "All 2011", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<div id="91610b10-2de0-442a-8995-435e14308323" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("91610b10-2de0-442a-8995-435e14308323", [{"type": "bar", "orientation": "h", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], "x": [186, 89, 63, 57, 66, 4, 0, 1, 1, 0, 0, 1]}], {"title": "Mozilla 2011", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<div id="2795c016-f0f3-4572-9d12-232569328904" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("2795c016-f0f3-4572-9d12-232569328904", [{"type": "bar", "orientation": "h", "y": [1, 2, 3, 4, 5], "x": [126, 44, 17, 11, 8]}], {"title": "Others 2011", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<div id="e7128272-62bf-4f0f-a55e-e43390485b0a" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("e7128272-62bf-4f0f-a55e-e43390485b0a", [{"type": "bar", "orientation": "h", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], "x": [203, 106, 79, 83, 4, 0, 1, 1, 0, 0, 1]}], {"title": "All 2010", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<div id="266094ce-47ac-4438-b0eb-da8b9c3841d4" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("266094ce-47ac-4438-b0eb-da8b9c3841d4", [{"type": "bar", "orientation": "h", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], "x": [112, 75, 61, 75, 4, 0, 1, 1, 0, 0, 1]}], {"title": "Mozilla 2010", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<div id="50b895fc-d591-49a7-8ae0-ef083398d9f1" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("50b895fc-d591-49a7-8ae0-ef083398d9f1", [{"type": "bar", "orientation": "h", "y": [1, 2, 3, 4], "x": [91, 31, 18, 8]}], {"title": "Others 2010", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<div id="f96df9ec-1157-45c8-b4da-f83a00c0c5f0" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("f96df9ec-1157-45c8-b4da-f83a00c0c5f0", [{"type": "bar", "orientation": "h", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "x": [180, 105, 91, 5, 0, 1, 1, 1, 1, 1]}], {"title": "All 2009", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<div id="6b0d14df-0075-4bec-bbc8-8d322bedbf10" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("6b0d14df-0075-4bec-bbc8-8d322bedbf10", [{"type": "bar", "orientation": "h", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "x": [93, 76, 83, 5, 0, 1, 1, 0, 1, 1]}], {"title": "Mozilla 2009", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<div id="8300fdb8-2d34-4a2c-9050-0ad96e0b1858" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("8300fdb8-2d34-4a2c-9050-0ad96e0b1858", [{"type": "bar", "orientation": "h", "y": [1, 2, 3, 4, 5, 6, 7, 8], "x": [87, 29, 8, 0, 0, 0, 0, 1]}], {"title": "Others 2009", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<div id="c7651fff-6fda-4e06-8329-4848a1fb80aa" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("c7651fff-6fda-4e06-8329-4848a1fb80aa", [{"type": "bar", "orientation": "h", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "x": [180, 204, 37, 16, 18, 9, 8, 4, 6, 1]}], {"title": "All 2008", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<div id="66d6556a-b4f8-440f-b58a-8da42411e0ef" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("66d6556a-b4f8-440f-b58a-8da42411e0ef", [{"type": "bar", "orientation": "h", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9], "x": [93, 96, 7, 0, 1, 1, 0, 1, 1]}], {"title": "Mozilla 2008", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<div id="a05b8bf7-f58a-40f9-a049-a0ec0f12db2b" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("a05b8bf7-f58a-40f9-a049-a0ec0f12db2b", [{"type": "bar", "orientation": "h", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "x": [87, 108, 30, 16, 17, 8, 8, 3, 5, 1]}], {"title": "Others 2008", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -14796,10 +15122,10 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[17]:</div>
+<div class="prompt input_prompt">In&nbsp;[30]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">exp_groups_evo_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;last_active&#39;</span><span class="p">,</span> <span class="s1">&#39;exp&#39;</span><span class="p">,</span> <span class="s1">&#39;count&#39;</span><span class="p">])</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">exp_groups_evo_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;last_active&#39;</span><span class="p">,</span> <span class="s1">&#39;exp&#39;</span><span class="p">,</span> <span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="s1">&#39;org&#39;</span><span class="p">])</span>
 
 <span class="k">for</span> <span class="n">exp_df</span> <span class="ow">in</span> <span class="n">exp_df_list</span><span class="p">:</span>
     
@@ -14807,17 +15133,18 @@ div#notebook {
         <span class="k">continue</span>
     
     <span class="n">experience</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">exp_df</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">orgs</span> <span class="o">=</span> <span class="n">exp_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;Org&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
     
     <span class="n">last_active</span> <span class="o">=</span> <span class="n">exp_df</span><span class="p">[</span><span class="s1">&#39;last_active&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">exp</span> <span class="ow">in</span> <span class="n">experience</span><span class="p">:</span>
-        <span class="n">count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">exp_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">exp_df</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">exp</span><span class="p">])</span>
-        <span class="c1">#print(last_active, exp, count)</span>
-        <span class="n">exp_groups_evo_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">exp_groups_evo_df</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[</span><span class="n">last_active</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span> <span class="n">count</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">org</span> <span class="ow">in</span> <span class="n">orgs</span><span class="p">:</span>
+            <span class="n">org_df</span> <span class="o">=</span> <span class="n">exp_df</span><span class="p">[[</span><span class="n">group2</span> <span class="ow">in</span> <span class="p">[</span><span class="n">org</span><span class="p">]</span> <span class="k">for</span> <span class="n">group1</span><span class="p">,</span> <span class="n">group2</span> <span class="ow">in</span> <span class="n">exp_df</span><span class="o">.</span><span class="n">index</span><span class="p">]]</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">org_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">org_df</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">exp</span><span class="p">])</span>
+            <span class="c1">#print(last_active, exp, count)</span>
+            <span class="n">exp_groups_evo_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">exp_groups_evo_df</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[</span><span class="n">last_active</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">org</span><span class="p">]</span>
         
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Max. Exp: &#39;</span><span class="p">,</span> <span class="n">exp_groups_evo_df</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="s1">&#39;Max. Count: &#39;</span><span class="p">,</span>  <span class="n">exp_groups_evo_df</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
-<span class="n">exp_groups_evo_df</span>
-    
-    
+<span class="n">exp_groups_evo_df</span>    
 </pre></div>
 
 </div>
@@ -14830,12 +15157,12 @@ div#notebook {
 
 <div class="output_area"><div class="prompt"></div>
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Max. Exp:  17.0 Max. Count:  492.0
+<pre>Max. Exp:  17.0 Max. Count:  336.0
 </pre>
 </div>
 </div>
 
-<div class="output_area"><div class="prompt output_prompt">Out[17]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[30]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 <div>
@@ -14846,6 +15173,7 @@ div#notebook {
       <th>last_active</th>
       <th>exp</th>
       <th>count</th>
+      <th>org</th>
     </tr>
   </thead>
   <tbody>
@@ -14853,371 +15181,432 @@ div#notebook {
       <th>0</th>
       <td>2017</td>
       <td>1.0</td>
-      <td>69.0</td>
+      <td>16.0</td>
+      <td>Mozilla Staff</td>
     </tr>
     <tr>
       <th>1</th>
       <td>2017</td>
-      <td>2.0</td>
-      <td>107.0</td>
+      <td>1.0</td>
+      <td>53.0</td>
+      <td>Community</td>
     </tr>
     <tr>
       <th>2</th>
       <td>2017</td>
-      <td>3.0</td>
-      <td>83.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>Mozilla Reps</td>
     </tr>
     <tr>
       <th>3</th>
       <td>2017</td>
-      <td>4.0</td>
-      <td>53.0</td>
+      <td>2.0</td>
+      <td>48.0</td>
+      <td>Mozilla Staff</td>
     </tr>
     <tr>
       <th>4</th>
       <td>2017</td>
-      <td>5.0</td>
-      <td>82.0</td>
+      <td>2.0</td>
+      <td>59.0</td>
+      <td>Community</td>
     </tr>
     <tr>
       <th>5</th>
       <td>2017</td>
-      <td>6.0</td>
-      <td>47.0</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>Mozilla Reps</td>
     </tr>
     <tr>
       <th>6</th>
       <td>2017</td>
-      <td>7.0</td>
-      <td>58.0</td>
+      <td>3.0</td>
+      <td>50.0</td>
+      <td>Mozilla Staff</td>
     </tr>
     <tr>
       <th>7</th>
       <td>2017</td>
-      <td>8.0</td>
-      <td>39.0</td>
+      <td>3.0</td>
+      <td>33.0</td>
+      <td>Community</td>
     </tr>
     <tr>
       <th>8</th>
       <td>2017</td>
-      <td>9.0</td>
-      <td>16.0</td>
+      <td>3.0</td>
+      <td>0.0</td>
+      <td>Mozilla Reps</td>
     </tr>
     <tr>
       <th>9</th>
       <td>2017</td>
-      <td>10.0</td>
-      <td>21.0</td>
+      <td>4.0</td>
+      <td>39.0</td>
+      <td>Mozilla Staff</td>
     </tr>
     <tr>
       <th>10</th>
       <td>2017</td>
-      <td>11.0</td>
-      <td>25.0</td>
+      <td>4.0</td>
+      <td>14.0</td>
+      <td>Community</td>
     </tr>
     <tr>
       <th>11</th>
       <td>2017</td>
-      <td>12.0</td>
+      <td>4.0</td>
       <td>1.0</td>
+      <td>Mozilla Reps</td>
     </tr>
     <tr>
       <th>12</th>
-      <td>2016</td>
-      <td>1.0</td>
-      <td>433.0</td>
+      <td>2017</td>
+      <td>5.0</td>
+      <td>70.0</td>
+      <td>Mozilla Staff</td>
     </tr>
     <tr>
       <th>13</th>
-      <td>2016</td>
-      <td>2.0</td>
-      <td>224.0</td>
+      <td>2017</td>
+      <td>5.0</td>
+      <td>12.0</td>
+      <td>Community</td>
     </tr>
     <tr>
       <th>14</th>
-      <td>2016</td>
-      <td>3.0</td>
-      <td>123.0</td>
+      <td>2017</td>
+      <td>5.0</td>
+      <td>0.0</td>
+      <td>Mozilla Reps</td>
     </tr>
     <tr>
       <th>15</th>
-      <td>2016</td>
-      <td>4.0</td>
-      <td>123.0</td>
+      <td>2017</td>
+      <td>6.0</td>
+      <td>46.0</td>
+      <td>Mozilla Staff</td>
     </tr>
     <tr>
       <th>16</th>
-      <td>2016</td>
-      <td>5.0</td>
-      <td>86.0</td>
+      <td>2017</td>
+      <td>6.0</td>
+      <td>1.0</td>
+      <td>Community</td>
     </tr>
     <tr>
       <th>17</th>
-      <td>2016</td>
+      <td>2017</td>
       <td>6.0</td>
-      <td>87.0</td>
+      <td>0.0</td>
+      <td>Mozilla Reps</td>
     </tr>
     <tr>
       <th>18</th>
-      <td>2016</td>
+      <td>2017</td>
       <td>7.0</td>
-      <td>50.0</td>
+      <td>53.0</td>
+      <td>Mozilla Staff</td>
     </tr>
     <tr>
       <th>19</th>
-      <td>2016</td>
-      <td>8.0</td>
-      <td>38.0</td>
+      <td>2017</td>
+      <td>7.0</td>
+      <td>4.0</td>
+      <td>Community</td>
     </tr>
     <tr>
       <th>20</th>
-      <td>2016</td>
-      <td>9.0</td>
-      <td>34.0</td>
+      <td>2017</td>
+      <td>7.0</td>
+      <td>0.0</td>
+      <td>Mozilla Reps</td>
     </tr>
     <tr>
       <th>21</th>
-      <td>2016</td>
-      <td>10.0</td>
-      <td>36.0</td>
+      <td>2017</td>
+      <td>8.0</td>
+      <td>37.0</td>
+      <td>Mozilla Staff</td>
     </tr>
     <tr>
       <th>22</th>
-      <td>2016</td>
-      <td>11.0</td>
+      <td>2017</td>
+      <td>8.0</td>
       <td>2.0</td>
+      <td>Community</td>
     </tr>
     <tr>
       <th>23</th>
-      <td>2016</td>
-      <td>12.0</td>
+      <td>2017</td>
+      <td>8.0</td>
       <td>0.0</td>
+      <td>Mozilla Reps</td>
     </tr>
     <tr>
       <th>24</th>
-      <td>2016</td>
+      <td>2017</td>
+      <td>9.0</td>
       <td>13.0</td>
-      <td>0.0</td>
+      <td>Mozilla Staff</td>
     </tr>
     <tr>
       <th>25</th>
-      <td>2016</td>
-      <td>14.0</td>
-      <td>0.0</td>
+      <td>2017</td>
+      <td>9.0</td>
+      <td>3.0</td>
+      <td>Community</td>
     </tr>
     <tr>
       <th>26</th>
-      <td>2016</td>
-      <td>15.0</td>
+      <td>2017</td>
+      <td>9.0</td>
       <td>0.0</td>
+      <td>Mozilla Reps</td>
     </tr>
     <tr>
       <th>27</th>
-      <td>2016</td>
-      <td>16.0</td>
-      <td>0.0</td>
+      <td>2017</td>
+      <td>10.0</td>
+      <td>18.0</td>
+      <td>Mozilla Staff</td>
     </tr>
     <tr>
       <th>28</th>
-      <td>2016</td>
-      <td>17.0</td>
-      <td>1.0</td>
+      <td>2017</td>
+      <td>10.0</td>
+      <td>3.0</td>
+      <td>Community</td>
     </tr>
     <tr>
       <th>29</th>
-      <td>2015</td>
-      <td>1.0</td>
-      <td>465.0</td>
+      <td>2017</td>
+      <td>10.0</td>
+      <td>0.0</td>
+      <td>Mozilla Reps</td>
     </tr>
     <tr>
       <th>...</th>
       <td>...</td>
       <td>...</td>
       <td>...</td>
+      <td>...</td>
     </tr>
     <tr>
-      <th>100</th>
-      <td>2010</td>
-      <td>2.0</td>
-      <td>106.0</td>
-    </tr>
-    <tr>
-      <th>101</th>
-      <td>2010</td>
-      <td>3.0</td>
-      <td>79.0</td>
-    </tr>
-    <tr>
-      <th>102</th>
-      <td>2010</td>
-      <td>4.0</td>
-      <td>83.0</td>
-    </tr>
-    <tr>
-      <th>103</th>
-      <td>2010</td>
-      <td>5.0</td>
-      <td>4.0</td>
-    </tr>
-    <tr>
-      <th>104</th>
-      <td>2010</td>
+      <th>290</th>
+      <td>2009</td>
       <td>6.0</td>
       <td>0.0</td>
+      <td>Community</td>
     </tr>
     <tr>
-      <th>105</th>
-      <td>2010</td>
-      <td>7.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>106</th>
-      <td>2010</td>
-      <td>8.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>107</th>
-      <td>2010</td>
-      <td>9.0</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>108</th>
-      <td>2010</td>
-      <td>10.0</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>109</th>
-      <td>2010</td>
-      <td>11.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>110</th>
-      <td>2009</td>
-      <td>1.0</td>
-      <td>180.0</td>
-    </tr>
-    <tr>
-      <th>111</th>
-      <td>2009</td>
-      <td>2.0</td>
-      <td>105.0</td>
-    </tr>
-    <tr>
-      <th>112</th>
-      <td>2009</td>
-      <td>3.0</td>
-      <td>91.0</td>
-    </tr>
-    <tr>
-      <th>113</th>
-      <td>2009</td>
-      <td>4.0</td>
-      <td>5.0</td>
-    </tr>
-    <tr>
-      <th>114</th>
-      <td>2009</td>
-      <td>5.0</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>115</th>
+      <th>291</th>
       <td>2009</td>
       <td>6.0</td>
       <td>1.0</td>
+      <td>Mozilla Staff</td>
     </tr>
     <tr>
-      <th>116</th>
+      <th>292</th>
+      <td>2009</td>
+      <td>7.0</td>
+      <td>0.0</td>
+      <td>Community</td>
+    </tr>
+    <tr>
+      <th>293</th>
       <td>2009</td>
       <td>7.0</td>
       <td>1.0</td>
+      <td>Mozilla Staff</td>
     </tr>
     <tr>
-      <th>117</th>
+      <th>294</th>
       <td>2009</td>
       <td>8.0</td>
       <td>1.0</td>
+      <td>Community</td>
     </tr>
     <tr>
-      <th>118</th>
+      <th>295</th>
+      <td>2009</td>
+      <td>8.0</td>
+      <td>0.0</td>
+      <td>Mozilla Staff</td>
+    </tr>
+    <tr>
+      <th>296</th>
+      <td>2009</td>
+      <td>9.0</td>
+      <td>0.0</td>
+      <td>Community</td>
+    </tr>
+    <tr>
+      <th>297</th>
       <td>2009</td>
       <td>9.0</td>
       <td>1.0</td>
+      <td>Mozilla Staff</td>
     </tr>
     <tr>
-      <th>119</th>
+      <th>298</th>
+      <td>2009</td>
+      <td>10.0</td>
+      <td>0.0</td>
+      <td>Community</td>
+    </tr>
+    <tr>
+      <th>299</th>
       <td>2009</td>
       <td>10.0</td>
       <td>1.0</td>
+      <td>Mozilla Staff</td>
     </tr>
     <tr>
-      <th>120</th>
+      <th>300</th>
       <td>2008</td>
       <td>1.0</td>
-      <td>180.0</td>
+      <td>87.0</td>
+      <td>Community</td>
     </tr>
     <tr>
-      <th>121</th>
+      <th>301</th>
+      <td>2008</td>
+      <td>1.0</td>
+      <td>93.0</td>
+      <td>Mozilla Staff</td>
+    </tr>
+    <tr>
+      <th>302</th>
       <td>2008</td>
       <td>2.0</td>
-      <td>204.0</td>
+      <td>108.0</td>
+      <td>Community</td>
     </tr>
     <tr>
-      <th>122</th>
+      <th>303</th>
+      <td>2008</td>
+      <td>2.0</td>
+      <td>96.0</td>
+      <td>Mozilla Staff</td>
+    </tr>
+    <tr>
+      <th>304</th>
       <td>2008</td>
       <td>3.0</td>
-      <td>37.0</td>
+      <td>30.0</td>
+      <td>Community</td>
     </tr>
     <tr>
-      <th>123</th>
+      <th>305</th>
+      <td>2008</td>
+      <td>3.0</td>
+      <td>7.0</td>
+      <td>Mozilla Staff</td>
+    </tr>
+    <tr>
+      <th>306</th>
       <td>2008</td>
       <td>4.0</td>
       <td>16.0</td>
+      <td>Community</td>
     </tr>
     <tr>
-      <th>124</th>
+      <th>307</th>
+      <td>2008</td>
+      <td>4.0</td>
+      <td>0.0</td>
+      <td>Mozilla Staff</td>
+    </tr>
+    <tr>
+      <th>308</th>
       <td>2008</td>
       <td>5.0</td>
-      <td>18.0</td>
+      <td>17.0</td>
+      <td>Community</td>
     </tr>
     <tr>
-      <th>125</th>
+      <th>309</th>
+      <td>2008</td>
+      <td>5.0</td>
+      <td>1.0</td>
+      <td>Mozilla Staff</td>
+    </tr>
+    <tr>
+      <th>310</th>
       <td>2008</td>
       <td>6.0</td>
-      <td>9.0</td>
+      <td>8.0</td>
+      <td>Community</td>
     </tr>
     <tr>
-      <th>126</th>
+      <th>311</th>
+      <td>2008</td>
+      <td>6.0</td>
+      <td>1.0</td>
+      <td>Mozilla Staff</td>
+    </tr>
+    <tr>
+      <th>312</th>
       <td>2008</td>
       <td>7.0</td>
       <td>8.0</td>
+      <td>Community</td>
     </tr>
     <tr>
-      <th>127</th>
+      <th>313</th>
+      <td>2008</td>
+      <td>7.0</td>
+      <td>0.0</td>
+      <td>Mozilla Staff</td>
+    </tr>
+    <tr>
+      <th>314</th>
       <td>2008</td>
       <td>8.0</td>
-      <td>4.0</td>
+      <td>3.0</td>
+      <td>Community</td>
     </tr>
     <tr>
-      <th>128</th>
+      <th>315</th>
+      <td>2008</td>
+      <td>8.0</td>
+      <td>1.0</td>
+      <td>Mozilla Staff</td>
+    </tr>
+    <tr>
+      <th>316</th>
       <td>2008</td>
       <td>9.0</td>
-      <td>6.0</td>
+      <td>5.0</td>
+      <td>Community</td>
     </tr>
     <tr>
-      <th>129</th>
+      <th>317</th>
+      <td>2008</td>
+      <td>9.0</td>
+      <td>1.0</td>
+      <td>Mozilla Staff</td>
+    </tr>
+    <tr>
+      <th>318</th>
       <td>2008</td>
       <td>10.0</td>
       <td>1.0</td>
+      <td>Community</td>
+    </tr>
+    <tr>
+      <th>319</th>
+      <td>2008</td>
+      <td>10.0</td>
+      <td>0.0</td>
+      <td>Mozilla Staff</td>
     </tr>
   </tbody>
 </table>
-<p>130 rows × 3 columns</p>
+<p>320 rows × 4 columns</p>
 </div>
 </div>
 
@@ -15246,7 +15635,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[18]:</div>
+<div class="prompt input_prompt">In&nbsp;[39]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">exp_groups_evo_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">])</span>
@@ -15288,7 +15677,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[18]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[39]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 <div>
@@ -15330,9 +15719,9 @@ div#notebook {
       <td>312.0</td>
       <td>369.0</td>
       <td>435.0</td>
-      <td>492.0</td>
+      <td>493.0</td>
       <td>465.0</td>
-      <td>433.0</td>
+      <td>434.0</td>
       <td>69.0</td>
     </tr>
     <tr>
@@ -15344,7 +15733,7 @@ div#notebook {
       <td>211.0</td>
       <td>206.0</td>
       <td>225.0</td>
-      <td>211.0</td>
+      <td>212.0</td>
       <td>224.0</td>
       <td>107.0</td>
     </tr>
@@ -15369,10 +15758,10 @@ div#notebook {
       <td>68.0</td>
       <td>59.0</td>
       <td>82.0</td>
-      <td>120.0</td>
+      <td>119.0</td>
       <td>109.0</td>
       <td>123.0</td>
-      <td>53.0</td>
+      <td>54.0</td>
     </tr>
     <tr>
       <th>5.0</th>
@@ -15383,7 +15772,7 @@ div#notebook {
       <td>58.0</td>
       <td>49.0</td>
       <td>67.0</td>
-      <td>101.0</td>
+      <td>100.0</td>
       <td>86.0</td>
       <td>82.0</td>
     </tr>
@@ -15397,7 +15786,7 @@ div#notebook {
       <td>48.0</td>
       <td>46.0</td>
       <td>54.0</td>
-      <td>87.0</td>
+      <td>86.0</td>
       <td>47.0</td>
     </tr>
     <tr>
@@ -15411,7 +15800,7 @@ div#notebook {
       <td>42.0</td>
       <td>42.0</td>
       <td>50.0</td>
-      <td>58.0</td>
+      <td>57.0</td>
     </tr>
     <tr>
       <th>8.0</th>
@@ -15613,6 +16002,561 @@ div#notebook {
 
 <div class="output_html rendered_html output_subarea ">
 <div id="8084ceb8-370b-4229-8cca-312939259883" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("8084ceb8-370b-4229-8cca-312939259883", [{"type": "scatter", "x": ["2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017"], "y": [180.0, 180.0, 203.0, 312.0, 369.0, 435.0, 492.0, 465.0, 433.0, 69.0], "mode": "lines+markers", "name": "1 years"}, {"type": "scatter", "x": ["2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017"], "y": [204.0, 105.0, 106.0, 133.0, 211.0, 206.0, 225.0, 211.0, 224.0, 107.0], "mode": "lines+markers", "name": "2 years"}, {"type": "scatter", "x": ["2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017"], "y": [37.0, 91.0, 79.0, 80.0, 98.0, 149.0, 154.0, 163.0, 123.0, 83.0], "mode": "lines+markers", "name": "3 years"}, {"type": "scatter", "x": ["2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017"], "y": [16.0, 5.0, 83.0, 68.0, 59.0, 82.0, 120.0, 109.0, 123.0, 53.0], "mode": "lines+markers", "name": "4 years"}, {"type": "scatter", "x": ["2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017"], "y": [18.0, 0.0, 4.0, 74.0, 58.0, 49.0, 67.0, 101.0, 86.0, 82.0], "mode": "lines+markers", "name": "5 years"}, {"type": "scatter", "x": ["2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017"], "y": [9.0, 1.0, 0.0, 4.0, 62.0, 48.0, 46.0, 54.0, 87.0, 47.0], "mode": "lines+markers", "name": "6 years"}, {"type": "scatter", "x": ["2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017"], "y": [8.0, 1.0, 1.0, 0.0, 3.0, 52.0, 42.0, 42.0, 50.0, 58.0], "mode": "lines+markers", "name": "7 years"}, {"type": "scatter", "x": ["2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017"], "y": [4.0, 1.0, 1.0, 1.0, 0.0, 2.0, 47.0, 37.0, 38.0, 39.0], "mode": "lines+markers", "name": "8 years"}, {"type": "scatter", "x": ["2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017"], "y": [6.0, 1.0, 0.0, 1.0, 0.0, 1.0, 2.0, 43.0, 34.0, 16.0], "mode": "lines+markers", "name": "9 years"}, {"type": "scatter", "x": ["2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017"], "y": [1.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 2.0, 36.0, 21.0], "mode": "lines+markers", "name": "10 years"}, {"type": "scatter", "x": ["2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017"], "y": [0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 25.0], "mode": "lines+markers", "name": "11 years"}, {"type": "scatter", "x": ["2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017"], "y": [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0], "mode": "lines+markers", "name": "12 years"}, {"type": "scatter", "x": ["2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017"], "y": [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0], "mode": "lines+markers", "name": "13 years"}, {"type": "scatter", "x": ["2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017"], "y": [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0], "mode": "lines+markers", "name": "14 years"}, {"type": "scatter", "x": ["2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017"], "y": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0], "mode": "lines+markers", "name": "15 years"}, {"type": "scatter", "x": ["2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017"], "y": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0], "mode": "lines+markers", "name": "16 years"}, {"type": "scatter", "x": ["2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017"], "y": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0], "mode": "lines+markers", "name": "17 years"}], {}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Evolution-of-Experience-by-Organization">Evolution of Experience by Organization<a class="anchor-link" href="#Evolution-of-Experience-by-Organization">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[33]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">exp_groups_evo_moz_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">])</span>
+
+<span class="k">for</span> <span class="n">exp_df</span> <span class="ow">in</span> <span class="n">exp_df_list</span><span class="p">:</span>
+    
+    <span class="k">if</span> <span class="n">exp_df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">continue</span>
+        
+    <span class="n">exp_df</span> <span class="o">=</span> <span class="n">exp_df</span><span class="p">[[</span><span class="n">group2</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Mozilla Staff&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">group1</span><span class="p">,</span> <span class="n">group2</span> <span class="ow">in</span> <span class="n">exp_df</span><span class="o">.</span><span class="n">index</span><span class="p">]]</span>
+    
+    <span class="n">year</span> <span class="o">=</span> <span class="n">exp_df</span><span class="p">[</span><span class="s1">&#39;last_active&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">exp_groups_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">,</span> <span class="n">year</span><span class="p">])</span>
+    
+    <span class="n">experience</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">exp_df</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+    
+    <span class="k">for</span> <span class="n">exp</span> <span class="ow">in</span> <span class="n">experience</span><span class="p">:</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">exp_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">exp_df</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">exp</span><span class="p">])</span>
+        <span class="n">exp_groups_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">exp_groups_df</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[</span><span class="n">exp</span><span class="p">,</span> <span class="n">count</span><span class="p">]</span>
+
+    <span class="n">exp_groups_evo_moz_df</span> <span class="o">=</span> <span class="n">exp_groups_evo_moz_df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">exp_groups_df</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;exp&#39;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">)</span>
+
+
+<span class="c1"># Fill Nan with 0&#39;s</span>
+<span class="n">exp_groups_evo_moz_df</span> <span class="o">=</span> <span class="n">exp_groups_evo_moz_df</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Reorder columns</span>
+<span class="n">exp_groups_evo_moz_df</span> <span class="o">=</span> <span class="n">exp_groups_evo_moz_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;exp&#39;</span><span class="p">)</span>
+<span class="n">exp_groups_evo_moz_df</span> <span class="o">=</span> <span class="n">exp_groups_evo_moz_df</span><span class="o">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="c1">#print(&#39;Max. Exp: &#39;, exp_groups_evo_moz_df[&#39;exp&#39;].max(), &#39;Max. Count: &#39;)</span>
+<span class="n">exp_groups_evo_moz_df</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[33]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>2008</th>
+      <th>2009</th>
+      <th>2010</th>
+      <th>2011</th>
+      <th>2012</th>
+      <th>2013</th>
+      <th>2014</th>
+      <th>2015</th>
+      <th>2016</th>
+      <th>2017</th>
+    </tr>
+    <tr>
+      <th>exp</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1.0</th>
+      <td>93.0</td>
+      <td>93.0</td>
+      <td>112.0</td>
+      <td>186.0</td>
+      <td>219.0</td>
+      <td>226.0</td>
+      <td>188.0</td>
+      <td>129.0</td>
+      <td>114.0</td>
+      <td>16.0</td>
+    </tr>
+    <tr>
+      <th>2.0</th>
+      <td>96.0</td>
+      <td>76.0</td>
+      <td>75.0</td>
+      <td>89.0</td>
+      <td>152.0</td>
+      <td>159.0</td>
+      <td>158.0</td>
+      <td>117.0</td>
+      <td>103.0</td>
+      <td>48.0</td>
+    </tr>
+    <tr>
+      <th>3.0</th>
+      <td>7.0</td>
+      <td>83.0</td>
+      <td>61.0</td>
+      <td>63.0</td>
+      <td>75.0</td>
+      <td>123.0</td>
+      <td>132.0</td>
+      <td>124.0</td>
+      <td>85.0</td>
+      <td>50.0</td>
+    </tr>
+    <tr>
+      <th>4.0</th>
+      <td>0.0</td>
+      <td>5.0</td>
+      <td>75.0</td>
+      <td>57.0</td>
+      <td>48.0</td>
+      <td>70.0</td>
+      <td>102.0</td>
+      <td>103.0</td>
+      <td>99.0</td>
+      <td>39.0</td>
+    </tr>
+    <tr>
+      <th>5.0</th>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>4.0</td>
+      <td>66.0</td>
+      <td>51.0</td>
+      <td>42.0</td>
+      <td>59.0</td>
+      <td>90.0</td>
+      <td>84.0</td>
+      <td>70.0</td>
+    </tr>
+    <tr>
+      <th>6.0</th>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>4.0</td>
+      <td>56.0</td>
+      <td>44.0</td>
+      <td>38.0</td>
+      <td>50.0</td>
+      <td>77.0</td>
+      <td>46.0</td>
+    </tr>
+    <tr>
+      <th>7.0</th>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>3.0</td>
+      <td>47.0</td>
+      <td>38.0</td>
+      <td>35.0</td>
+      <td>46.0</td>
+      <td>53.0</td>
+    </tr>
+    <tr>
+      <th>8.0</th>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>44.0</td>
+      <td>33.0</td>
+      <td>31.0</td>
+      <td>37.0</td>
+    </tr>
+    <tr>
+      <th>9.0</th>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>2.0</td>
+      <td>40.0</td>
+      <td>30.0</td>
+      <td>13.0</td>
+    </tr>
+    <tr>
+      <th>10.0</th>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>2.0</td>
+      <td>35.0</td>
+      <td>18.0</td>
+    </tr>
+    <tr>
+      <th>11.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>24.0</td>
+    </tr>
+    <tr>
+      <th>12.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>13.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>14.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>15.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>16.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>17.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[36]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">exp_groups_evo_others_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">])</span>
+
+<span class="k">for</span> <span class="n">exp_df</span> <span class="ow">in</span> <span class="n">exp_df_list</span><span class="p">:</span>
+    
+    <span class="k">if</span> <span class="n">exp_df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">continue</span>
+        
+    <span class="n">exp_df</span> <span class="o">=</span> <span class="n">exp_df</span><span class="p">[[</span><span class="n">group2</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Mozilla Staff&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">group1</span><span class="p">,</span> <span class="n">group2</span> <span class="ow">in</span> <span class="n">exp_df</span><span class="o">.</span><span class="n">index</span><span class="p">]]</span>
+    
+    <span class="n">year</span> <span class="o">=</span> <span class="n">exp_df</span><span class="p">[</span><span class="s1">&#39;last_active&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">exp_groups_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">,</span> <span class="n">year</span><span class="p">])</span>
+    
+    <span class="n">experience</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">exp_df</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+    
+    <span class="k">for</span> <span class="n">exp</span> <span class="ow">in</span> <span class="n">experience</span><span class="p">:</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">exp_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">exp_df</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">exp</span><span class="p">])</span>
+        <span class="n">exp_groups_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">exp_groups_df</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[</span><span class="n">exp</span><span class="p">,</span> <span class="n">count</span><span class="p">]</span>
+
+    <span class="n">exp_groups_evo_others_df</span> <span class="o">=</span> <span class="n">exp_groups_evo_others_df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">exp_groups_df</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;exp&#39;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">)</span>
+
+
+<span class="c1"># Fill Nan with 0&#39;s</span>
+<span class="n">exp_groups_evo_others_df</span> <span class="o">=</span> <span class="n">exp_groups_evo_others_df</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Reorder columns</span>
+<span class="n">exp_groups_evo_others_df</span> <span class="o">=</span> <span class="n">exp_groups_evo_others_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;exp&#39;</span><span class="p">)</span>
+<span class="n">exp_groups_evo_others_df</span> <span class="o">=</span> <span class="n">exp_groups_evo_others_df</span><span class="o">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="c1">#print(&#39;Max. Exp: &#39;, exp_groups_evo_others_df[&#39;exp&#39;].max(), &#39;Max. Count: &#39;)</span>
+<span class="n">exp_groups_evo_others_df</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[36]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>2008</th>
+      <th>2009</th>
+      <th>2010</th>
+      <th>2011</th>
+      <th>2012</th>
+      <th>2013</th>
+      <th>2014</th>
+      <th>2015</th>
+      <th>2016</th>
+      <th>2017</th>
+    </tr>
+    <tr>
+      <th>exp</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1.0</th>
+      <td>87.0</td>
+      <td>87.0</td>
+      <td>91.0</td>
+      <td>126.0</td>
+      <td>150.0</td>
+      <td>209.0</td>
+      <td>305.0</td>
+      <td>336.0</td>
+      <td>320.0</td>
+      <td>53.0</td>
+    </tr>
+    <tr>
+      <th>2.0</th>
+      <td>108.0</td>
+      <td>29.0</td>
+      <td>31.0</td>
+      <td>44.0</td>
+      <td>59.0</td>
+      <td>47.0</td>
+      <td>67.0</td>
+      <td>95.0</td>
+      <td>121.0</td>
+      <td>59.0</td>
+    </tr>
+    <tr>
+      <th>3.0</th>
+      <td>30.0</td>
+      <td>8.0</td>
+      <td>18.0</td>
+      <td>17.0</td>
+      <td>23.0</td>
+      <td>26.0</td>
+      <td>22.0</td>
+      <td>39.0</td>
+      <td>38.0</td>
+      <td>33.0</td>
+    </tr>
+    <tr>
+      <th>4.0</th>
+      <td>16.0</td>
+      <td>0.0</td>
+      <td>8.0</td>
+      <td>11.0</td>
+      <td>11.0</td>
+      <td>12.0</td>
+      <td>17.0</td>
+      <td>6.0</td>
+      <td>24.0</td>
+      <td>15.0</td>
+    </tr>
+    <tr>
+      <th>5.0</th>
+      <td>17.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>8.0</td>
+      <td>7.0</td>
+      <td>7.0</td>
+      <td>8.0</td>
+      <td>10.0</td>
+      <td>2.0</td>
+      <td>12.0</td>
+    </tr>
+    <tr>
+      <th>6.0</th>
+      <td>8.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>6.0</td>
+      <td>4.0</td>
+      <td>8.0</td>
+      <td>4.0</td>
+      <td>9.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>7.0</th>
+      <td>8.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>5.0</td>
+      <td>4.0</td>
+      <td>7.0</td>
+      <td>4.0</td>
+      <td>4.0</td>
+    </tr>
+    <tr>
+      <th>8.0</th>
+      <td>3.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>3.0</td>
+      <td>4.0</td>
+      <td>7.0</td>
+      <td>2.0</td>
+    </tr>
+    <tr>
+      <th>9.0</th>
+      <td>5.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>3.0</td>
+      <td>4.0</td>
+      <td>3.0</td>
+    </tr>
+    <tr>
+      <th>10.0</th>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>3.0</td>
+    </tr>
+    <tr>
+      <th>11.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
 </div>
 
 </div>
@@ -16533,6 +17477,855 @@ div#notebook {
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Answers">Answers<a class="anchor-link" href="#Answers">&#182;</a></h1><ul>
+<li>How many contributors are joining the community?</li>
+<li>How many contributors are no longer active (leaving) in the community?</li>
+<li>How is the attraction / retention ratio, and the net gain of contributors, over time?</li>
+</ul>
+<p>To answer these questions we need to understand following tables. Each of them shows contributor groups based on their years of experience in the community. To count years of experience we make the following assumptions:</p>
+<ul>
+<li>We consider <strong>12 commits</strong> per year, i.e. one commit per month aprox., as a minimum to add one year of experience to a given author.</li>
+<li>For each year we count only authors who were active that year, that is, authors whose last year of experience is the one we are analyzing data from (represented as columns in table).</li>
+<li>Years of experience could be not consecutive, that is, one contributor that made 12 or more contributions in 2010 and then 12 or more in 2014 will have 2 years of experience in 2014 and 1 year of experience in 2010. For other years this contributor is not taken into account as she was inactive.</li>
+</ul>
+<p>It is worth noting that numbers are calculated not by following individuals, but comparing total number of people in each group at a given time.</p>
+<p>Table below shows data for all <strong>Git</strong> contributions made in the last 10 years. Table can be read as follows:</p>
+<ul>
+<li><strong>Cell</strong> values corresponds to the number of contributors in the given group.</li>
+<li><strong>Rows</strong> corresponds to groups based on years of experience.</li>
+<li><strong>Columns</strong> corresponds to years we are analyzing.</li>
+</ul>
+<p>Depending on how we read the table we can analyze different aspects:</p>
+<ul>
+<li><strong>Attraction</strong>. Focusing on exp 1.0 row we can have an idea of number of people getting attracted to the community. As we count only people who made at least 12 commits, we can consider they are reasonably engaged in the community.</li>
+<li><strong>Retention</strong>. Following diagonals in the table allow us to follow the evolutions of a given group from a particular year through time. That is, we will get number of people belonging to that group through time. For instance, if we look at cell (1.0, 2008) we find 180 people with one year of experience in 2008. If we move to (2.0, 2009) we find 105 people with 2 years of experience in 2009. This way, we've lost 75 people that were attracted in 2008. By following this diagonal we can follow the evolution of people that came in 2008. This procedure is the same whatever cell we use as starting point and always give us the evolution of a given group of people. </li>
+<li><strong>Evolution of the community</strong>. For instance, if we look at the group of 2 years of experience in 2008 we see we had 204 people. If we look at the same group in 2009 we see that our new group of people accumulating 2 years of experience has 105 people. So, it seems we have fewer people with 2 years of experience in 2009. If we look at 2016 we find 226 people with two years of experience, so we have more people with 2 years of experience nowadays than we had 8 years ago.</li>
+</ul>
+<p>Focusing on results:</p>
+<p><strong>NOTE: 2017 column shows incomplete results. It could be removed to avoid mistakes, though it could be useful to know where we are at this point of the year</strong></p>
+<h4 id="Attraction">Attraction<a class="anchor-link" href="#Attraction">&#182;</a></h4><p>(How many contributors are joining the community?)</p>
+<p>From 2008 the number of people coming to the community each year have increased almost a 275% in 2014. Last two years seem to show a decrease, but even in 2016 we find numbers a 241% higher than 2008.</p>
+<p>From Mozilla Staff point of view (<a href="#Table-2.-Experience-in-Git-contributors.-Mozilla-view.">see Table 2</a>) there is an interesting difference when we look at 1.0 row. It seems to follow a different pattern than general (<a href="#Table-1.-Experience-in-Git-contributors.-General-view">Table 1</a>) and others(<a href="#Table-3.-Experience-in-Git-contributors.-Others-view.">Table 3</a>) tables. First, differences between 2008 and 2016 are much smaller than the rest. Also, from 2014 there is a huge decrease in people coming to Mozilla Staff.</p>
+<h4 id="Retention">Retention<a class="anchor-link" href="#Retention">&#182;</a></h4><p>(How many contributors are no longer active (leaving) in the community?)</p>
+<p>If we look at (1.0, 2008) compared to (2.0, 2009) we find we lost 75 people. Next year we lost 26 people more and so on to 2016 when 34 people remains from thos 180 attracted in 2008.</p>
+<p>Comparing retention of Mozilla Staff to Others, we find fewer people with more than 2 years of experience in 2008 (we will talk about this in [next section][#Evolution-of-Community]). Nevertheless, when new people come to the community, a higher percentage of them them remains there for the rest of the analyzed period. From this, we have two points to remark:</p>
+<ul>
+<li>Mozilla Staff is composed of more experienced contributors in 2016.</li>
+<li>Retention rate is better (as it could be expected) for Mozilla Staff.</li>
+</ul>
+<h4 id="Evolution-of-Community">Evolution of Community<a class="anchor-link" href="#Evolution-of-Community">&#182;</a></h4><p>(How is the attraction / retention ratio, and the net gain of contributors, over time?)</p>
+<p>Looking at the differences between 2016 and 2008 we see how numbers are much better now than then. All groups have more people now. However, groups of people with 1 to 3 years of experience seems to be not growing from 2014, we could say they seem to be decreasing.</p>
+<p>In general numbers tell us the community has been growing during this period. New contributors come to the community and a number of them contribute for years. In terms of experience, we find several groups well represented.</p>
+<p>Comparing evolution of Mozilla Staff to evolution of Others, we find fewer people with more than 2 years of experience in 2008. Nevertheless once a group begins to be populated, it numbers increase for the rest of the analyzed period. In other words, numbers in 2016 column for Mozilla Staff clearly improve what we find looking at the first columns, when those groups of experience (i.e. same row, previous columns) came to the community.</p>
+<h3 id="Quick-Summary-of-Mozilla-vs-Community">Quick Summary of Mozilla vs Community<a class="anchor-link" href="#Quick-Summary-of-Mozilla-vs-Community">&#182;</a></h3><ul>
+<li>Mozilla Staff doesn't show the same pattern in 1.0 row. <strong>Fewer people come</strong>.</li>
+<li>Mozilla Staff shows more stability when following the same group of people through time. <strong>More people remain</strong>.</li>
+<li>Mozilla Staff seems to have less experienced contributors at the begining, but much more experienced in 2016. This implies a much bigger retention rate among Mozilla staff. More experice usually implies <strong>better understanding of projects</strong>.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[34]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">exp_groups_evo_df</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[34]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>2008</th>
+      <th>2009</th>
+      <th>2010</th>
+      <th>2011</th>
+      <th>2012</th>
+      <th>2013</th>
+      <th>2014</th>
+      <th>2015</th>
+      <th>2016</th>
+      <th>2017</th>
+    </tr>
+    <tr>
+      <th>exp</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1.0</th>
+      <td>180.0</td>
+      <td>180.0</td>
+      <td>203.0</td>
+      <td>312.0</td>
+      <td>369.0</td>
+      <td>435.0</td>
+      <td>493.0</td>
+      <td>465.0</td>
+      <td>434.0</td>
+      <td>69.0</td>
+    </tr>
+    <tr>
+      <th>2.0</th>
+      <td>204.0</td>
+      <td>105.0</td>
+      <td>106.0</td>
+      <td>133.0</td>
+      <td>211.0</td>
+      <td>206.0</td>
+      <td>225.0</td>
+      <td>212.0</td>
+      <td>224.0</td>
+      <td>107.0</td>
+    </tr>
+    <tr>
+      <th>3.0</th>
+      <td>37.0</td>
+      <td>91.0</td>
+      <td>79.0</td>
+      <td>80.0</td>
+      <td>98.0</td>
+      <td>149.0</td>
+      <td>154.0</td>
+      <td>163.0</td>
+      <td>123.0</td>
+      <td>83.0</td>
+    </tr>
+    <tr>
+      <th>4.0</th>
+      <td>16.0</td>
+      <td>5.0</td>
+      <td>83.0</td>
+      <td>68.0</td>
+      <td>59.0</td>
+      <td>82.0</td>
+      <td>119.0</td>
+      <td>109.0</td>
+      <td>123.0</td>
+      <td>54.0</td>
+    </tr>
+    <tr>
+      <th>5.0</th>
+      <td>18.0</td>
+      <td>0.0</td>
+      <td>4.0</td>
+      <td>74.0</td>
+      <td>58.0</td>
+      <td>49.0</td>
+      <td>67.0</td>
+      <td>100.0</td>
+      <td>86.0</td>
+      <td>82.0</td>
+    </tr>
+    <tr>
+      <th>6.0</th>
+      <td>9.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>4.0</td>
+      <td>62.0</td>
+      <td>48.0</td>
+      <td>46.0</td>
+      <td>54.0</td>
+      <td>86.0</td>
+      <td>47.0</td>
+    </tr>
+    <tr>
+      <th>7.0</th>
+      <td>8.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>3.0</td>
+      <td>52.0</td>
+      <td>42.0</td>
+      <td>42.0</td>
+      <td>50.0</td>
+      <td>57.0</td>
+    </tr>
+    <tr>
+      <th>8.0</th>
+      <td>4.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>47.0</td>
+      <td>37.0</td>
+      <td>38.0</td>
+      <td>39.0</td>
+    </tr>
+    <tr>
+      <th>9.0</th>
+      <td>6.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>2.0</td>
+      <td>43.0</td>
+      <td>34.0</td>
+      <td>16.0</td>
+    </tr>
+    <tr>
+      <th>10.0</th>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>2.0</td>
+      <td>36.0</td>
+      <td>21.0</td>
+    </tr>
+    <tr>
+      <th>11.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>25.0</td>
+    </tr>
+    <tr>
+      <th>12.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>13.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>14.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>15.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>16.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>17.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h5 id="Table-1.-Experience-in-Git-contributors.-General-view">Table 1. Experience in Git contributors. General view<a class="anchor-link" href="#Table-1.-Experience-in-Git-contributors.-General-view">&#182;</a></h5>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[35]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">exp_groups_evo_moz_df</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[35]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>2008</th>
+      <th>2009</th>
+      <th>2010</th>
+      <th>2011</th>
+      <th>2012</th>
+      <th>2013</th>
+      <th>2014</th>
+      <th>2015</th>
+      <th>2016</th>
+      <th>2017</th>
+    </tr>
+    <tr>
+      <th>exp</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1.0</th>
+      <td>93.0</td>
+      <td>93.0</td>
+      <td>112.0</td>
+      <td>186.0</td>
+      <td>219.0</td>
+      <td>226.0</td>
+      <td>188.0</td>
+      <td>129.0</td>
+      <td>114.0</td>
+      <td>16.0</td>
+    </tr>
+    <tr>
+      <th>2.0</th>
+      <td>96.0</td>
+      <td>76.0</td>
+      <td>75.0</td>
+      <td>89.0</td>
+      <td>152.0</td>
+      <td>159.0</td>
+      <td>158.0</td>
+      <td>117.0</td>
+      <td>103.0</td>
+      <td>48.0</td>
+    </tr>
+    <tr>
+      <th>3.0</th>
+      <td>7.0</td>
+      <td>83.0</td>
+      <td>61.0</td>
+      <td>63.0</td>
+      <td>75.0</td>
+      <td>123.0</td>
+      <td>132.0</td>
+      <td>124.0</td>
+      <td>85.0</td>
+      <td>50.0</td>
+    </tr>
+    <tr>
+      <th>4.0</th>
+      <td>0.0</td>
+      <td>5.0</td>
+      <td>75.0</td>
+      <td>57.0</td>
+      <td>48.0</td>
+      <td>70.0</td>
+      <td>102.0</td>
+      <td>103.0</td>
+      <td>99.0</td>
+      <td>39.0</td>
+    </tr>
+    <tr>
+      <th>5.0</th>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>4.0</td>
+      <td>66.0</td>
+      <td>51.0</td>
+      <td>42.0</td>
+      <td>59.0</td>
+      <td>90.0</td>
+      <td>84.0</td>
+      <td>70.0</td>
+    </tr>
+    <tr>
+      <th>6.0</th>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>4.0</td>
+      <td>56.0</td>
+      <td>44.0</td>
+      <td>38.0</td>
+      <td>50.0</td>
+      <td>77.0</td>
+      <td>46.0</td>
+    </tr>
+    <tr>
+      <th>7.0</th>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>3.0</td>
+      <td>47.0</td>
+      <td>38.0</td>
+      <td>35.0</td>
+      <td>46.0</td>
+      <td>53.0</td>
+    </tr>
+    <tr>
+      <th>8.0</th>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>44.0</td>
+      <td>33.0</td>
+      <td>31.0</td>
+      <td>37.0</td>
+    </tr>
+    <tr>
+      <th>9.0</th>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>2.0</td>
+      <td>40.0</td>
+      <td>30.0</td>
+      <td>13.0</td>
+    </tr>
+    <tr>
+      <th>10.0</th>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>2.0</td>
+      <td>35.0</td>
+      <td>18.0</td>
+    </tr>
+    <tr>
+      <th>11.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>24.0</td>
+    </tr>
+    <tr>
+      <th>12.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>13.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>14.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>15.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>16.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>17.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h5 id="Table-2.-Experience-in-Git-contributors.-Mozilla-view.">Table 2. Experience in Git contributors. Mozilla view.<a class="anchor-link" href="#Table-2.-Experience-in-Git-contributors.-Mozilla-view.">&#182;</a></h5>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[37]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">exp_groups_evo_others_df</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[37]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>2008</th>
+      <th>2009</th>
+      <th>2010</th>
+      <th>2011</th>
+      <th>2012</th>
+      <th>2013</th>
+      <th>2014</th>
+      <th>2015</th>
+      <th>2016</th>
+      <th>2017</th>
+    </tr>
+    <tr>
+      <th>exp</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1.0</th>
+      <td>87.0</td>
+      <td>87.0</td>
+      <td>91.0</td>
+      <td>126.0</td>
+      <td>150.0</td>
+      <td>209.0</td>
+      <td>305.0</td>
+      <td>336.0</td>
+      <td>320.0</td>
+      <td>53.0</td>
+    </tr>
+    <tr>
+      <th>2.0</th>
+      <td>108.0</td>
+      <td>29.0</td>
+      <td>31.0</td>
+      <td>44.0</td>
+      <td>59.0</td>
+      <td>47.0</td>
+      <td>67.0</td>
+      <td>95.0</td>
+      <td>121.0</td>
+      <td>59.0</td>
+    </tr>
+    <tr>
+      <th>3.0</th>
+      <td>30.0</td>
+      <td>8.0</td>
+      <td>18.0</td>
+      <td>17.0</td>
+      <td>23.0</td>
+      <td>26.0</td>
+      <td>22.0</td>
+      <td>39.0</td>
+      <td>38.0</td>
+      <td>33.0</td>
+    </tr>
+    <tr>
+      <th>4.0</th>
+      <td>16.0</td>
+      <td>0.0</td>
+      <td>8.0</td>
+      <td>11.0</td>
+      <td>11.0</td>
+      <td>12.0</td>
+      <td>17.0</td>
+      <td>6.0</td>
+      <td>24.0</td>
+      <td>15.0</td>
+    </tr>
+    <tr>
+      <th>5.0</th>
+      <td>17.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>8.0</td>
+      <td>7.0</td>
+      <td>7.0</td>
+      <td>8.0</td>
+      <td>10.0</td>
+      <td>2.0</td>
+      <td>12.0</td>
+    </tr>
+    <tr>
+      <th>6.0</th>
+      <td>8.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>6.0</td>
+      <td>4.0</td>
+      <td>8.0</td>
+      <td>4.0</td>
+      <td>9.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>7.0</th>
+      <td>8.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>5.0</td>
+      <td>4.0</td>
+      <td>7.0</td>
+      <td>4.0</td>
+      <td>4.0</td>
+    </tr>
+    <tr>
+      <th>8.0</th>
+      <td>3.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>3.0</td>
+      <td>4.0</td>
+      <td>7.0</td>
+      <td>2.0</td>
+    </tr>
+    <tr>
+      <th>9.0</th>
+      <td>5.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>3.0</td>
+      <td>4.0</td>
+      <td>3.0</td>
+    </tr>
+    <tr>
+      <th>10.0</th>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>3.0</td>
+    </tr>
+    <tr>
+      <th>11.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h5 id="Table-3.-Experience-in-Git-contributors.-Others-view.">Table 3. Experience in Git contributors. Others view.<a class="anchor-link" href="#Table-3.-Experience-in-Git-contributors.-Others-view.">&#182;</a></h5>
+</div>
+</div>
 </div>
     </div>
   </div>
