@@ -11813,13 +11813,15 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span>
 
 <span class="kn">import</span> <span class="nn">plotly</span> <span class="k">as</span> <span class="nn">plotly</span>
 <span class="kn">import</span> <span class="nn">plotly.graph_objs</span> <span class="k">as</span> <span class="nn">go</span>
+
+<span class="kn">import</span> <span class="nn">util</span> <span class="k">as</span> <span class="nn">ut</span>
 
 <span class="kn">from</span> <span class="nn">util</span> <span class="k">import</span> <span class="n">ESConnection</span>
 <span class="kn">from</span> <span class="nn">elasticsearch_dsl</span> <span class="k">import</span> <span class="n">Search</span>
@@ -11834,7 +11836,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">create_search</span><span class="p">(</span><span class="n">source</span><span class="p">):</span>
@@ -11852,7 +11854,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">print_result</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
@@ -11868,7 +11870,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">print_df</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">group_field</span><span class="p">,</span> <span class="n">value_field</span><span class="p">,</span> <span class="n">group_column</span><span class="p">,</span> <span class="n">value_column</span><span class="p">):</span>
@@ -11890,7 +11892,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[43]:</div>
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">stack_by</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">group_column</span><span class="p">,</span> <span class="n">time_column</span><span class="p">,</span> <span class="n">value_column</span><span class="p">,</span> <span class="n">group_field</span><span class="p">,</span> <span class="n">time_field</span><span class="p">,</span> <span class="n">value_field</span><span class="p">):</span>
@@ -11912,7 +11914,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[46]:</div>
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">stack_by_terms</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">group_column</span><span class="p">,</span> <span class="n">subgroup_column</span><span class="p">,</span> <span class="n">value_column</span><span class="p">,</span> <span class="n">group_field</span><span class="p">,</span> <span class="n">subgroup_field</span><span class="p">,</span> <span class="n">value_field</span><span class="p">):</span>
@@ -11934,7 +11936,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[82]:</div>
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">stack_by_terms_cusum</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">group_column</span><span class="p">,</span> <span class="n">subgroup_column</span><span class="p">,</span> <span class="n">value_column</span><span class="p">,</span>\
@@ -11981,7 +11983,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">stack_by_cusum</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">group_column</span><span class="p">,</span> <span class="n">time_column</span><span class="p">,</span> <span class="n">value_column</span><span class="p">,</span> <span class="n">group_field</span><span class="p">,</span> <span class="n">time_field</span><span class="p">,</span> <span class="n">value_field</span><span class="p">,</span>\
@@ -12024,7 +12026,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">print_stacked_bar</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">time_column</span><span class="p">,</span> <span class="n">value_column</span><span class="p">,</span> <span class="n">group_column</span><span class="p">):</span>
@@ -12054,12 +12056,37 @@ div#notebook {
 </div>
 
 </div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">add_general_date_filters</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="c1"># 01/01/1998</span>
+    <span class="n">initial_ts</span> <span class="o">=</span> <span class="s1">&#39;883609200000&#39;</span>
+    <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;range&#39;</span><span class="p">,</span> <span class="n">grimoire_creation_date</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;gt&#39;</span><span class="p">:</span> <span class="n">initial_ts</span><span class="p">})</span>
+
+<span class="k">def</span> <span class="nf">add_bot_filter</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;term&#39;</span><span class="p">,</span> <span class="n">author_bot</span><span class="o">=</span><span class="s1">&#39;false&#39;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">add_merges_filter</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;range&#39;</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;gt&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+
+<span class="c1"># Let&#39;s load projects from the REVIEWED SPREADSHEET</span>
+<span class="n">projects</span> <span class="o">=</span> <span class="n">ut</span><span class="o">.</span><span class="n">read_projects</span><span class="p">(</span><span class="s2">&quot;data/Contributors and Communities Analysis - Project grouping.xlsx&quot;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Git:-Number-of-commits-authored">Git: Number of commits authored<a class="anchor-link" href="#Git:-Number-of-commits-authored">&#182;</a></h4><p>Commits are contributions in terms of Git. Looking at them we can measure not only global activity of projects and organizations, but also how these projects and organizations evolve through time.</p>
+<h2 id="Git:-Number-of-commits-authored">Git: Number of commits authored<a class="anchor-link" href="#Git:-Number-of-commits-authored">&#182;</a></h2><p>Commits are contributions in terms of Git. Looking at them we can measure not only global activity of projects and organizations, but also how these projects and organizations evolve through time.</p>
 <p>Global numbers were already provided in <a href="http://localhost:8888/notebooks/mozilla-contribution-analysis/data-analysis/Understanding%20Contributors.ipynb#List-of-Projects">List of projects</a> and <a href="http://localhost:8888/notebooks/mozilla-contribution-analysis/data-analysis/Understanding%20Contributors.ipynb#List-of-organizations">List of Organizations</a> sections of the previous goal.</p>
 <p>Next plot shows evolution of contributions by project through last two years, grouped by quarters:</p>
 
@@ -12068,10 +12095,13 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">create_search</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">add_bot_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">add_merges_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
 
 <span class="c1"># Unique count of Commits by Project (max 100 projects)</span>
 <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;range&#39;</span><span class="p">,</span> <span class="n">grimoire_creation_date</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;gt&#39;</span><span class="p">:</span> <span class="s1">&#39;now/M-2y&#39;</span><span class="p">,</span> <span class="s1">&#39;lt&#39;</span><span class="p">:</span> <span class="s1">&#39;now/M&#39;</span><span class="p">})</span>
@@ -12083,19 +12113,8 @@ div#notebook {
             
 <span class="n">df</span> <span class="o">=</span> <span class="n">stack_by</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="n">result</span><span class="p">,</span> <span class="n">group_column</span><span class="o">=</span><span class="s1">&#39;Project&#39;</span><span class="p">,</span> <span class="n">time_column</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">value_column</span><span class="o">=</span><span class="s1">&#39;# Contributions&#39;</span><span class="p">,</span>\
         <span class="n">group_field</span><span class="o">=</span><span class="s1">&#39;projects&#39;</span><span class="p">,</span> <span class="n">time_field</span><span class="o">=</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="n">value_field</span><span class="o">=</span><span class="s1">&#39;contributions&#39;</span><span class="p">)</span>
-</pre></div>
 
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[15]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">print_stacked_bar</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">time_column</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">value_column</span><span class="o">=</span><span class="s1">&#39;# Contributions&#39;</span><span class="p">,</span> <span class="n">group_column</span><span class="o">=</span><span class="s1">&#39;Project&#39;</span><span class="p">)</span>
+<span class="n">print_stacked_bar</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">time_column</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">value_column</span><span class="o">=</span><span class="s1">&#39;# Contributions&#39;</span><span class="p">,</span> <span class="n">group_column</span><span class="o">=</span><span class="s1">&#39;Project&#39;</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -12117,7 +12136,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="e596d22f-9aea-4940-8e37-c4e0a0d473bd" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("e596d22f-9aea-4940-8e37-c4e0a0d473bd", [{"name": "mozilla", "x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "y": [37593.0, 55671.0, 52948.0, 53299.0, 50057.0, 51296.0, 45503.0, 50104.0], "type": "bar"}, {"name": "rust-lang", "x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "y": [6011.0, 8060.0, 7770.0, 9413.0, 8458.0, 10316.0, 9900.0, 11356.0], "type": "bar"}, {"name": "servo", "x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "y": [1721.0, 2779.0, 3212.0, 2800.0, 3895.0, 3231.0, 4145.0, 4217.0], "type": "bar"}, {"name": "mozilla-services", "x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "y": [1642.0, 2692.0, 2612.0, 2850.0, 1984.0, 1782.0, 1497.0, 1900.0], "type": "bar"}, {"name": "mozilla-mobile", "x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "y": [749.0, 1200.0, 1046.0, 1038.0, 737.0, 276.0, 1225.0, 1444.0], "type": "bar"}, {"name": "aframevr", "x": ["2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "y": [283.0, 1480.0, 823.0, 490.0, 1330.0, 1151.0, 1488.0], "type": "bar"}, {"name": "mdn", "x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "y": [342.0, 788.0, 714.0, 572.0, 903.0, 610.0, 407.0, 354.0], "type": "bar"}, {"name": "mozmar", "x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "y": [47.0, 93.0, 110.0, 238.0, 221.0, 561.0, 2016.0, 628.0], "type": "bar"}, {"name": "mozillascience", "x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "y": [212.0, 411.0, 258.0, 455.0, 295.0, 99.0, 689.0, 250.0], "type": "bar"}, {"name": "Mozilla-TWQA", "x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "y": [108.0, 102.0, 50.0, 60.0, 411.0, 403.0, 444.0, 339.0], "type": "bar"}], {"barmode": "stack"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="c2df741c-9dd6-466e-a382-8cdd0e718d76" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("c2df741c-9dd6-466e-a382-8cdd0e718d76", [{"type": "bar", "x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z"], "y": [14190.0, 45302.0, 41047.0, 46225.0, 44992.0, 46292.0, 38404.0, 28986.0, 5529.0], "name": "mozilla"}, {"type": "bar", "x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z"], "y": [933.0, 2988.0, 2713.0, 3376.0, 2796.0, 3373.0, 1947.0, 1894.0, 694.0], "name": "rust-lang"}, {"type": "bar", "x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z"], "y": [607.0, 1802.0, 2159.0, 1786.0, 2657.0, 2080.0, 2542.0, 2371.0, 843.0], "name": "servo"}, {"type": "bar", "x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z"], "y": [787.0, 2086.0, 2063.0, 2124.0, 1549.0, 1291.0, 1166.0, 1542.0, 939.0], "name": "mozilla-services"}, {"type": "bar", "x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z"], "y": [274.0, 905.0, 853.0, 814.0, 643.0, 263.0, 1145.0, 1373.0, 627.0], "name": "mozilla-mobile"}, {"type": "bar", "x": ["2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z"], "y": [241.0, 1160.0, 575.0, 394.0, 1080.0, 1002.0, 1010.0, 156.0], "name": "aframevr"}, {"type": "bar", "x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z"], "y": [16.0, 75.0, 80.0, 172.0, 177.0, 485.0, 1985.0, 574.0, 670.0], "name": "mozmar"}, {"type": "bar", "x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z"], "y": [156.0, 737.0, 631.0, 497.0, 808.0, 507.0, 362.0, 347.0, 83.0], "name": "mdn"}, {"type": "bar", "x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z"], "y": [131.0, 366.0, 227.0, 396.0, 253.0, 92.0, 655.0, 214.0, 59.0], "name": "mozillascience"}, {"type": "bar", "x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z"], "y": [32.0, 85.0, 34.0, 43.0, 261.0, 270.0, 321.0, 264.0, 99.0], "name": "Mozilla-TWQA"}], {"barmode": "stack"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -12131,6 +12150,88 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<p><strong>Figure above: commits by project using Dashboard based project grouping</strong></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[19]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">create_search</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
+
+<span class="c1"># General filters</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">add_general_date_filters</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">add_bot_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">add_merges_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+<span class="c1"># Unique count of Commits by Project (max 100 projects)</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;range&#39;</span><span class="p">,</span> <span class="n">grimoire_creation_date</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;gt&#39;</span><span class="p">:</span> <span class="s1">&#39;now/M-2y&#39;</span><span class="p">,</span> <span class="s1">&#39;lt&#39;</span><span class="p">:</span> <span class="s1">&#39;now/M&#39;</span><span class="p">})</span>
+<span class="n">s</span><span class="o">.</span><span class="n">aggs</span><span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;repos&#39;</span><span class="p">,</span> <span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;repo_name&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span>\
+    <span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;date_histogram&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;grimoire_creation_date&#39;</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="s1">&#39;quarter&#39;</span><span class="p">)</span>\
+    <span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s1">&#39;contributions&#39;</span><span class="p">,</span> <span class="s1">&#39;cardinality&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;hash&#39;</span><span class="p">,</span> <span class="n">precision_threshold</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+            
+<span class="n">repos</span> <span class="o">=</span> <span class="n">stack_by</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="n">result</span><span class="p">,</span> <span class="n">group_column</span><span class="o">=</span><span class="s1">&#39;Repo&#39;</span><span class="p">,</span> <span class="n">time_column</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">value_column</span><span class="o">=</span><span class="s1">&#39;Commits&#39;</span><span class="p">,</span>\
+        <span class="n">group_field</span><span class="o">=</span><span class="s1">&#39;repos&#39;</span><span class="p">,</span> <span class="n">time_field</span><span class="o">=</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="n">value_field</span><span class="o">=</span><span class="s1">&#39;contributions&#39;</span><span class="p">)</span>
+
+<span class="c1"># Group By project</span>
+<span class="n">merged_df</span> <span class="o">=</span> <span class="n">repos</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">projects</span><span class="p">[</span><span class="s1">&#39;Github&#39;</span><span class="p">],</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;Repo&#39;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+
+<span class="n">projects_df</span> <span class="o">=</span> <span class="n">merged_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;Project&#39;</span><span class="p">,</span> <span class="s1">&#39;Time&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s1">&#39;Commits&#39;</span><span class="p">:</span> <span class="s1">&#39;sum&#39;</span><span class="p">,</span> <span class="s1">&#39;Repo&#39;</span><span class="p">:</span> <span class="s1">&#39;count&#39;</span><span class="p">})</span>
+<span class="n">projects_df</span> <span class="o">=</span> <span class="n">projects_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s1">&#39;Commits&#39;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Plot it</span>
+<span class="n">print_stacked_bar</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">projects_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(),</span> <span class="n">time_column</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">value_column</span><span class="o">=</span><span class="s1">&#39;Commits&#39;</span><span class="p">,</span>
+                  <span class="n">group_column</span><span class="o">=</span><span class="s1">&#39;Project&#39;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<div id="1db0a24b-9cc9-4b37-bceb-97427fb8fe32" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("1db0a24b-9cc9-4b37-bceb-97427fb8fe32", [{"type": "bar", "x": ["2016-01-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2015-04-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z"], "y": [25406.0, 25020.0, 24097.0, 23851.0, 21539.0, 18377.0, 7348.0, 6858.0, 541.0], "name": "Gecko"}, {"type": "bar", "x": ["2016-01-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2015-04-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z"], "y": [2105.0, 2042.0, 1861.0, 1791.0, 1699.0, 1214.0, 1045.0, 513.0, 471.0], "name": "Web Properties"}, {"type": "bar", "x": ["2016-01-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z", "2015-04-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z"], "y": [2077.0, 2013.0, 1785.0, 1685.0, 1608.0, 1158.0, 1123.0, 560.0, 424.0], "name": "Rust"}, {"type": "bar", "x": ["2016-04-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z", "2015-04-01T00:00:00.000Z"], "y": [1738.0, 1508.0, 1499.0, 1438.0, 1297.0, 1210.0, 1160.0, 521.0, 419.0], "name": "Servo"}, {"type": "bar", "x": ["2016-01-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z", "2015-04-01T00:00:00.000Z"], "y": [1492.0, 1394.0, 1340.0, 1113.0, 1055.0, 913.0, 841.0, 594.0, 463.0], "name": "IT/Ops"}, {"type": "bar", "x": ["2017-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z", "2015-04-01T00:00:00.000Z"], "y": [1378.0, 1276.0, 1250.0, 1064.0, 925.0, 608.0, 438.0, 259.0, 77.0], "name": "Addons/Web Extensions"}, {"type": "bar", "x": ["2017-01-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z"], "y": [764.0, 572.0, 174.0, 102.0, 98.0, 61.0, 58.0, 37.0], "name": "Test Pilot"}, {"type": "bar", "x": ["2016-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z", "2015-04-01T00:00:00.000Z"], "y": [739.0, 731.0, 655.0, 594.0, 461.0, 411.0, 161.0, 90.0, 20.0], "name": "WebVR"}, {"type": "bar", "x": ["2016-10-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-04-01T00:00:00.000Z"], "y": [631.0, 254.0, 215.0, 207.0, 109.0, 108.0, 52.0, 50.0, 6.0], "name": "Marketing / Social Media"}, {"type": "bar", "x": ["2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z", "2015-04-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z"], "y": [543.0, 507.0, 446.0, 391.0, 310.0, 228.0, 163.0, 157.0, 149.0], "name": "Firefox iOS"}, {"type": "bar", "x": ["2017-01-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z", "2015-04-01T00:00:00.000Z"], "y": [531.0, 361.0, 263.0, 211.0, 197.0, 196.0, 188.0, 90.0, 36.0], "name": "Mozilla Local/Regional communities"}, {"type": "bar", "x": ["2015-07-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z", "2015-04-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z"], "y": [387.0, 173.0, 165.0, 147.0, 128.0, 126.0, 85.0, 82.0, 62.0], "name": "Release engineering"}, {"type": "bar", "x": ["2016-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z", "2015-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z"], "y": [386.0, 240.0, 222.0, 158.0, 142.0, 133.0, 80.0, 48.0, 45.0], "name": "Mozilla Science"}, {"type": "bar", "x": ["2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2015-04-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z"], "y": [328.0, 173.0, 170.0, 166.0, 163.0, 156.0, 153.0, 61.0, 48.0], "name": "Mozilla Developer Network (MDN)"}, {"type": "bar", "x": ["2015-07-01T00:00:00.000Z", "2015-04-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "y": [245.0, 203.0, 183.0, 103.0, 47.0, 22.0, 6.0, 1.0], "name": "Web Literacy"}, {"type": "bar", "x": ["2017-01-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z"], "y": [241.0, 137.0, 126.0, 21.0, 14.0, 10.0, 0.0], "name": "Firefox Focus"}, {"type": "bar", "x": ["2016-07-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z"], "y": [226.0, 190.0, 189.0, 154.0, 147.0, 42.0], "name": "Firefox"}, {"type": "bar", "x": ["2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2015-04-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z"], "y": [213.0, 140.0, 111.0, 29.0, 4.0, 3.0], "name": "Firefox OS (FxOS / B2G)"}, {"type": "bar", "x": ["2016-07-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z"], "y": [205.0, 41.0, 29.0, 5.0, 3.0], "name": "Vaani"}, {"type": "bar", "x": ["2017-01-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2015-04-01T00:00:00.000Z"], "y": [198.0, 50.0, 37.0, 31.0, 26.0, 25.0, 24.0, 16.0, 7.0], "name": "Localization"}, {"type": "bar", "x": ["2016-07-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z", "2015-04-01T00:00:00.000Z"], "y": [182.0, 76.0, 68.0, 55.0, 40.0, 32.0, 17.0, 3.0, 2.0], "name": "Technical/Developer Evangelism"}, {"type": "bar", "x": ["2016-07-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z", "2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z"], "y": [181.0, 132.0, 127.0, 78.0, 62.0, 36.0, 19.0, 16.0, 2.0], "name": "Advocacy and policy"}, {"type": "bar", "x": ["2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z"], "y": [112.0, 57.0, 32.0, 4.0, 1.0, 1.0], "name": "Deep Speech"}, {"type": "bar", "x": ["2016-01-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2015-04-01T00:00:00.000Z"], "y": [108.0, 97.0, 89.0, 65.0, 57.0, 53.0, 23.0, 22.0, 1.0], "name": "Mozilla Foundation"}, {"type": "bar", "x": ["2016-10-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z"], "y": [48.0, 41.0, 9.0, 4.0, 4.0, 0.0], "name": "Campus Clubs (previously Student Ambassadors)"}, {"type": "bar", "x": ["2015-10-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z"], "y": [45.0, 35.0, 31.0, 4.0, 2.0, 1.0, 0.0, 0.0], "name": "Mozilla Clubs"}, {"type": "bar", "x": ["2015-07-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2015-04-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z"], "y": [43.0, 30.0, 10.0, 8.0, 6.0, 1.0], "name": "Mozilla Location Service (MLS) / Stumbler"}, {"type": "bar", "x": ["2015-04-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z"], "y": [24.0, 1.0], "name": "Developer Tools"}, {"type": "bar", "x": ["2016-04-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2015-04-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z"], "y": [22.0, 22.0, 9.0, 7.0, 5.0, 5.0, 4.0, 3.0, 2.0], "name": "Mozilla Creative & Design"}, {"type": "bar", "x": ["2017-04-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z", "2015-04-01T00:00:00.000Z"], "y": [22.0, 3.0, 1.0], "name": "Firefox Android"}, {"type": "bar", "x": ["2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z"], "y": [5.0, 3.0, 3.0, 3.0, 2.0, 1.0, 1.0, 1.0], "name": "Connected devices & IoT"}, {"type": "bar", "x": ["2015-10-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-04-01T00:00:00.000Z"], "y": [4.0, 3.0, 2.0], "name": "Quality Assurance"}], {"barmode": "stack"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><strong>Figure above: commits by project using Spreadsheet based project grouping</strong></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <p>Below plot show Git contributions of each organization grouped by quarters for last two years:</p>
 
 </div>
@@ -12138,13 +12239,17 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[16]:</div>
+<div class="prompt input_prompt">In&nbsp;[18]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">create_search</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
 
+<span class="n">s</span> <span class="o">=</span> <span class="n">add_bot_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">add_merges_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
 <span class="c1"># Unique count of Commits by Project (max 100 projects)</span>
 <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;range&#39;</span><span class="p">,</span> <span class="n">grimoire_creation_date</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;gt&#39;</span><span class="p">:</span> <span class="s1">&#39;now/M-2y&#39;</span><span class="p">,</span> <span class="s1">&#39;lt&#39;</span><span class="p">:</span> <span class="s1">&#39;now/M&#39;</span><span class="p">})</span>
+
 <span class="n">s</span><span class="o">.</span><span class="n">aggs</span><span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;organizations&#39;</span><span class="p">,</span> <span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_org_name&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>\
     <span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;date_histogram&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;grimoire_creation_date&#39;</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="s1">&#39;quarter&#39;</span><span class="p">)</span>\
     <span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s1">&#39;contributions&#39;</span><span class="p">,</span> <span class="s1">&#39;cardinality&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;hash&#39;</span><span class="p">,</span> <span class="n">precision_threshold</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span>
@@ -12162,7 +12267,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[17]:</div>
+<div class="prompt input_prompt">In&nbsp;[19]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">print_stacked_bar</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">time_column</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">value_column</span><span class="o">=</span><span class="s1">&#39;# Contributions&#39;</span><span class="p">,</span> <span class="n">group_column</span><span class="o">=</span><span class="s1">&#39;Organization&#39;</span><span class="p">)</span>
@@ -12187,7 +12292,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="d8161b28-9986-49d1-b3ec-d55a0e739966" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("d8161b28-9986-49d1-b3ec-d55a0e739966", [{"name": "Mozilla Staff", "x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "y": [32281.0, 47985.0, 44024.0, 45459.0, 44338.0, 47452.0, 42796.0, 45334.0], "type": "bar"}, {"name": "Community", "x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "y": [16666.0, 25396.0, 27423.0, 27626.0, 24455.0, 23762.0, 25063.0, 28100.0], "type": "bar"}, {"name": "Mozilla Reps", "x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z"], "y": [18.0, 12.0, 18.0, 54.0, 94.0, 24.0, 32.0, 118.0], "type": "bar"}, {"name": "Unknown", "x": ["2017-01-01T00:00:00.000Z"], "y": [5.0], "type": "bar"}], {"barmode": "stack"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="ff01ee5f-2068-45e8-bf16-757cfd4bff6f" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("ff01ee5f-2068-45e8-bf16-757cfd4bff6f", [{"name": "Mozilla Staff", "x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z"], "y": [14042.0, 45652.0, 41158.0, 44685.0, 43438.0, 43330.0, 37761.0, 29566.0, 6764.0], "type": "bar"}, {"name": "Community", "x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z"], "y": [3273.0, 9870.0, 10800.0, 12438.0, 12245.0, 13492.0, 12514.0, 10221.0, 3333.0], "type": "bar"}, {"name": "Mozilla Reps", "x": ["2015-04-01T00:00:00.000Z", "2015-07-01T00:00:00.000Z", "2015-10-01T00:00:00.000Z", "2016-01-01T00:00:00.000Z", "2016-04-01T00:00:00.000Z", "2016-07-01T00:00:00.000Z", "2016-10-01T00:00:00.000Z", "2017-01-01T00:00:00.000Z", "2017-04-01T00:00:00.000Z"], "y": [6.0, 11.0, 11.0, 44.0, 91.0, 17.0, 27.0, 103.0, 16.0], "type": "bar"}], {"barmode": "stack"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
 </div>
 
 </div>
@@ -12201,18 +12306,12 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="GitHub:">GitHub:<a class="anchor-link" href="#GitHub:">&#182;</a></h4><ul>
-<li>Number of issues opened</li>
-<li>Number of issues closed</li>
-<li>Number of pull requests opened</li>
-<li>Number of pull requests merged</li>
-</ul>
+<h2 id="GitHub:-Issues-and-Pull-Requests-by-status">GitHub: Issues and Pull Requests by status<a class="anchor-link" href="#GitHub:-Issues-and-Pull-Requests-by-status">&#182;</a></h2><p>Next table shows number of issues and Pull Request open and closed for each <strong>Project</strong>.</p>
 <p><strong>TODO</strong>: provide plots like:</p>
 <ul>
 <li>PRs: <a href="https://analytics.mozilla.community:443/goto/99a2cf4d0e06986fe5886ccafa01c88f">https://analytics.mozilla.community:443/goto/99a2cf4d0e06986fe5886ccafa01c88f</a></li>
 <li>Issues: <a href="https://analytics.mozilla.community:443/goto/db1d0243582548c8f8a0469f3e099677">https://analytics.mozilla.community:443/goto/db1d0243582548c8f8a0469f3e099677</a></li>
 </ul>
-<p>Number of Pull Requests and Issues open and closed in GitHub <strong>by Project</strong> are shown below:</p>
 
 </div>
 </div>
@@ -12224,6 +12323,7 @@ div#notebook {
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Open &amp; Closed PRs by Project (max 100 projects)</span>
 <span class="n">s_prs</span> <span class="o">=</span> <span class="n">create_search</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s1">&#39;github_issues&#39;</span><span class="p">)</span>
+<span class="n">s_prs</span> <span class="o">=</span> <span class="n">add_bot_filter</span><span class="p">(</span><span class="n">s_prs</span><span class="p">)</span>
 <span class="n">s_prs</span> <span class="o">=</span> <span class="n">s_prs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">pull_request</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;true&#39;</span><span class="p">])</span>
 <span class="n">s_prs</span><span class="o">.</span><span class="n">aggs</span><span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;projects&#39;</span><span class="p">,</span> <span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;project_1&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>\
     <span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;status&#39;</span><span class="p">,</span> <span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;state&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
@@ -12231,6 +12331,7 @@ div#notebook {
 
 <span class="c1"># Open &amp; Closed Issues by Project (max 100 projects)</span>
 <span class="n">s_iss</span> <span class="o">=</span> <span class="n">create_search</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s1">&#39;github_issues&#39;</span><span class="p">)</span>
+<span class="n">s_iss</span> <span class="o">=</span> <span class="n">add_bot_filter</span><span class="p">(</span><span class="n">s_iss</span><span class="p">)</span>
 <span class="n">s_iss</span> <span class="o">=</span> <span class="n">s_iss</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">pull_request</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;false&#39;</span><span class="p">])</span>
 <span class="n">s_iss</span><span class="o">.</span><span class="n">aggs</span><span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;projects&#39;</span><span class="p">,</span> <span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;project_1&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>\
     <span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;status&#39;</span><span class="p">,</span> <span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;state&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
@@ -12702,7 +12803,7 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Pull Requests and Issues <strong>by Organization</strong>:</p>
+<h3 id="GitHub:-Issues-and-Pull-Requests-by-Organization">GitHub: Issues and Pull Requests by Organization<a class="anchor-link" href="#GitHub:-Issues-and-Pull-Requests-by-Organization">&#182;</a></h3><p>Below we show number of Pull Requests and Issues open and closed <strong>by Organization</strong>:</p>
 
 </div>
 </div>
@@ -13041,6 +13142,16 @@ div#notebook {
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="GitHub:-Issues-and-Pull-Requests-made-by-people-hired-by-Mozilla">GitHub: Issues and Pull Requests made by people hired by Mozilla<a class="anchor-link" href="#GitHub:-Issues-and-Pull-Requests-made-by-people-hired-by-Mozilla">&#182;</a></h3><p>To compare contributors <strong>hired by Mozilla</strong> to the rest of contributors we first show a list of Organizations we are considering as 'Mozilla Staff' or 'Others'. Next a table is shown with aggregated numbers to compare both contributor groups.</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
