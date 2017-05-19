@@ -11832,7 +11832,7 @@ div#notebook {
 
 <span class="n">project_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PROJECT&#39;</span><span class="p">,</span> <span class="s1">&#39;all&#39;</span><span class="p">)</span>
 
-<span class="n">date_range</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;gt&#39;</span><span class="p">:</span> <span class="s1">&#39;2013-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;lt&#39;</span><span class="p">:</span> <span class="s1">&#39;2017-01-01&#39;</span><span class="p">}</span>
+<span class="n">date_range</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;gte&#39;</span><span class="p">:</span> <span class="s1">&#39;2013-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;lt&#39;</span><span class="p">:</span> <span class="s1">&#39;2017-01-01&#39;</span><span class="p">}</span>
 </pre></div>
 
 </div>
@@ -12075,8 +12075,8 @@ div#notebook {
       <th>0</th>
       <td>2013-01-01T00:00:00.000Z</td>
       <td>246.0</td>
-      <td>249.0</td>
-      <td>669.0</td>
+      <td>250.0</td>
+      <td>670.0</td>
       <td>2013Q1</td>
     </tr>
     <tr>
@@ -12237,7 +12237,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="626b17c5-18eb-46d8-bbdd-061cd55f72c1" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("626b17c5-18eb-46d8-bbdd-061cd55f72c1", [{"y": [246.0, 295.0, 307.0, 294.0, 331.0, 364.0, 342.0, 349.0, 337.0, 336.0, 340.0, 341.0, 364.0, 364.0, 379.0, 316.0], "type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Core"}, {"y": [249.0, 292.0, 292.0, 330.0, 357.0, 388.0, 391.0, 416.0, 426.0, 422.0, 388.0, 460.0, 496.0, 445.0, 446.0, 379.0], "type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Regular"}, {"y": [669.0, 880.0, 989.0, 1146.0, 1304.0, 1447.0, 1520.0, 1652.0, 1784.0, 1724.0, 1626.0, 1695.0, 1686.0, 1524.0, 1352.0, 986.0], "type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Casual"}], {"title": "Global Contribution Groups", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="03e37c85-84cc-41d1-b985-9094b1779a5e" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("03e37c85-84cc-41d1-b985-9094b1779a5e", [{"y": [246.0, 295.0, 307.0, 294.0, 331.0, 364.0, 342.0, 349.0, 337.0, 336.0, 340.0, 341.0, 364.0, 364.0, 379.0, 316.0], "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Core", "type": "bar"}, {"y": [250.0, 292.0, 292.0, 330.0, 357.0, 388.0, 391.0, 416.0, 426.0, 422.0, 388.0, 460.0, 496.0, 445.0, 446.0, 379.0], "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Regular", "type": "bar"}, {"y": [670.0, 880.0, 989.0, 1146.0, 1304.0, 1447.0, 1520.0, 1652.0, 1784.0, 1724.0, 1626.0, 1695.0, 1686.0, 1524.0, 1352.0, 986.0], "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Casual", "type": "bar"}], {"barmode": "group", "title": "Global Contribution Groups"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -12324,7 +12324,7 @@ div#notebook {
       <td>2013-01-01T00:00:00.000Z</td>
       <td>189.0</td>
       <td>155.0</td>
-      <td>277.0</td>
+      <td>278.0</td>
       <td>2013Q1</td>
       <td>Mozilla Staff</td>
     </tr>
@@ -12542,7 +12542,7 @@ div#notebook {
       <td>2013-01-01T00:00:00.000Z</td>
       <td>92.0</td>
       <td>186.0</td>
-      <td>265.0</td>
+      <td>266.0</td>
       <td>2013Q1</td>
       <td>Other</td>
     </tr>
@@ -12720,7 +12720,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="cf28fbb7-3ea0-4a87-a185-37ed3cd54b34" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("cf28fbb7-3ea0-4a87-a185-37ed3cd54b34", [{"y": [189.0, 219.0, 234.0, 220.0, 242.0, 258.0, 252.0, 242.0, 229.0, 224.0, 233.0, 220.0, 231.0, 236.0, 243.0, 219.0], "type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Core"}, {"y": [155.0, 180.0, 188.0, 190.0, 192.0, 209.0, 206.0, 189.0, 185.0, 187.0, 191.0, 182.0, 179.0, 187.0, 179.0, 171.0], "type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Regular"}, {"y": [277.0, 362.0, 400.0, 459.0, 482.0, 505.0, 516.0, 529.0, 534.0, 512.0, 491.0, 494.0, 471.0, 426.0, 368.0, 272.0], "type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Casual"}], {"title": "Staff Contributors", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="3961ae0a-770c-4bef-bfd4-2d0753646e7e" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("3961ae0a-770c-4bef-bfd4-2d0753646e7e", [{"y": [189.0, 219.0, 234.0, 220.0, 242.0, 258.0, 252.0, 242.0, 229.0, 224.0, 233.0, 220.0, 231.0, 236.0, 243.0, 219.0], "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Core", "type": "bar"}, {"y": [155.0, 180.0, 188.0, 190.0, 192.0, 209.0, 206.0, 189.0, 185.0, 187.0, 191.0, 182.0, 179.0, 187.0, 179.0, 171.0], "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Regular", "type": "bar"}, {"y": [278.0, 362.0, 400.0, 459.0, 482.0, 505.0, 516.0, 529.0, 534.0, 512.0, 491.0, 494.0, 471.0, 426.0, 368.0, 272.0], "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Casual", "type": "bar"}], {"barmode": "group", "title": "Employees"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -12736,7 +12736,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="683616a4-127d-4b45-b29c-f641f9069c3f" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("683616a4-127d-4b45-b29c-f641f9069c3f", [{"y": [92.0, 112.0, 106.0, 125.0, 135.0, 152.0, 201.0, 228.0, 252.0, 235.0, 201.0, 250.0, 280.0, 222.0, 231.0, 141.0], "type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Core"}, {"y": [186.0, 219.0, 188.0, 263.0, 310.0, 326.0, 363.0, 424.0, 485.0, 451.0, 376.0, 466.0, 506.0, 456.0, 463.0, 386.0], "type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Regular"}, {"y": [265.0, 375.0, 472.0, 513.0, 631.0, 749.0, 715.0, 805.0, 862.0, 873.0, 862.0, 884.0, 879.0, 806.0, 693.0, 492.0], "type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Casual"}], {"title": "Other Contributors", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="6bb44de0-67ab-4c23-824a-12f6dcfacf7e" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("6bb44de0-67ab-4c23-824a-12f6dcfacf7e", [{"y": [92.0, 112.0, 106.0, 125.0, 135.0, 152.0, 201.0, 228.0, 252.0, 235.0, 201.0, 250.0, 280.0, 222.0, 231.0, 141.0], "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Core", "type": "bar"}, {"y": [186.0, 219.0, 188.0, 263.0, 310.0, 326.0, 363.0, 424.0, 485.0, 451.0, 376.0, 466.0, 506.0, 456.0, 463.0, 386.0], "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Regular", "type": "bar"}, {"y": [266.0, 375.0, 472.0, 513.0, 631.0, 749.0, 715.0, 805.0, 862.0, 873.0, 862.0, 884.0, 879.0, 806.0, 693.0, 492.0], "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Casual", "type": "bar"}], {"barmode": "group", "title": "Non-Employees"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -12819,8 +12819,8 @@ div#notebook {
       <th>0</th>
       <td>2013-01-01T00:00:00.000Z</td>
       <td>246.0</td>
-      <td>249.0</td>
-      <td>669.0</td>
+      <td>250.0</td>
+      <td>670.0</td>
       <td>2013Q1</td>
     </tr>
     <tr>
@@ -12990,7 +12990,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="e27d08c4-a51b-4c82-ab1f-3a0ca463a0e7" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("e27d08c4-a51b-4c82-ab1f-3a0ca463a0e7", [{"y": [246.0, 295.0, 307.0, 294.0, 331.0, 364.0, 342.0, 349.0, 337.0, 336.0, 340.0, 341.0, 364.0, 364.0, 379.0, 316.0], "type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Core"}, {"y": [249.0, 292.0, 292.0, 330.0, 357.0, 388.0, 391.0, 416.0, 426.0, 422.0, 388.0, 460.0, 496.0, 445.0, 446.0, 379.0], "type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Regular"}, {"y": [669.0, 880.0, 989.0, 1146.0, 1304.0, 1447.0, 1520.0, 1652.0, 1784.0, 1724.0, 1626.0, 1695.0, 1686.0, 1524.0, 1352.0, 986.0], "type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Casual"}], {"title": "Global Contribution Groups", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="a03b01ad-7691-4e8d-9287-ad58588ef1e2" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("a03b01ad-7691-4e8d-9287-ad58588ef1e2", [{"y": [246.0, 295.0, 307.0, 294.0, 331.0, 364.0, 342.0, 349.0, 337.0, 336.0, 340.0, 341.0, 364.0, 364.0, 379.0, 316.0], "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Core", "type": "bar"}, {"y": [250.0, 292.0, 292.0, 330.0, 357.0, 388.0, 391.0, 416.0, 426.0, 422.0, 388.0, 460.0, 496.0, 445.0, 446.0, 379.0], "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Regular", "type": "bar"}, {"y": [670.0, 880.0, 989.0, 1146.0, 1304.0, 1447.0, 1520.0, 1652.0, 1784.0, 1724.0, 1626.0, 1695.0, 1686.0, 1524.0, 1352.0, 986.0], "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Casual", "type": "bar"}], {"barmode": "group", "title": "Global Contribution Groups"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -13048,7 +13048,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="40ad0efb-5e30-478b-aeda-75cc88c71562" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("40ad0efb-5e30-478b-aeda-75cc88c71562", [{"y": [189.0, 219.0, 234.0, 220.0, 242.0, 258.0, 252.0, 242.0, 229.0, 224.0, 233.0, 220.0, 231.0, 236.0, 243.0, 219.0], "type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Core"}, {"y": [155.0, 180.0, 188.0, 190.0, 192.0, 209.0, 206.0, 189.0, 185.0, 187.0, 191.0, 182.0, 179.0, 187.0, 179.0, 171.0], "type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Regular"}, {"y": [277.0, 362.0, 400.0, 459.0, 482.0, 505.0, 516.0, 529.0, 534.0, 512.0, 491.0, 494.0, 471.0, 426.0, 368.0, 272.0], "type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Casual"}], {"title": "Staff Contributors", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="fba655b1-e753-4c68-be5f-46c32ace5aaf" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("fba655b1-e753-4c68-be5f-46c32ace5aaf", [{"y": [189.0, 219.0, 234.0, 220.0, 242.0, 258.0, 252.0, 242.0, 229.0, 224.0, 233.0, 220.0, 231.0, 236.0, 243.0, 219.0], "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Core", "type": "bar"}, {"y": [155.0, 180.0, 188.0, 190.0, 192.0, 209.0, 206.0, 189.0, 185.0, 187.0, 191.0, 182.0, 179.0, 187.0, 179.0, 171.0], "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Regular", "type": "bar"}, {"y": [278.0, 362.0, 400.0, 459.0, 482.0, 505.0, 516.0, 529.0, 534.0, 512.0, 491.0, 494.0, 471.0, 426.0, 368.0, 272.0], "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Casual", "type": "bar"}], {"barmode": "group", "title": "Employees"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -13093,7 +13093,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="bab75e40-660f-44d3-a8e3-6b4a259bec70" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("bab75e40-660f-44d3-a8e3-6b4a259bec70", [{"y": [92.0, 112.0, 106.0, 125.0, 135.0, 152.0, 201.0, 228.0, 252.0, 235.0, 201.0, 250.0, 280.0, 222.0, 231.0, 141.0], "type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Core"}, {"y": [186.0, 219.0, 188.0, 263.0, 310.0, 326.0, 363.0, 424.0, 485.0, 451.0, 376.0, 466.0, 506.0, 456.0, 463.0, 386.0], "type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Regular"}, {"y": [265.0, 375.0, 472.0, 513.0, 631.0, 749.0, 715.0, 805.0, 862.0, 873.0, 862.0, 884.0, 879.0, 806.0, 693.0, 492.0], "type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Casual"}], {"title": "Other Contributors", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="9d17a490-8665-4f94-b4bb-28cdef091332" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("9d17a490-8665-4f94-b4bb-28cdef091332", [{"y": [92.0, 112.0, 106.0, 125.0, 135.0, 152.0, 201.0, 228.0, 252.0, 235.0, 201.0, 250.0, 280.0, 222.0, 231.0, 141.0], "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Core", "type": "bar"}, {"y": [186.0, 219.0, 188.0, 263.0, 310.0, 326.0, 363.0, 424.0, 485.0, 451.0, 376.0, 466.0, 506.0, 456.0, 463.0, 386.0], "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Regular", "type": "bar"}, {"y": [266.0, 375.0, 472.0, 513.0, 631.0, 749.0, 715.0, 805.0, 862.0, 873.0, 862.0, 884.0, 879.0, 806.0, 693.0, 492.0], "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Casual", "type": "bar"}], {"barmode": "group", "title": "Non-Employees"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
