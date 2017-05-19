@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8" />
-<title>Understanding Contribution Patterns</title>
+<title>Project-Attraction-Retention</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -11766,54 +11766,13 @@ div#notebook {
   });
 </script>
 <form action="javascript:code_toggle()"><input type="submit" id="toggleButton" value="Show Code"></form>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Goal:-understanding-contribution-patterns">Goal: understanding contribution patterns<a class="anchor-link" href="#Goal:-understanding-contribution-patterns">&#182;</a></h2><p>Analyzing groups of contributors, according to their activity patterns, and their evolution over time, helps to understand the structure of the community. These groups will be defined according to how much active they are (from casual to core contributors), and which kinds of activity they have (for example, producing code, reviewing code, submitting issues, contributing in discussions, etc.). Whenever convenient, the characterization will be combined with the contributor groups identified in the first goal.</p>
-<p>This goal is refined in the following questions:</p>
-<p><strong>Questions</strong>:</p>
-<ul>
-<li>How often do contributors contribute?</li>
-<li>How is the structure of contribution, according to level of activity?</li>
-<li>How is the structure of contribution, according to the different data sources?</li>
-<li>How are the structures of contribution evolving over time?</li>
-<li>How is people flowing in the structure of contribution?</li>
-</ul>
-<p>These questions can be answered with the following metrics:</p>
-<p><strong>Metrics</strong>:</p>
-<p>(Still to be refined)</p>
-<ul>
-<li>Groups of contributors, by level of activity (core, regular, casual)</li>
-<li>Groups of contributors, by kind of activity (committing, opening issues, merging pull requests, etc.)</li>
-<li>Groups of contributors, by kind of activity (specialists, spread, etc.)</li>
-<li>Activity metrics for each group</li>
-<li>Absolute number of contributors moving from one group to another</li>
-<li>Fraction of contributors moving from a group to another</li>
-</ul>
-<p>Some of these metrics will be computed for the speficied contributor groups, over time.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Metric-Calculations">Metric Calculations<a class="anchor-link" href="#Metric-Calculations">&#182;</a></h1><p>First we need to load a connection against the proper ES instance. We use an external module to load credentials from a file that will not be shared. If you want to run this, please use your own credentials, just put them in a file named '.settings' (in the same directory as this notebook) following the example file 'settings.sample'.</p>
-<p>This section includes common code to manage and plot data. Queries will be available at the corresponding section.</p>
-
-</div>
-</div>
-</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[1]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
+<span class="kn">import</span> <span class="nn">pandas</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
 
@@ -11830,9 +11789,12 @@ div#notebook {
 <span class="c1"># Let&#39;s load projects from the REVIEWED SPREADSHEET</span>
 <span class="n">projects</span> <span class="o">=</span> <span class="n">ut</span><span class="o">.</span><span class="n">read_projects</span><span class="p">(</span><span class="s2">&quot;data/Contributors and Communities Analysis - Project grouping.xlsx&quot;</span><span class="p">)</span>
 
-<span class="n">project_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PROJECT&#39;</span><span class="p">,</span> <span class="s1">&#39;all&#39;</span><span class="p">)</span>
+<span class="n">project_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PROJECT&#39;</span><span class="p">,</span> <span class="s1">&#39;All&#39;</span><span class="p">)</span>
+<span class="n">max_time</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;MAX_TIME&#39;</span><span class="p">,</span> <span class="s1">&#39;10&#39;</span><span class="p">)</span>
 
-<span class="n">date_range</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;gt&#39;</span><span class="p">:</span> <span class="s1">&#39;2013-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;lt&#39;</span><span class="p">:</span> <span class="s1">&#39;2017-01-01&#39;</span><span class="p">}</span>
+<span class="c1"># Range of years from 2017 to the past to be used in all metrics</span>
+<span class="c1"># Use 0 as starting point together with lt in queries to exclude 2017</span>
+<span class="n">analyzed_range</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">int</span><span class="p">(</span><span class="n">max_time</span><span class="p">))</span>
 </pre></div>
 
 </div>
@@ -11849,7 +11811,7 @@ div#notebook {
     <span class="n">s</span> <span class="o">=</span> <span class="n">Search</span><span class="p">(</span><span class="n">using</span><span class="o">=</span><span class="n">es_conn</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">source</span><span class="p">)</span>
     <span class="c1"># TODO: Add bot and merges filtering.</span>
     <span class="c1">#s = s.filter(&#39;range&#39;, grimoire_creation_date={&#39;gt&#39;: &#39;now/M-2y&#39;, &#39;lt&#39;: &#39;now/M&#39;})</span>
-    <span class="n">s</span><span class="o">.</span><span class="n">params</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+    <span class="c1">#s.params(timeout=100)</span>
     <span class="k">return</span> <span class="n">s</span>
 </pre></div>
 
@@ -11863,16 +11825,64 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">stack_by</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">group_column</span><span class="p">,</span> <span class="n">time_column</span><span class="p">,</span> <span class="n">value_column</span><span class="p">,</span> <span class="n">group_field</span><span class="p">,</span> <span class="n">time_field</span><span class="p">,</span> <span class="n">value_field</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Creates a dataframe based on group and time values</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">group_column</span><span class="p">,</span> <span class="n">time_column</span><span class="p">,</span> <span class="n">value_column</span><span class="p">])</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">get_authors_df</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">author_bucket_field</span><span class="p">):</span>        
 
-    <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()[</span><span class="s1">&#39;aggregations&#39;</span><span class="p">][</span><span class="n">group_field</span><span class="p">][</span><span class="s1">&#39;buckets&#39;</span><span class="p">]:</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">b</span><span class="p">[</span><span class="n">time_field</span><span class="p">][</span><span class="s1">&#39;buckets&#39;</span><span class="p">]:</span>
-            <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">],</span> <span class="n">i</span><span class="p">[</span><span class="s1">&#39;key_as_string&#39;</span><span class="p">],</span> <span class="n">i</span><span class="p">[</span><span class="n">value_field</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]]</span>
-    
-    <span class="k">return</span> <span class="n">df</span>
+    <span class="c1"># Get a dataframe with each author and their first commit</span>
+    <span class="n">buckets_result</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;aggregations&#39;</span><span class="p">][</span><span class="n">author_bucket_field</span><span class="p">][</span><span class="s1">&#39;buckets&#39;</span><span class="p">]</span>
+
+    <span class="n">buckets</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">bucket_author</span> <span class="ow">in</span> <span class="n">buckets_result</span><span class="p">:</span>
+        <span class="n">author</span> <span class="o">=</span> <span class="n">bucket_author</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">]</span>
+
+        <span class="n">first</span> <span class="o">=</span> <span class="n">bucket_author</span><span class="p">[</span><span class="s1">&#39;first&#39;</span><span class="p">][</span><span class="s1">&#39;hits&#39;</span><span class="p">][</span><span class="s1">&#39;hits&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">first_commit</span> <span class="o">=</span> <span class="n">first</span><span class="p">[</span><span class="s1">&#39;sort&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="mi">1000</span>
+        <span class="n">last_commit</span> <span class="o">=</span> <span class="n">bucket_author</span><span class="p">[</span><span class="s1">&#39;last_commit&#39;</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]</span><span class="o">/</span><span class="mi">1000</span>
+        <span class="n">org_name</span> <span class="o">=</span> <span class="n">first</span><span class="p">[</span><span class="s1">&#39;_source&#39;</span><span class="p">][</span><span class="s1">&#39;author_org_name&#39;</span><span class="p">]</span>
+        <span class="n">repo_name</span> <span class="o">=</span> <span class="n">first</span><span class="p">[</span><span class="s1">&#39;_source&#39;</span><span class="p">][</span><span class="s1">&#39;repo_name&#39;</span><span class="p">]</span>
+        <span class="c1">#uuid = first[&#39;_source&#39;][&#39;author_uuid&#39;]</span>
+        <span class="n">buckets</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="s1">&#39;first_commit&#39;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcfromtimestamp</span><span class="p">(</span><span class="n">first_commit</span><span class="p">),</span>
+                <span class="s1">&#39;last_commit&#39;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcfromtimestamp</span><span class="p">(</span><span class="n">last_commit</span><span class="p">),</span>
+                <span class="s1">&#39;author&#39;</span><span class="p">:</span> <span class="n">author</span><span class="p">,</span>
+                <span class="c1">#&#39;uuid&#39;: uuid,</span>
+                <span class="s1">&#39;org&#39;</span><span class="p">:</span> <span class="n">org_name</span><span class="p">,</span>
+                <span class="s1">&#39;repo_name&#39;</span><span class="p">:</span> <span class="n">repo_name</span>
+        <span class="p">})</span>
+    <span class="n">authors_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_records</span><span class="p">(</span><span class="n">buckets</span><span class="p">)</span>
+    <span class="n">authors_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s1">&#39;first_commit&#39;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                            <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">authors_df</span>
+
+<span class="k">def</span> <span class="nf">get_active_authors_df</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">author_bucket_field</span><span class="p">,</span> <span class="n">year</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns a dataframe with first and last commit of those authors</span>
+<span class="sd">    whose last commit was made within a given year&quot;&quot;&quot;</span>
+
+    <span class="c1"># Get a dataframe with each author and their first commit</span>
+    <span class="n">buckets_result</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;aggregations&#39;</span><span class="p">][</span><span class="n">author_bucket_field</span><span class="p">][</span><span class="s1">&#39;buckets&#39;</span><span class="p">]</span>
+
+    <span class="n">buckets</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">bucket_author</span> <span class="ow">in</span> <span class="n">buckets_result</span><span class="p">:</span>
+        <span class="n">author</span> <span class="o">=</span> <span class="n">bucket_author</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">]</span>
+
+        <span class="n">first</span> <span class="o">=</span> <span class="n">bucket_author</span><span class="p">[</span><span class="s1">&#39;first&#39;</span><span class="p">][</span><span class="s1">&#39;hits&#39;</span><span class="p">][</span><span class="s1">&#39;hits&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">first_commit</span> <span class="o">=</span> <span class="n">first</span><span class="p">[</span><span class="s1">&#39;sort&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="mi">1000</span>
+        <span class="n">last_commit</span> <span class="o">=</span> <span class="n">bucket_author</span><span class="p">[</span><span class="s1">&#39;last_commit&#39;</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]</span><span class="o">/</span><span class="mi">1000</span>
+        <span class="n">org_name</span> <span class="o">=</span> <span class="n">first</span><span class="p">[</span><span class="s1">&#39;_source&#39;</span><span class="p">][</span><span class="s1">&#39;author_org_name&#39;</span><span class="p">]</span>
+        <span class="n">repo_name</span> <span class="o">=</span> <span class="n">first</span><span class="p">[</span><span class="s1">&#39;_source&#39;</span><span class="p">][</span><span class="s1">&#39;repo_name&#39;</span><span class="p">]</span>
+        <span class="c1">#uuid = first[&#39;_source&#39;][&#39;author_uuid&#39;]</span>
+        <span class="k">if</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcfromtimestamp</span><span class="p">(</span><span class="n">last_commit</span><span class="p">)</span><span class="o">.</span><span class="n">year</span> <span class="o">==</span> <span class="n">year</span><span class="p">:</span>
+            <span class="n">buckets</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                    <span class="s1">&#39;first_commit&#39;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcfromtimestamp</span><span class="p">(</span><span class="n">first_commit</span><span class="p">),</span>
+                    <span class="s1">&#39;last_commit&#39;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcfromtimestamp</span><span class="p">(</span><span class="n">last_commit</span><span class="p">),</span>
+                    <span class="s1">&#39;author&#39;</span><span class="p">:</span> <span class="n">author</span><span class="p">,</span>
+                    <span class="c1">#&#39;uuid&#39;: uuid,</span>
+                    <span class="s1">&#39;org&#39;</span><span class="p">:</span> <span class="n">org_name</span><span class="p">,</span>
+                    <span class="s1">&#39;repo_name&#39;</span><span class="p">:</span> <span class="n">repo_name</span>
+            <span class="p">})</span>
+    <span class="n">authors_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_records</span><span class="p">(</span><span class="n">buckets</span><span class="p">)</span>
+    <span class="n">authors_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s1">&#39;first_commit&#39;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                            <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">authors_df</span>
 </pre></div>
 
 </div>
@@ -11885,52 +11895,29 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[4]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">onion</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">bucket_column</span><span class="p">,</span> <span class="n">time_column</span><span class="p">,</span> <span class="n">value_column</span><span class="p">):</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">print_horizontal_bar_chart</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">experience_field</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">min_range</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
     
-    <span class="n">total</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">value_column</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">plotly</span><span class="o">.</span><span class="n">offline</span><span class="o">.</span><span class="n">init_notebook_mode</span><span class="p">(</span><span class="n">connected</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     
-    <span class="n">percent_80</span> <span class="o">=</span> <span class="n">total</span> <span class="o">*</span> <span class="mf">0.8</span>
-    <span class="n">percent_95</span> <span class="o">=</span> <span class="n">total</span> <span class="o">*</span> <span class="mf">0.95</span>
-    <span class="n">core</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">core_sum</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">regular</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">regular_sum</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">casual</span> <span class="o">=</span> <span class="mi">0</span>
-
-    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">value_column</span><span class="p">]</span>
+    <span class="n">experience</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">min_range</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">experience_field</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+    
+    <span class="n">people_count</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">exp</span> <span class="ow">in</span> <span class="n">experience</span><span class="p">:</span>
+        <span class="n">people_count</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">experience_field</span><span class="p">]</span> <span class="o">==</span> <span class="n">exp</span><span class="p">]))</span>
         
-        <span class="k">if</span> <span class="p">(</span><span class="n">percent_80</span> <span class="o">&gt;</span> <span class="n">core_sum</span><span class="p">):</span>
-            <span class="n">core</span> <span class="o">=</span> <span class="n">core</span> <span class="o">+</span> <span class="mi">1</span>
-            <span class="n">core_sum</span> <span class="o">=</span> <span class="n">core_sum</span> <span class="o">+</span> <span class="n">value</span>
-            <span class="n">regular_sum</span> <span class="o">=</span> <span class="n">regular_sum</span> <span class="o">+</span> <span class="n">value</span>
-        <span class="k">elif</span> <span class="n">percent_95</span> <span class="o">&gt;</span> <span class="n">regular_sum</span><span class="p">:</span>
-            <span class="n">regular</span> <span class="o">=</span> <span class="n">regular</span> <span class="o">+</span> <span class="mi">1</span>
-            <span class="n">regular_sum</span> <span class="o">=</span> <span class="n">regular_sum</span> <span class="o">+</span> <span class="n">value</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">casual</span> <span class="o">=</span> <span class="n">casual</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">go</span><span class="o">.</span><span class="n">Bar</span><span class="p">(</span>
+            <span class="n">x</span><span class="o">=</span><span class="n">people_count</span><span class="p">,</span>
+            <span class="n">y</span><span class="o">=</span><span class="n">experience</span><span class="p">,</span>
+            <span class="n">orientation</span> <span class="o">=</span> <span class="s1">&#39;h&#39;</span>
+    <span class="p">)]</span>
+    
+    <span class="n">layout</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Layout</span><span class="p">(</span>
+        <span class="n">barmode</span><span class="o">=</span><span class="s1">&#39;group&#39;</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span> <span class="n">title</span>
+    <span class="p">)</span>
 
-    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;core&quot;</span><span class="p">:</span><span class="n">core</span><span class="p">,</span>
-            <span class="s2">&quot;regular&quot;</span><span class="p">:</span><span class="n">regular</span><span class="p">,</span>
-            <span class="s2">&quot;casual&quot;</span><span class="p">:</span><span class="n">casual</span><span class="p">}</span> 
-
-<span class="k">def</span> <span class="nf">onion_evolution</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">bucket_column</span><span class="p">,</span> <span class="n">time_column</span><span class="p">,</span> <span class="n">value_column</span><span class="p">,</span> <span class="n">bucket_field</span><span class="p">,</span> <span class="n">time_field</span><span class="p">,</span> <span class="n">metric_field</span><span class="p">):</span>
-    
-    <span class="n">df</span> <span class="o">=</span> <span class="n">stack_by</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">bucket_column</span><span class="p">,</span> <span class="n">time_column</span><span class="p">,</span> <span class="n">value_column</span><span class="p">,</span> <span class="n">bucket_field</span><span class="p">,</span> <span class="n">time_field</span><span class="p">,</span> <span class="n">metric_field</span><span class="p">)</span>
-    
-    <span class="n">onion_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;Core&#39;</span><span class="p">,</span> <span class="s1">&#39;Regular&#39;</span><span class="p">,</span> <span class="s1">&#39;Casual&#39;</span><span class="p">])</span>
-    
-    <span class="k">for</span> <span class="n">time</span> <span class="ow">in</span> <span class="n">df</span><span class="p">[</span><span class="n">time_column</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
-        <span class="n">slice_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">time</span><span class="p">]</span>
-        <span class="n">slice_df</span> <span class="o">=</span> <span class="n">slice_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="n">value_column</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="n">onion_result</span> <span class="o">=</span> <span class="n">onion</span><span class="p">(</span><span class="n">slice_df</span><span class="p">,</span> <span class="n">bucket_column</span><span class="o">=</span><span class="n">bucket_column</span><span class="p">,</span> <span class="n">time_column</span><span class="o">=</span><span class="n">time_column</span><span class="p">,</span>\
-                             <span class="n">value_column</span><span class="o">=</span><span class="n">value_column</span><span class="p">)</span>
-        <span class="c1">#print(time, &#39;-&gt;&#39;, len(slice_df), slice_df.columns.values.tolist(), &#39;-&gt;&#39;, onion_result)</span>
-        <span class="n">onion_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">onion_df</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[</span><span class="n">time</span><span class="p">,</span> <span class="n">onion_result</span><span class="p">[</span><span class="s1">&#39;core&#39;</span><span class="p">],</span> <span class="n">onion_result</span><span class="p">[</span><span class="s1">&#39;regular&#39;</span><span class="p">],</span> <span class="n">onion_result</span><span class="p">[</span><span class="s1">&#39;casual&#39;</span><span class="p">]]</span>
-        
-    
-    <span class="c1">#print(len(df))</span>
-    <span class="k">return</span> <span class="n">onion_df</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="n">layout</span><span class="p">)</span>
+    <span class="n">plotly</span><span class="o">.</span><span class="n">offline</span><span class="o">.</span><span class="n">iplot</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;horizontal-bar&#39;</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -11943,49 +11930,19 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">print_grouped_bar</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">x_column</span><span class="p">,</span> <span class="n">value_columns</span><span class="p">,</span> <span class="n">title</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">plotly</span><span class="o">.</span><span class="n">offline</span><span class="o">.</span><span class="n">init_notebook_mode</span><span class="p">(</span><span class="n">connected</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">add_general_date_filters</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="c1"># 01/01/1998</span>
+    <span class="n">initial_ts</span> <span class="o">=</span> <span class="s1">&#39;883609200000&#39;</span>
+    <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;range&#39;</span><span class="p">,</span> <span class="n">grimoire_creation_date</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;gt&#39;</span><span class="p">:</span> <span class="n">initial_ts</span><span class="p">})</span>
 
-    <span class="n">bars</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">x_values</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">x_column</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">value_column</span> <span class="ow">in</span> <span class="n">value_columns</span><span class="p">:</span>
-        <span class="n">bars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">go</span><span class="o">.</span><span class="n">Bar</span><span class="p">(</span>
-            <span class="n">x</span><span class="o">=</span><span class="n">x_values</span><span class="p">,</span>
-            <span class="n">y</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="n">value_column</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
-            <span class="n">name</span><span class="o">=</span><span class="n">value_column</span><span class="p">))</span>
-
-    <span class="n">layout</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Layout</span><span class="p">(</span>
-        <span class="n">barmode</span><span class="o">=</span><span class="s1">&#39;group&#39;</span><span class="p">,</span>
-        <span class="n">title</span><span class="o">=</span> <span class="n">title</span>
-    <span class="p">)</span>
-
-    <span class="n">fig</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">bars</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="n">layout</span><span class="p">)</span>
-    <span class="n">plotly</span><span class="o">.</span><span class="n">offline</span><span class="o">.</span><span class="n">iplot</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;grouped-bar&#39;</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[6]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">add_bot_filter</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">add_bot_filter</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;term&#39;</span><span class="p">,</span> <span class="n">author_bot</span><span class="o">=</span><span class="s1">&#39;false&#39;</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">add_merges_filter</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;range&#39;</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;gt&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
 
-<span class="k">def</span> <span class="nf">add_date_filter</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;range&#39;</span><span class="p">,</span> <span class="n">grimoire_creation_date</span><span class="o">=</span><span class="n">date_range</span><span class="p">)</span>
-
 <span class="k">def</span> <span class="nf">add_project_filter</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">project_name</span> <span class="o">!=</span> <span class="s1">&#39;all&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">project_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;all&#39;</span><span class="p">:</span>
         <span class="n">github</span> <span class="o">=</span> <span class="n">projects</span><span class="p">[</span><span class="s1">&#39;Github&#39;</span><span class="p">]</span>
         <span class="n">repos</span> <span class="o">=</span> <span class="n">github</span><span class="p">[</span><span class="n">github</span><span class="p">[</span><span class="s1">&#39;Project&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">project_name</span><span class="p">][</span><span class="s1">&#39;Repo&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
         <span class="c1">#print(repos)</span>
@@ -11998,18 +11955,156 @@ div#notebook {
 </div>
 
 </div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">analyzed_range</span><span class="p">:</span>
+
+    <span class="c1"># Buckets by author name, finding first commit for each of them</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">Search</span><span class="p">(</span><span class="n">using</span><span class="o">=</span><span class="n">es_conn</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">params</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+
+    <span class="c1"># General filters</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">add_general_date_filters</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">add_bot_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">add_merges_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    
+    <span class="c1"># Filter commits to the Project Repos</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">add_project_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    
+    
+    <span class="c1"># Retrieve commits before given year</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;range&#39;</span><span class="p">,</span> <span class="n">grimoire_creation_date</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;lt&#39;</span><span class="p">:</span> <span class="s1">&#39;now-&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;y/y&#39;</span><span class="p">})</span>
+
+    <span class="c1"># Bucketize by uuid and get first and last commit</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">aggs</span><span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;authors&#39;</span><span class="p">,</span> <span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_uuid&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span> \
+        <span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s1">&#39;first&#39;</span><span class="p">,</span> <span class="s1">&#39;top_hits&#39;</span><span class="p">,</span> <span class="n">_source</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;author_date&#39;</span><span class="p">,</span> <span class="s1">&#39;author_org_name&#39;</span><span class="p">,</span> <span class="s1">&#39;author_uuid&#39;</span><span class="p">,</span> <span class="s1">&#39;repo_name&#39;</span><span class="p">],</span>
+                <span class="n">size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;author_date&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;order&quot;</span><span class="p">:</span> <span class="s2">&quot;asc&quot;</span><span class="p">}}])</span> \
+        <span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s1">&#39;last_commit&#39;</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_date&#39;</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="s2">&quot;author_date&quot;</span><span class="p">)</span>
+    <span class="c1">#print(s.to_dict())</span>
+    <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">execute</span><span class="p">())</span>
+
+ 
+<span class="n">authors_dfs</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+    <span class="n">authors_df</span> <span class="o">=</span> <span class="n">get_authors_df</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">author_bucket_field</span><span class="o">=</span><span class="s1">&#39;authors&#39;</span><span class="p">)</span>
+    <span class="n">authors_df</span><span class="p">[</span><span class="s1">&#39;active_years&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">authors_df</span><span class="o">.</span><span class="n">last_commit</span><span class="o">-</span><span class="n">authors_df</span><span class="o">.</span><span class="n">first_commit</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;timedelta64[Y]&#39;</span><span class="p">)</span>
+    <span class="n">authors_df</span><span class="p">[</span><span class="s1">&#39;project&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">project_name</span>
+    <span class="n">authors_dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">authors_df</span><span class="p">)</span>
+
+<span class="n">authors_dfs</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[6]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[                                      author        first_commit  \
+ 20  236ac1dab9aadc6c1d10192b0657b2ea5734bca9 2016-09-13 18:32:49   
+ 2   48fce82f5d0316d8339590d41985ac1cc2bf96eb 2016-08-15 18:46:18   
+ 12  08a3b3e2548f049309dc34c374b95a171c44d234 2016-08-01 08:44:53   
+ 15  04a31d7acae067d4f2b66c102337b44f4f3aad82 2016-07-29 11:05:43   
+ 3   87a72ce2927569920e1598bbdede7dda85f14211 2016-07-28 01:34:08   
+ 10  199547ac8f00ecc2ac7955fe8519e0044cdff465 2016-07-13 11:09:44   
+ 14  537916bb8d399df76fe5ffa45765f7a9d8d80843 2016-05-26 16:07:12   
+ 21  3ea18097d8619fd5e72a918ef3d7935a006e4dcf 2016-05-12 13:23:19   
+ 13  000336e205e3f5e2daa6e7a0b03e612b3b2b02d3 2016-05-11 15:00:48   
+ 22  5123a99a0133b6f0a15c4eb95dc252a51431867b 2016-05-10 22:16:09   
+ 19  12dafea4e0e13658729a9c5cf9c9693ac5d126d8 2016-05-03 15:55:11   
+ 17  2e6cdf1e3f68d87a822159dd5f9d21ec2f1c9ad9 2016-04-20 18:43:37   
+ 6   60032c9b61a7f89a66635602377ab29be8981088 2016-04-04 14:09:34   
+ 16  26b215fb71d701b117a6ea5c4eaf765bd7866682 2016-03-11 16:50:45   
+ 1   03bc756764fd5d6def25fa6899cd4e1d4a75b2b5 2016-03-01 16:06:51   
+ 8   42b9e63a62fbe6331c72fc0da35802dce8dd2cda 2016-02-12 14:21:54   
+ 18  4f7bd003141946f61e010a43cf39c43e06061656 2016-02-11 16:24:40   
+ 7   0afbae03636c06de9ac7c9608385d7d076488ee5 2016-02-09 13:55:12   
+ 11  cb2e2579c1fd3fa2bea0a739bb9e485e9f79b2b0 2016-02-09 11:40:13   
+ 9   32fcc615524eb66ffe8a27a4c629dc815b8bd978 2016-02-05 14:25:35   
+ 4   344a998caa11277abad64a720cba1687c9e6d374 2016-02-02 12:13:14   
+ 5   70a650723920aaa3555b4950ebbd1d118b1dbcdd 2016-02-01 08:44:10   
+ 0   1555eb30b35c7790f4d8774235fec03db0101e09 2016-01-29 17:31:04   
+ 
+            last_commit            org  \
+ 20 2016-09-13 18:32:49      Community   
+ 2  2016-11-10 02:01:16      Community   
+ 12 2016-09-26 10:28:51  Mozilla Staff   
+ 15 2016-09-23 10:01:58  Mozilla Staff   
+ 3  2016-12-21 16:58:04  Mozilla Staff   
+ 10 2016-11-29 15:45:11  Mozilla Staff   
+ 14 2016-09-20 14:53:48  Mozilla Staff   
+ 21 2016-05-12 13:23:19  Mozilla Staff   
+ 13 2016-06-09 11:24:46  Mozilla Staff   
+ 22 2016-05-10 22:16:09      Community   
+ 19 2016-05-03 15:55:11      Community   
+ 17 2016-04-25 16:06:39  Mozilla Staff   
+ 6  2016-12-20 10:21:06  Mozilla Staff   
+ 16 2016-03-31 16:09:57  Mozilla Staff   
+ 1  2016-12-21 13:15:26  Mozilla Staff   
+ 8  2016-04-15 08:21:25  Mozilla Staff   
+ 18 2016-02-11 17:27:15  Mozilla Staff   
+ 7  2016-11-09 15:51:47  Mozilla Staff   
+ 11 2016-10-10 13:06:06  Mozilla Staff   
+ 9  2016-10-21 10:09:47  Mozilla Staff   
+ 4  2016-12-08 12:45:18  Mozilla Staff   
+ 5  2016-08-10 16:43:32  Mozilla Staff   
+ 0  2016-12-29 00:47:14      Community   
+ 
+                                          repo_name  active_years  project  
+ 20  https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 2   https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 12  https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 15  https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 3   https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 10  https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 14  https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 21  https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 13  https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 22  https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 19  https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 17  https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 6   https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 16  https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 1   https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 8   https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 18  https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 7   https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 11  https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 9   https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 4   https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 5   https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 0   https://github.com/mozilla/activity-stream.git           0.0  Firefox  ]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Metrics">Metrics<a class="anchor-link" href="#Metrics">&#182;</a></h1><h2 id="Groups-of-contributors,-by-level-of-activity:-core,-regular,-casual">Groups of contributors, by level of activity: core, regular, casual<a class="anchor-link" href="#Groups-of-contributors,-by-level-of-activity:-core,-regular,-casual">&#182;</a></h2><p>Following table and chart shows number of contributors in three groups:</p>
+<h2 id="Time-from-first-to-last-contrib-for-authors-who-made-a-commit-before-a-given-year">Time from first to last contrib for authors who made a commit before a given year<a class="anchor-link" href="#Time-from-first-to-last-contrib-for-authors-who-made-a-commit-before-a-given-year">&#182;</a></h2><p>Next plot shows the number of authors grouped by time from their first to last contribution. This give us an idea of how long contributors are around the community. In this chart we don't have any clue of their activity in that period, just a quick and approximate glance of the time they remain around the community.</p>
+<p><strong>Long bars in group of 0 years of experiece means that there are many people who made their first and last contributions whithin the same year along the whole period</strong>. That is, the accumulated sum of people who made all their contributions within same year from 1998.</p>
 <ul>
-<li>Core: minimum number of authors who made 80% of contributions.</li>
-<li>Regular: minimum number of authors who made between 80% and 95% of contributions.</li>
-<li>Casual: the rest of contributors, who made the last 5% of contributions.</li>
+<li>Y axis corresponds to the difference in years from first to last contributions.</li>
+<li>X axis corresponds to the number of contributors in the given group.</li>
+<li>Each plot shows a snapshot of this information from the specified year to the past (1998 was chosen as the oldest date to get results from). </li>
 </ul>
-<p>Looking at their evolution through time we can see the structure of a community at some point and its evolution.</p>
 
 </div>
 </div>
@@ -12019,203 +12114,12 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[7]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">Search</span><span class="p">(</span><span class="n">using</span><span class="o">=</span><span class="n">es_conn</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
-
-<span class="n">s</span> <span class="o">=</span> <span class="n">add_bot_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-<span class="n">s</span> <span class="o">=</span> <span class="n">add_merges_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-
-<span class="c1"># Filter commits to the Project Repos</span>
-<span class="n">s</span> <span class="o">=</span> <span class="n">add_project_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-
-<span class="c1"># Adds date range to retrieve data from</span>
-<span class="n">s</span> <span class="o">=</span> <span class="n">add_date_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-
-
-<span class="c1"># Unique count of Commits by Authors</span>
-<span class="n">s</span><span class="o">.</span><span class="n">aggs</span><span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;authors&#39;</span><span class="p">,</span> <span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_uuid&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span>\
-    <span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;date_histogram&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;grimoire_creation_date&#39;</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="s1">&#39;quarter&#39;</span><span class="p">)</span>\
-    <span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s1">&#39;commits&#39;</span><span class="p">,</span> <span class="s1">&#39;cardinality&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;hash&#39;</span><span class="p">,</span> <span class="n">precision_threshold</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
-
-<span class="n">onion_df</span><span class="o">=</span><span class="n">onion_evolution</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">bucket_column</span><span class="o">=</span><span class="s1">&#39;Author&#39;</span><span class="p">,</span> <span class="n">time_column</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">value_column</span><span class="o">=</span><span class="s1">&#39;Commits&#39;</span><span class="p">,</span>\
-      <span class="n">bucket_field</span><span class="o">=</span><span class="s1">&#39;authors&#39;</span><span class="p">,</span> <span class="n">time_field</span><span class="o">=</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="n">metric_field</span><span class="o">=</span><span class="s1">&#39;commits&#39;</span><span class="p">)</span>
-
-<span class="c1"># Calculate quarters</span>
-<span class="c1">#onion_df[&#39;Quarter&#39;] = pandas.PeriodIndex(pandas.to_datetime(onion_df.Time), freq=&#39;Q&#39;)</span>
-<span class="n">onion_df</span><span class="p">[</span><span class="s1">&#39;Quarter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">onion_df</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">pandas</span><span class="o">.</span><span class="n">Period</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="s1">&#39;Q&#39;</span><span class="p">)))</span>
-
-<span class="n">onion_df</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area"><div class="prompt output_prompt">Out[7]:</div>
-
-<div class="output_html rendered_html output_subarea output_execute_result">
-<div>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>Time</th>
-      <th>Core</th>
-      <th>Regular</th>
-      <th>Casual</th>
-      <th>Quarter</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>2013-01-01T00:00:00.000Z</td>
-      <td>246.0</td>
-      <td>249.0</td>
-      <td>669.0</td>
-      <td>2013Q1</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>2013-04-01T00:00:00.000Z</td>
-      <td>295.0</td>
-      <td>292.0</td>
-      <td>880.0</td>
-      <td>2013Q2</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>2013-07-01T00:00:00.000Z</td>
-      <td>307.0</td>
-      <td>292.0</td>
-      <td>989.0</td>
-      <td>2013Q3</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>2013-10-01T00:00:00.000Z</td>
-      <td>294.0</td>
-      <td>330.0</td>
-      <td>1146.0</td>
-      <td>2013Q4</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>2014-01-01T00:00:00.000Z</td>
-      <td>331.0</td>
-      <td>357.0</td>
-      <td>1304.0</td>
-      <td>2014Q1</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>2014-04-01T00:00:00.000Z</td>
-      <td>364.0</td>
-      <td>388.0</td>
-      <td>1447.0</td>
-      <td>2014Q2</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>2014-07-01T00:00:00.000Z</td>
-      <td>342.0</td>
-      <td>391.0</td>
-      <td>1520.0</td>
-      <td>2014Q3</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>2014-10-01T00:00:00.000Z</td>
-      <td>349.0</td>
-      <td>416.0</td>
-      <td>1652.0</td>
-      <td>2014Q4</td>
-    </tr>
-    <tr>
-      <th>8</th>
-      <td>2015-01-01T00:00:00.000Z</td>
-      <td>337.0</td>
-      <td>426.0</td>
-      <td>1784.0</td>
-      <td>2015Q1</td>
-    </tr>
-    <tr>
-      <th>9</th>
-      <td>2015-04-01T00:00:00.000Z</td>
-      <td>336.0</td>
-      <td>422.0</td>
-      <td>1724.0</td>
-      <td>2015Q2</td>
-    </tr>
-    <tr>
-      <th>10</th>
-      <td>2015-07-01T00:00:00.000Z</td>
-      <td>340.0</td>
-      <td>388.0</td>
-      <td>1626.0</td>
-      <td>2015Q3</td>
-    </tr>
-    <tr>
-      <th>11</th>
-      <td>2015-10-01T00:00:00.000Z</td>
-      <td>341.0</td>
-      <td>460.0</td>
-      <td>1695.0</td>
-      <td>2015Q4</td>
-    </tr>
-    <tr>
-      <th>12</th>
-      <td>2016-01-01T00:00:00.000Z</td>
-      <td>364.0</td>
-      <td>496.0</td>
-      <td>1686.0</td>
-      <td>2016Q1</td>
-    </tr>
-    <tr>
-      <th>13</th>
-      <td>2016-04-01T00:00:00.000Z</td>
-      <td>364.0</td>
-      <td>445.0</td>
-      <td>1524.0</td>
-      <td>2016Q2</td>
-    </tr>
-    <tr>
-      <th>14</th>
-      <td>2016-07-01T00:00:00.000Z</td>
-      <td>379.0</td>
-      <td>446.0</td>
-      <td>1352.0</td>
-      <td>2016Q3</td>
-    </tr>
-    <tr>
-      <th>15</th>
-      <td>2016-10-01T00:00:00.000Z</td>
-      <td>316.0</td>
-      <td>379.0</td>
-      <td>986.0</td>
-      <td>2016Q4</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[8]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">print_grouped_bar</span><span class="p">(</span><span class="n">onion_df</span><span class="p">,</span> <span class="s1">&#39;Quarter&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;Core&#39;</span><span class="p">,</span> <span class="s1">&#39;Regular&#39;</span><span class="p">,</span> <span class="s1">&#39;Casual&#39;</span><span class="p">],</span> <span class="s1">&#39;Global Contribution Groups&#39;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Plot bar charts for each dataframe</span>
+<span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">authors_df</span> <span class="ow">in</span> <span class="n">authors_dfs</span><span class="p">:</span>
+<span class="c1">#    print(author_df[&#39;experience_years&#39;].max(), type(author_df[&#39;experience_years&#39;].max()))</span>
+    <span class="n">print_horizontal_bar_chart</span><span class="p">(</span><span class="n">authors_df</span><span class="p">,</span> <span class="s1">&#39;active_years&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">project_name</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="mi">2016</span> <span class="o">-</span> <span class="n">i</span><span class="p">))</span>
+    <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
 </pre></div>
 
 </div>
@@ -12237,7 +12141,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="626b17c5-18eb-46d8-bbdd-061cd55f72c1" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("626b17c5-18eb-46d8-bbdd-061cd55f72c1", [{"y": [246.0, 295.0, 307.0, 294.0, 331.0, 364.0, 342.0, 349.0, 337.0, 336.0, 340.0, 341.0, 364.0, 364.0, 379.0, 316.0], "type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Core"}, {"y": [249.0, 292.0, 292.0, 330.0, 357.0, 388.0, 391.0, 416.0, 426.0, 422.0, 388.0, 460.0, 496.0, 445.0, 446.0, 379.0], "type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Regular"}, {"y": [669.0, 880.0, 989.0, 1146.0, 1304.0, 1447.0, 1520.0, 1652.0, 1784.0, 1724.0, 1626.0, 1695.0, 1686.0, 1524.0, 1352.0, 986.0], "type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Casual"}], {"title": "Global Contribution Groups", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="a16e2e89-08b7-4bfc-bd94-d07d79d0940b" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("a16e2e89-08b7-4bfc-bd94-d07d79d0940b", [{"x": [23], "orientation": "h", "type": "bar", "y": [0]}], {"title": "Firefox 2016", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -12251,47 +12155,32 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Employees-vs-Non-Employees">Employees vs Non-Employees<a class="anchor-link" href="#Employees-vs-Non-Employees">&#182;</a></h3>
+<h2 id="Time-from-first-to-last-commit-for-authors-active-in-a-given-year">Time from first to last commit for authors active in a given year<a class="anchor-link" href="#Time-from-first-to-last-commit-for-authors-active-in-a-given-year">&#182;</a></h2><p>We define an author as <strong>active</strong> iff she made at least one commit within a given year. E.g. an author would be considered active in 2017 if she made a commit after Jan. 1st, 2017 and before Dec. 31st 2017.</p>
+<p>In other words, the difference with previous plots lies in having into account only contributors who made their last contribution in the year we are visualizing data from.</p>
+<ul>
+<li>Y axis corresponds to the difference in years from first to last contributions.</li>
+<li>X axis corresponds to the number of contributors in the given group.</li>
+<li>Each plot shows a snapshot of this information from the specified year to the past (1998 was chosen as the oldest date to get results from). </li>
+</ul>
+
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">Search</span><span class="p">(</span><span class="n">using</span><span class="o">=</span><span class="n">es_conn</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">active_authors_dfs</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">year</span> <span class="o">=</span> <span class="mi">2016</span>
+<span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+    <span class="n">authors_df</span> <span class="o">=</span> <span class="n">get_active_authors_df</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">author_bucket_field</span><span class="o">=</span><span class="s1">&#39;authors&#39;</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">)</span>
+    <span class="n">authors_df</span><span class="p">[</span><span class="s1">&#39;active_years&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">authors_df</span><span class="o">.</span><span class="n">last_commit</span><span class="o">-</span><span class="n">authors_df</span><span class="o">.</span><span class="n">first_commit</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;timedelta64[Y]&#39;</span><span class="p">)</span>
+    <span class="n">authors_df</span><span class="p">[</span><span class="s1">&#39;project&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">project_name</span>
+    <span class="n">active_authors_dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">authors_df</span><span class="p">)</span>
+    <span class="n">year</span> <span class="o">-=</span> <span class="mi">1</span>
 
-<span class="c1"># Adds date range to retrieve data from</span>
-<span class="n">s</span> <span class="o">=</span> <span class="n">add_date_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-
-
-<span class="n">s</span> <span class="o">=</span> <span class="n">add_bot_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-<span class="n">s</span> <span class="o">=</span> <span class="n">add_merges_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-
-<span class="c1"># Filter commits to the Project Repos</span>
-<span class="n">s</span> <span class="o">=</span> <span class="n">add_project_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-
-<span class="c1">### INCLUDE EMPLOYEES ONLY #######################################</span>
-<span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">author_org_name</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Mozilla Staff&#39;</span><span class="p">])</span>
-<span class="c1">##################################################################</span>
-
-
-<span class="c1"># Unique count of Commits by Project (max 100 projects)</span>
-<span class="n">s</span><span class="o">.</span><span class="n">aggs</span><span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;authors&#39;</span><span class="p">,</span> <span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_uuid&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span>\
-    <span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;date_histogram&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;grimoire_creation_date&#39;</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="s1">&#39;quarter&#39;</span><span class="p">)</span>\
-    <span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s1">&#39;commits&#39;</span><span class="p">,</span> <span class="s1">&#39;cardinality&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;hash&#39;</span><span class="p">,</span> <span class="n">precision_threshold</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
-
-<span class="n">moz_onion_df</span> <span class="o">=</span> <span class="n">onion_evolution</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">bucket_column</span><span class="o">=</span><span class="s1">&#39;Author&#39;</span><span class="p">,</span> <span class="n">time_column</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">value_column</span><span class="o">=</span><span class="s1">&#39;Commits&#39;</span><span class="p">,</span>\
-      <span class="n">bucket_field</span><span class="o">=</span><span class="s1">&#39;authors&#39;</span><span class="p">,</span> <span class="n">time_field</span><span class="o">=</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="n">metric_field</span><span class="o">=</span><span class="s1">&#39;commits&#39;</span><span class="p">)</span>
-
-<span class="c1"># Calculate quarters</span>
-<span class="c1">#onion_df[&#39;Quarter&#39;] = pandas.PeriodIndex(pandas.to_datetime(onion_df.Time), freq=&#39;Q&#39;)</span>
-<span class="n">moz_onion_df</span><span class="p">[</span><span class="s1">&#39;Quarter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">moz_onion_df</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">pandas</span><span class="o">.</span><span class="n">Period</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="s1">&#39;Q&#39;</span><span class="p">)))</span>
-<span class="n">moz_onion_df</span><span class="p">[</span><span class="s1">&#39;Organization&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Mozilla Staff&#39;</span>
-
-<span class="n">moz_onion_df</span>
+<span class="n">active_authors_dfs</span>
 </pre></div>
 
 </div>
@@ -12302,170 +12191,84 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[9]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[8]:</div>
 
-<div class="output_html rendered_html output_subarea output_execute_result">
-<div>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>Time</th>
-      <th>Core</th>
-      <th>Regular</th>
-      <th>Casual</th>
-      <th>Quarter</th>
-      <th>Organization</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>2013-01-01T00:00:00.000Z</td>
-      <td>189.0</td>
-      <td>155.0</td>
-      <td>277.0</td>
-      <td>2013Q1</td>
-      <td>Mozilla Staff</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>2013-04-01T00:00:00.000Z</td>
-      <td>219.0</td>
-      <td>180.0</td>
-      <td>362.0</td>
-      <td>2013Q2</td>
-      <td>Mozilla Staff</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>2013-07-01T00:00:00.000Z</td>
-      <td>234.0</td>
-      <td>188.0</td>
-      <td>400.0</td>
-      <td>2013Q3</td>
-      <td>Mozilla Staff</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>2013-10-01T00:00:00.000Z</td>
-      <td>220.0</td>
-      <td>190.0</td>
-      <td>459.0</td>
-      <td>2013Q4</td>
-      <td>Mozilla Staff</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>2014-01-01T00:00:00.000Z</td>
-      <td>242.0</td>
-      <td>192.0</td>
-      <td>482.0</td>
-      <td>2014Q1</td>
-      <td>Mozilla Staff</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>2014-04-01T00:00:00.000Z</td>
-      <td>258.0</td>
-      <td>209.0</td>
-      <td>505.0</td>
-      <td>2014Q2</td>
-      <td>Mozilla Staff</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>2014-07-01T00:00:00.000Z</td>
-      <td>252.0</td>
-      <td>206.0</td>
-      <td>516.0</td>
-      <td>2014Q3</td>
-      <td>Mozilla Staff</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>2014-10-01T00:00:00.000Z</td>
-      <td>242.0</td>
-      <td>189.0</td>
-      <td>529.0</td>
-      <td>2014Q4</td>
-      <td>Mozilla Staff</td>
-    </tr>
-    <tr>
-      <th>8</th>
-      <td>2015-01-01T00:00:00.000Z</td>
-      <td>229.0</td>
-      <td>185.0</td>
-      <td>534.0</td>
-      <td>2015Q1</td>
-      <td>Mozilla Staff</td>
-    </tr>
-    <tr>
-      <th>9</th>
-      <td>2015-04-01T00:00:00.000Z</td>
-      <td>224.0</td>
-      <td>187.0</td>
-      <td>512.0</td>
-      <td>2015Q2</td>
-      <td>Mozilla Staff</td>
-    </tr>
-    <tr>
-      <th>10</th>
-      <td>2015-07-01T00:00:00.000Z</td>
-      <td>233.0</td>
-      <td>191.0</td>
-      <td>491.0</td>
-      <td>2015Q3</td>
-      <td>Mozilla Staff</td>
-    </tr>
-    <tr>
-      <th>11</th>
-      <td>2015-10-01T00:00:00.000Z</td>
-      <td>220.0</td>
-      <td>182.0</td>
-      <td>494.0</td>
-      <td>2015Q4</td>
-      <td>Mozilla Staff</td>
-    </tr>
-    <tr>
-      <th>12</th>
-      <td>2016-01-01T00:00:00.000Z</td>
-      <td>231.0</td>
-      <td>179.0</td>
-      <td>471.0</td>
-      <td>2016Q1</td>
-      <td>Mozilla Staff</td>
-    </tr>
-    <tr>
-      <th>13</th>
-      <td>2016-04-01T00:00:00.000Z</td>
-      <td>236.0</td>
-      <td>187.0</td>
-      <td>426.0</td>
-      <td>2016Q2</td>
-      <td>Mozilla Staff</td>
-    </tr>
-    <tr>
-      <th>14</th>
-      <td>2016-07-01T00:00:00.000Z</td>
-      <td>243.0</td>
-      <td>179.0</td>
-      <td>368.0</td>
-      <td>2016Q3</td>
-      <td>Mozilla Staff</td>
-    </tr>
-    <tr>
-      <th>15</th>
-      <td>2016-10-01T00:00:00.000Z</td>
-      <td>219.0</td>
-      <td>171.0</td>
-      <td>272.0</td>
-      <td>2016Q4</td>
-      <td>Mozilla Staff</td>
-    </tr>
-  </tbody>
-</table>
-</div>
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[                                      author        first_commit  \
+ 20  236ac1dab9aadc6c1d10192b0657b2ea5734bca9 2016-09-13 18:32:49   
+ 2   48fce82f5d0316d8339590d41985ac1cc2bf96eb 2016-08-15 18:46:18   
+ 12  08a3b3e2548f049309dc34c374b95a171c44d234 2016-08-01 08:44:53   
+ 15  04a31d7acae067d4f2b66c102337b44f4f3aad82 2016-07-29 11:05:43   
+ 3   87a72ce2927569920e1598bbdede7dda85f14211 2016-07-28 01:34:08   
+ 10  199547ac8f00ecc2ac7955fe8519e0044cdff465 2016-07-13 11:09:44   
+ 14  537916bb8d399df76fe5ffa45765f7a9d8d80843 2016-05-26 16:07:12   
+ 21  3ea18097d8619fd5e72a918ef3d7935a006e4dcf 2016-05-12 13:23:19   
+ 13  000336e205e3f5e2daa6e7a0b03e612b3b2b02d3 2016-05-11 15:00:48   
+ 22  5123a99a0133b6f0a15c4eb95dc252a51431867b 2016-05-10 22:16:09   
+ 19  12dafea4e0e13658729a9c5cf9c9693ac5d126d8 2016-05-03 15:55:11   
+ 17  2e6cdf1e3f68d87a822159dd5f9d21ec2f1c9ad9 2016-04-20 18:43:37   
+ 6   60032c9b61a7f89a66635602377ab29be8981088 2016-04-04 14:09:34   
+ 16  26b215fb71d701b117a6ea5c4eaf765bd7866682 2016-03-11 16:50:45   
+ 1   03bc756764fd5d6def25fa6899cd4e1d4a75b2b5 2016-03-01 16:06:51   
+ 8   42b9e63a62fbe6331c72fc0da35802dce8dd2cda 2016-02-12 14:21:54   
+ 18  4f7bd003141946f61e010a43cf39c43e06061656 2016-02-11 16:24:40   
+ 7   0afbae03636c06de9ac7c9608385d7d076488ee5 2016-02-09 13:55:12   
+ 11  cb2e2579c1fd3fa2bea0a739bb9e485e9f79b2b0 2016-02-09 11:40:13   
+ 9   32fcc615524eb66ffe8a27a4c629dc815b8bd978 2016-02-05 14:25:35   
+ 4   344a998caa11277abad64a720cba1687c9e6d374 2016-02-02 12:13:14   
+ 5   70a650723920aaa3555b4950ebbd1d118b1dbcdd 2016-02-01 08:44:10   
+ 0   1555eb30b35c7790f4d8774235fec03db0101e09 2016-01-29 17:31:04   
+ 
+            last_commit            org  \
+ 20 2016-09-13 18:32:49      Community   
+ 2  2016-11-10 02:01:16      Community   
+ 12 2016-09-26 10:28:51  Mozilla Staff   
+ 15 2016-09-23 10:01:58  Mozilla Staff   
+ 3  2016-12-21 16:58:04  Mozilla Staff   
+ 10 2016-11-29 15:45:11  Mozilla Staff   
+ 14 2016-09-20 14:53:48  Mozilla Staff   
+ 21 2016-05-12 13:23:19  Mozilla Staff   
+ 13 2016-06-09 11:24:46  Mozilla Staff   
+ 22 2016-05-10 22:16:09      Community   
+ 19 2016-05-03 15:55:11      Community   
+ 17 2016-04-25 16:06:39  Mozilla Staff   
+ 6  2016-12-20 10:21:06  Mozilla Staff   
+ 16 2016-03-31 16:09:57  Mozilla Staff   
+ 1  2016-12-21 13:15:26  Mozilla Staff   
+ 8  2016-04-15 08:21:25  Mozilla Staff   
+ 18 2016-02-11 17:27:15  Mozilla Staff   
+ 7  2016-11-09 15:51:47  Mozilla Staff   
+ 11 2016-10-10 13:06:06  Mozilla Staff   
+ 9  2016-10-21 10:09:47  Mozilla Staff   
+ 4  2016-12-08 12:45:18  Mozilla Staff   
+ 5  2016-08-10 16:43:32  Mozilla Staff   
+ 0  2016-12-29 00:47:14      Community   
+ 
+                                          repo_name  active_years  project  
+ 20  https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 2   https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 12  https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 15  https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 3   https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 10  https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 14  https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 21  https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 13  https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 22  https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 19  https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 17  https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 6   https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 16  https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 1   https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 8   https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 18  https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 7   https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 11  https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 9   https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 4   https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 5   https://github.com/mozilla/activity-stream.git           0.0  Firefox  
+ 0   https://github.com/mozilla/activity-stream.git           0.0  Firefox  ]</pre>
 </div>
 
 </div>
@@ -12473,221 +12276,109 @@ div#notebook {
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Plot bar charts for each dataframe</span>
+<span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">authors_df</span> <span class="ow">in</span> <span class="n">active_authors_dfs</span><span class="p">:</span>
+<span class="c1">#    print(author_df[&#39;experience_years&#39;].max(), type(author_df[&#39;experience_years&#39;].max()))</span>
+    <span class="n">print_horizontal_bar_chart</span><span class="p">(</span><span class="n">authors_df</span><span class="p">,</span> <span class="s1">&#39;active_years&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">project_name</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="mi">2016</span> <span class="o">-</span> <span class="n">i</span><span class="p">))</span>
+    <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<div id="4eba2874-0da9-408a-80bf-e61128b73d8f" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("4eba2874-0da9-408a-80bf-e61128b73d8f", [{"x": [23], "orientation": "h", "type": "bar", "y": [0]}], {"title": "Firefox 2016", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Years-of-Experience">Years of Experience<a class="anchor-link" href="#Years-of-Experience">&#182;</a></h2><p>We consider <strong>12 commits</strong> per year, i.e. one commit per month aprox., as a minimum to add one year of experience to a given author. From this assumption, we build groups of authors by years of experience. As a result, we present a plot with number of people in each group.</p>
+<p>To give a more complete idea of how community evolves, we plot snapshots corresponding to different years. Each of them will take all commits sent until the given year, and calculate years of experience for all authors in that slice.</p>
+<p>We are also counting authors whose last year of experience is the one we are analyzing data from. That is, if we are looking to year 2016, we only count those authors who made at least 12 commits in 2016. From there we add 1 year of experience for each year they fulfill this condition.</p>
+<ul>
+<li>Y axis corresponds to years of experience as defined above.</li>
+<li>X axis corresponds to the umber of contributors in the given group.</li>
+<li>Each plot shows a snapshot of this information from the specified year to the past (1998 was chosen as the oldest date to get results from). </li>
+</ul>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[10]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">Search</span><span class="p">(</span><span class="n">using</span><span class="o">=</span><span class="n">es_conn</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">###</span>
+<span class="c1">## GET COMMITS BY YEAR AND AUTHOR</span>
+<span class="c1">###</span>
 
-<span class="c1"># Adds date range to retrieve data from</span>
-<span class="n">s</span> <span class="o">=</span> <span class="n">add_date_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">min_commits</span> <span class="o">=</span> <span class="mi">1</span>
 
-<span class="n">s</span> <span class="o">=</span> <span class="n">add_bot_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-<span class="n">s</span> <span class="o">=</span> <span class="n">add_merges_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">analyzed_range</span><span class="p">:</span>
 
-<span class="c1"># Filter commits to the Project Repos</span>
-<span class="n">s</span> <span class="o">=</span> <span class="n">add_project_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="c1"># Buckets by author name, finding first commit for each of them</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">create_search</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># General filters</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">add_general_date_filters</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">add_bot_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">add_merges_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    
+    <span class="c1"># Filter commits to the Project Repos</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">add_project_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    
+    <span class="c1"># Retrieve commits before given year</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;range&#39;</span><span class="p">,</span> <span class="n">grimoire_creation_date</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;lt&#39;</span><span class="p">:</span> <span class="s1">&#39;now-&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;y/y&#39;</span><span class="p">})</span>
 
-<span class="c1">### EXCLUDE EMPLOYEES ############################################</span>
-<span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">author_org_name</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Mozilla Staff&#39;</span><span class="p">])</span>
-<span class="c1">##################################################################</span>
+    <span class="c1"># Bucketize by time, uuid and organization, then count commits per year</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">aggs</span><span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;date_histogram&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;grimoire_creation_date&#39;</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="s1">&#39;year&#39;</span><span class="p">)</span> \
+        <span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;authors&#39;</span><span class="p">,</span> <span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_uuid&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">100000</span><span class="p">,</span> <span class="n">min_doc_count</span><span class="o">=</span><span class="n">min_commits</span><span class="p">)</span> \
+        <span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;org&#39;</span><span class="p">,</span> <span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_org_name&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> \
+        <span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s1">&#39;commits&#39;</span><span class="p">,</span> <span class="s1">&#39;cardinality&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;hash&#39;</span><span class="p">,</span> <span class="n">precision_threshold</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
 
-
-<span class="c1"># Unique count of Commits by Project (max 100 projects)</span>
-<span class="n">s</span><span class="o">.</span><span class="n">aggs</span><span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;authors&#39;</span><span class="p">,</span> <span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_uuid&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span>\
-    <span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;date_histogram&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;grimoire_creation_date&#39;</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="s1">&#39;quarter&#39;</span><span class="p">)</span>\
-    <span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s1">&#39;commits&#39;</span><span class="p">,</span> <span class="s1">&#39;cardinality&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;hash&#39;</span><span class="p">,</span> <span class="n">precision_threshold</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
-
-<span class="n">com_onion_df</span> <span class="o">=</span> <span class="n">onion_evolution</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">bucket_column</span><span class="o">=</span><span class="s1">&#39;Author&#39;</span><span class="p">,</span> <span class="n">time_column</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">value_column</span><span class="o">=</span><span class="s1">&#39;Commits&#39;</span><span class="p">,</span>\
-      <span class="n">bucket_field</span><span class="o">=</span><span class="s1">&#39;authors&#39;</span><span class="p">,</span> <span class="n">time_field</span><span class="o">=</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="n">metric_field</span><span class="o">=</span><span class="s1">&#39;commits&#39;</span><span class="p">)</span>
-
-<span class="c1"># Calculate quarters</span>
-<span class="c1">#onion_df[&#39;Quarter&#39;] = pandas.PeriodIndex(pandas.to_datetime(onion_df.Time), freq=&#39;Q&#39;)</span>
-<span class="n">com_onion_df</span><span class="p">[</span><span class="s1">&#39;Quarter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">com_onion_df</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">pandas</span><span class="o">.</span><span class="n">Period</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="s1">&#39;Q&#39;</span><span class="p">)))</span>
-<span class="n">com_onion_df</span><span class="p">[</span><span class="s1">&#39;Organization&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Other&#39;</span>
-
-<span class="n">com_onion_df</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+    <span class="c1"># In case you need to check response, uncomment line below</span>
+    <span class="c1">#print(r.to_dict()[&#39;aggregations&#39;][&#39;time&#39;][&#39;buckets&#39;])</span>
+        
+    <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+    
+<span class="c1">#results</span>
 </pre></div>
 
 </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area"><div class="prompt output_prompt">Out[10]:</div>
-
-<div class="output_html rendered_html output_subarea output_execute_result">
-<div>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>Time</th>
-      <th>Core</th>
-      <th>Regular</th>
-      <th>Casual</th>
-      <th>Quarter</th>
-      <th>Organization</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>2013-01-01T00:00:00.000Z</td>
-      <td>92.0</td>
-      <td>186.0</td>
-      <td>265.0</td>
-      <td>2013Q1</td>
-      <td>Other</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>2013-04-01T00:00:00.000Z</td>
-      <td>112.0</td>
-      <td>219.0</td>
-      <td>375.0</td>
-      <td>2013Q2</td>
-      <td>Other</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>2013-07-01T00:00:00.000Z</td>
-      <td>106.0</td>
-      <td>188.0</td>
-      <td>472.0</td>
-      <td>2013Q3</td>
-      <td>Other</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>2013-10-01T00:00:00.000Z</td>
-      <td>125.0</td>
-      <td>263.0</td>
-      <td>513.0</td>
-      <td>2013Q4</td>
-      <td>Other</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>2014-01-01T00:00:00.000Z</td>
-      <td>135.0</td>
-      <td>310.0</td>
-      <td>631.0</td>
-      <td>2014Q1</td>
-      <td>Other</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>2014-04-01T00:00:00.000Z</td>
-      <td>152.0</td>
-      <td>326.0</td>
-      <td>749.0</td>
-      <td>2014Q2</td>
-      <td>Other</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>2014-07-01T00:00:00.000Z</td>
-      <td>201.0</td>
-      <td>363.0</td>
-      <td>715.0</td>
-      <td>2014Q3</td>
-      <td>Other</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>2014-10-01T00:00:00.000Z</td>
-      <td>228.0</td>
-      <td>424.0</td>
-      <td>805.0</td>
-      <td>2014Q4</td>
-      <td>Other</td>
-    </tr>
-    <tr>
-      <th>8</th>
-      <td>2015-01-01T00:00:00.000Z</td>
-      <td>252.0</td>
-      <td>485.0</td>
-      <td>862.0</td>
-      <td>2015Q1</td>
-      <td>Other</td>
-    </tr>
-    <tr>
-      <th>9</th>
-      <td>2015-04-01T00:00:00.000Z</td>
-      <td>235.0</td>
-      <td>451.0</td>
-      <td>873.0</td>
-      <td>2015Q2</td>
-      <td>Other</td>
-    </tr>
-    <tr>
-      <th>10</th>
-      <td>2015-07-01T00:00:00.000Z</td>
-      <td>201.0</td>
-      <td>376.0</td>
-      <td>862.0</td>
-      <td>2015Q3</td>
-      <td>Other</td>
-    </tr>
-    <tr>
-      <th>11</th>
-      <td>2015-10-01T00:00:00.000Z</td>
-      <td>250.0</td>
-      <td>466.0</td>
-      <td>884.0</td>
-      <td>2015Q4</td>
-      <td>Other</td>
-    </tr>
-    <tr>
-      <th>12</th>
-      <td>2016-01-01T00:00:00.000Z</td>
-      <td>280.0</td>
-      <td>506.0</td>
-      <td>879.0</td>
-      <td>2016Q1</td>
-      <td>Other</td>
-    </tr>
-    <tr>
-      <th>13</th>
-      <td>2016-04-01T00:00:00.000Z</td>
-      <td>222.0</td>
-      <td>456.0</td>
-      <td>806.0</td>
-      <td>2016Q2</td>
-      <td>Other</td>
-    </tr>
-    <tr>
-      <th>14</th>
-      <td>2016-07-01T00:00:00.000Z</td>
-      <td>231.0</td>
-      <td>463.0</td>
-      <td>693.0</td>
-      <td>2016Q3</td>
-      <td>Other</td>
-    </tr>
-    <tr>
-      <th>15</th>
-      <td>2016-10-01T00:00:00.000Z</td>
-      <td>141.0</td>
-      <td>386.0</td>
-      <td>492.0</td>
-      <td>2016Q4</td>
-      <td>Other</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-</div>
-
-</div>
-
 </div>
 </div>
 
@@ -12697,8 +12388,112 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">print_grouped_bar</span><span class="p">(</span><span class="n">moz_onion_df</span><span class="p">,</span> <span class="s1">&#39;Quarter&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;Core&#39;</span><span class="p">,</span> <span class="s1">&#39;Regular&#39;</span><span class="p">,</span> <span class="s1">&#39;Casual&#39;</span><span class="p">],</span> <span class="s1">&#39;Employees&#39;</span><span class="p">)</span>
-<span class="n">print_grouped_bar</span><span class="p">(</span><span class="n">com_onion_df</span><span class="p">,</span> <span class="s1">&#39;Quarter&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;Core&#39;</span><span class="p">,</span> <span class="s1">&#39;Regular&#39;</span><span class="p">,</span> <span class="s1">&#39;Casual&#39;</span><span class="p">],</span> <span class="s1">&#39;Non-Employees&#39;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">###</span>
+<span class="c1">## CREATE A DF CONTAINING, FOR EACH AUTHOR UUID, COUNT OF YEARS OF EXPERIENCE (YEARS</span>
+<span class="c1">## WITH MORE THAN 12 COMMITS MADE) AND LAST YEAR ACTIVE</span>
+<span class="c1">###</span>
+<span class="n">exp_df_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">year</span> <span class="o">=</span> <span class="mi">2016</span>
+
+<span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+    <span class="n">exp_df</span> <span class="o">=</span> <span class="n">ut</span><span class="o">.</span><span class="n">to_df_by_time</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s1">&#39;Author&#39;</span><span class="p">,</span> <span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;Commits&#39;</span><span class="p">,</span> <span class="s1">&#39;Org&#39;</span><span class="p">,</span> <span class="s1">&#39;authors&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;commits&#39;</span><span class="p">,</span> <span class="s1">&#39;org&#39;</span><span class="p">)</span>
+    <span class="n">exp_df</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">exp_df</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">pandas</span><span class="o">.</span><span class="n">Period</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="s1">&#39;A&#39;</span><span class="p">)))</span>
+    
+    <span class="c1">## ACTIVE CONDITION</span>
+    <span class="c1">## Filter those having less than 12 commits per year</span>
+    <span class="n">exp_df</span> <span class="o">=</span> <span class="n">exp_df</span><span class="p">[</span><span class="n">exp_df</span><span class="p">[</span><span class="s1">&#39;Commits&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">12</span><span class="p">]</span>
+    
+    <span class="c1">## Group by author, get MAX YEAR and NUMBER OF ROWS FOR THE GIVEN AUTHOR</span>
+    <span class="n">exp_df</span> <span class="o">=</span> <span class="n">exp_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;Author&#39;</span><span class="p">,</span> <span class="s1">&#39;Org&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s1">&#39;Time&#39;</span><span class="p">:</span> <span class="s1">&#39;max&#39;</span><span class="p">,</span> <span class="s1">&#39;Commits&#39;</span><span class="p">:</span> <span class="s1">&#39;count&#39;</span><span class="p">})</span>
+    <span class="c1">## Filter those whose last active year is not the one we want</span>
+    <span class="n">exp_df</span> <span class="o">=</span> <span class="n">exp_df</span><span class="p">[</span><span class="n">exp_df</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">year</span><span class="p">)]</span>
+    
+    <span class="n">exp_df</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">exp_df</span><span class="p">[</span><span class="s1">&#39;Commits&#39;</span><span class="p">]</span>
+    <span class="n">exp_df</span><span class="p">[</span><span class="s1">&#39;last_active&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">exp_df</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span>
+    <span class="n">exp_df</span><span class="o">=</span> <span class="n">exp_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;Commits&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">exp_df</span> <span class="o">=</span> <span class="n">exp_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    
+    <span class="n">exp_df</span><span class="p">[</span><span class="s1">&#39;project&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">project_name</span>
+    
+    <span class="n">exp_df_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">exp_df</span><span class="p">)</span>
+    
+    <span class="n">year</span> <span class="o">-=</span> <span class="mi">1</span>
+
+<span class="n">exp_df_list</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[11]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[                                                        exp last_active  \
+ Author                                   Org                              
+ 03bc756764fd5d6def25fa6899cd4e1d4a75b2b5 Mozilla Staff    1        2016   
+ 08a3b3e2548f049309dc34c374b95a171c44d234 Mozilla Staff    1        2016   
+ 0afbae03636c06de9ac7c9608385d7d076488ee5 Mozilla Staff    1        2016   
+ 1555eb30b35c7790f4d8774235fec03db0101e09 Community        1        2016   
+ 199547ac8f00ecc2ac7955fe8519e0044cdff465 Mozilla Staff    1        2016   
+ 32fcc615524eb66ffe8a27a4c629dc815b8bd978 Mozilla Staff    1        2016   
+ 344a998caa11277abad64a720cba1687c9e6d374 Mozilla Staff    1        2016   
+ 42b9e63a62fbe6331c72fc0da35802dce8dd2cda Mozilla Staff    1        2016   
+ 48fce82f5d0316d8339590d41985ac1cc2bf96eb Community        1        2016   
+ 60032c9b61a7f89a66635602377ab29be8981088 Mozilla Staff    1        2016   
+ 70a650723920aaa3555b4950ebbd1d118b1dbcdd Mozilla Staff    1        2016   
+ 87a72ce2927569920e1598bbdede7dda85f14211 Mozilla Staff    1        2016   
+ cb2e2579c1fd3fa2bea0a739bb9e485e9f79b2b0 Mozilla Staff    1        2016   
+ 
+                                                         project  
+ Author                                   Org                     
+ 03bc756764fd5d6def25fa6899cd4e1d4a75b2b5 Mozilla Staff  Firefox  
+ 08a3b3e2548f049309dc34c374b95a171c44d234 Mozilla Staff  Firefox  
+ 0afbae03636c06de9ac7c9608385d7d076488ee5 Mozilla Staff  Firefox  
+ 1555eb30b35c7790f4d8774235fec03db0101e09 Community      Firefox  
+ 199547ac8f00ecc2ac7955fe8519e0044cdff465 Mozilla Staff  Firefox  
+ 32fcc615524eb66ffe8a27a4c629dc815b8bd978 Mozilla Staff  Firefox  
+ 344a998caa11277abad64a720cba1687c9e6d374 Mozilla Staff  Firefox  
+ 42b9e63a62fbe6331c72fc0da35802dce8dd2cda Mozilla Staff  Firefox  
+ 48fce82f5d0316d8339590d41985ac1cc2bf96eb Community      Firefox  
+ 60032c9b61a7f89a66635602377ab29be8981088 Mozilla Staff  Firefox  
+ 70a650723920aaa3555b4950ebbd1d118b1dbcdd Mozilla Staff  Firefox  
+ 87a72ce2927569920e1598bbdede7dda85f14211 Mozilla Staff  Firefox  
+ cb2e2579c1fd3fa2bea0a739bb9e485e9f79b2b0 Mozilla Staff  Firefox  ]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Plot bar charts for each dataframe</span>
+<span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">exp_df</span> <span class="ow">in</span> <span class="n">exp_df_list</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">exp_df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="n">print_horizontal_bar_chart</span><span class="p">(</span><span class="n">exp_df</span><span class="p">,</span> <span class="s1">&#39;exp&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">project_name</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="mi">2016</span> <span class="o">-</span> <span class="n">i</span><span class="p">),</span> <span class="n">min_range</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        
+        <span class="n">employees_df</span> <span class="o">=</span> <span class="n">exp_df</span><span class="p">[[</span><span class="n">group2</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Mozilla Staff&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">group1</span><span class="p">,</span> <span class="n">group2</span> <span class="ow">in</span> <span class="n">exp_df</span><span class="o">.</span><span class="n">index</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">employees_df</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">print_horizontal_bar_chart</span><span class="p">(</span><span class="n">employees_df</span><span class="p">,</span> <span class="s1">&#39;exp&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">project_name</span> <span class="o">+</span> <span class="s1">&#39; employees &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="mi">2016</span> <span class="o">-</span> <span class="n">i</span><span class="p">),</span> 
+                                       <span class="n">min_range</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        
+        <span class="n">non_employees_df</span> <span class="o">=</span> <span class="n">exp_df</span><span class="p">[[</span><span class="n">group2</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Mozilla Staff&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">group1</span><span class="p">,</span> <span class="n">group2</span> <span class="ow">in</span> <span class="n">exp_df</span><span class="o">.</span><span class="n">index</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">non_employees_df</span><span class="p">):</span>
+            <span class="n">print_horizontal_bar_chart</span><span class="p">(</span><span class="n">non_employees_df</span><span class="p">,</span> <span class="s1">&#39;exp&#39;</span><span class="p">,</span> 
+                                       <span class="n">title</span><span class="o">=</span><span class="n">project_name</span> <span class="o">+</span> <span class="s1">&#39; non-employees &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="mi">2016</span> <span class="o">-</span> <span class="n">i</span><span class="p">),</span> <span class="n">min_range</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
 </pre></div>
 
 </div>
@@ -12720,7 +12515,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="cf28fbb7-3ea0-4a87-a185-37ed3cd54b34" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("cf28fbb7-3ea0-4a87-a185-37ed3cd54b34", [{"y": [189.0, 219.0, 234.0, 220.0, 242.0, 258.0, 252.0, 242.0, 229.0, 224.0, 233.0, 220.0, 231.0, 236.0, 243.0, 219.0], "type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Core"}, {"y": [155.0, 180.0, 188.0, 190.0, 192.0, 209.0, 206.0, 189.0, 185.0, 187.0, 191.0, 182.0, 179.0, 187.0, 179.0, 171.0], "type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Regular"}, {"y": [277.0, 362.0, 400.0, 459.0, 482.0, 505.0, 516.0, 529.0, 534.0, 512.0, 491.0, 494.0, 471.0, 426.0, 368.0, 272.0], "type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Casual"}], {"title": "Staff Contributors", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="6cf46dfe-2fcf-40ae-b14d-25a0a6d06cc5" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("6cf46dfe-2fcf-40ae-b14d-25a0a6d06cc5", [{"x": [13], "orientation": "h", "type": "bar", "y": [1]}], {"title": "Firefox 2016", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -12736,7 +12531,23 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="683616a4-127d-4b45-b29c-f641f9069c3f" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("683616a4-127d-4b45-b29c-f641f9069c3f", [{"y": [92.0, 112.0, 106.0, 125.0, 135.0, 152.0, 201.0, 228.0, 252.0, 235.0, 201.0, 250.0, 280.0, 222.0, 231.0, 141.0], "type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Core"}, {"y": [186.0, 219.0, 188.0, 263.0, 310.0, 326.0, 363.0, 424.0, 485.0, 451.0, 376.0, 466.0, 506.0, 456.0, 463.0, 386.0], "type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Regular"}, {"y": [265.0, 375.0, 472.0, 513.0, 631.0, 749.0, 715.0, 805.0, 862.0, 873.0, 862.0, 884.0, 879.0, 806.0, 693.0, 492.0], "type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Casual"}], {"title": "Other Contributors", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="3841aaf4-3eaf-4582-a907-2bd8a1d00b9e" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("3841aaf4-3eaf-4582-a907-2bd8a1d00b9e", [{"x": [11], "orientation": "h", "type": "bar", "y": [1]}], {"title": "Firefox employees 2016", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<div id="efadcc42-7696-407c-a71b-9dd1fd95a367" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("efadcc42-7696-407c-a71b-9dd1fd95a367", [{"x": [2], "orientation": "h", "type": "bar", "y": [1]}], {"title": "Firefox non-employees 2016", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -12750,45 +12561,52 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Answers:">Answers:<a class="anchor-link" href="#Answers:">&#182;</a></h1><ul>
-<li>How often do contributors contribute?</li>
-<li>How is the structure of contribution, according to level of activity?</li>
-<li>How is the structure of contribution, according to the different data sources?</li>
-<li>How are the structures of contribution evolving over time?</li>
-<li>How is people flowing in the structure of contribution?</li>
-</ul>
-<h2 id="Level-of-Activity">Level of Activity<a class="anchor-link" href="#Level-of-Activity">&#182;</a></h2><ul>
-<li>How often do contributors contribute?</li>
-<li>How is the structure of contribution, according to level of activity?</li>
-<li>How are the structures of contribution evolving over time?</li>
-</ul>
-<h3 id="Initial-considerations">Initial considerations<a class="anchor-link" href="#Initial-considerations">&#182;</a></h3><p>In order to understand what follows, there are some definitions it is worth to mention. Data provided is based on  number of contributors in three groups:</p>
+<h3 id="Evolution-of-Experience">Evolution of Experience<a class="anchor-link" href="#Evolution-of-Experience">&#182;</a></h3><p>Next table and plot show how each group changes over time. This way we can visualize how new people come and remain in the community. It is worth to note that we are not following a given group of people through time (it could be done following diagonals in the table, we look at this in the next section), but looking at how a given group changes from one year to another.</p>
+<p>For instance, if we look at the group of 2 years of experience in 2008 we see we had 204 people. If we look at the same group in 2009 we see that our <strong>new group</strong> of people accumulating 2 years of experience has 105 people. So, it seems we have fewer people with 2 years of experience in 2009. If we look at 2016 we find 226 people with two years of experience, so we have more people with 2 years of experience nowadays than we had 8 years ago.</p>
+<p>Table can be read as follows:</p>
 <ul>
-<li><strong>Core</strong>: minimum number of authors who made 80% of contributions.</li>
-<li><strong>Regular</strong>: minimum number of authors who made between 80% and 95% of contributions.</li>
-<li><strong>Casual</strong>: the rest of contributors, who made the last 5% of contributions.</li>
+<li>Cell values corresponds to the number of contributors in the given group.</li>
+<li>Rows corresponds to groups based on years of experience.</li>
+<li>Columns corresponds to years we are analyzing. </li>
 </ul>
-<p><strong>Bars</strong> in plots correspond to number of people in a given group.
-<strong>Colors</strong> correspond to groups.
-<strong>Time</strong> is noted as YYYYQQ. Quarters are defined as Q1 (from Jan. to Mar.), Q2 (from Apr. to Jun.), Q3 (from Jul. to Sep.) and Q4 (from Oct. to Dec.).</p>
-<p><strong>NOTE: as we are using quarters, we should ignore first and last ones as they show incomplete results due to relative dates are being used.</strong></p>
-<h4 id="Contribution-Pattern-Structure-Analysis">Contribution Pattern Structure Analysis<a class="anchor-link" href="#Contribution-Pattern-Structure-Analysis">&#182;</a></h4><p>(How often do contributors contribute)</p>
-<p>(How is the structure of contribution, according to level of activity)</p>
-<p>First question has to do with the definition of patterns we estated above. Looking at <a href="#Table-1.-Contribution-patterns-evolution.-General-view">Table 1</a> we find that casual contributors are between two and four times more than core contributors. Regular contributors are quite close to core ones. Number of people being core is reasonable from the point of view they are those who push the community.</p>
-<h4 id="Evolution-of-Contribution-Patterns-through-Time">Evolution of Contribution Patterns through Time<a class="anchor-link" href="#Evolution-of-Contribution-Patterns-through-Time">&#182;</a></h4><p>(How are the structures of contribution evolving over time?)
-(How is people flowing in the structure of contribution?)</p>
-<p>The most interesting and clear issue we find when looking at <a href="#Figure-1.-Contribution-patterns-evolution.-General-view">Figure 1</a> is related with casual developers. Numbers show an increasing number of casual contributors until first quarter 2015, but then numbers decrease consistently quarter by quarter to the present. In fact if we focus on numbers instead of bars (see <a href="#Table-1.-Contribution-patterns-evolution.-General-view">Table 1</a>) we found a slightly similar pattern for core developers if we take into account we are looking at numbers two or four times smaller.</p>
-<p><strong>This could be due to a decrease in general number of contributors as it seems to be the case if we look at <a href="Understanding%20Contributors.ipynb#Number-of-contributors-by-organization-over-time">the evolution of contributors in Git plot</a></strong></p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">onion_df</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">exp_groups_evo_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">])</span>
+
+<span class="k">for</span> <span class="n">exp_df</span> <span class="ow">in</span> <span class="n">exp_df_list</span><span class="p">:</span>
+    
+    <span class="k">if</span> <span class="n">exp_df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">continue</span>
+    
+    <span class="n">year</span> <span class="o">=</span> <span class="n">exp_df</span><span class="p">[</span><span class="s1">&#39;last_active&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">exp_groups_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">,</span> <span class="n">year</span><span class="p">])</span>
+    
+    <span class="n">experience</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">exp_df</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+    
+    <span class="k">for</span> <span class="n">exp</span> <span class="ow">in</span> <span class="n">experience</span><span class="p">:</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">exp_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">exp_df</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">exp</span><span class="p">])</span>
+        <span class="n">exp_groups_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">exp_groups_df</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[</span><span class="n">exp</span><span class="p">,</span> <span class="n">count</span><span class="p">]</span>
+
+    <span class="n">exp_groups_evo_df</span> <span class="o">=</span> <span class="n">exp_groups_evo_df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">exp_groups_df</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;exp&#39;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">)</span>
+
+
+<span class="c1"># Fill Nan with 0&#39;s</span>
+<span class="n">exp_groups_evo_df</span> <span class="o">=</span> <span class="n">exp_groups_evo_df</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Reorder columns</span>
+<span class="n">exp_groups_evo_df</span> <span class="o">=</span> <span class="n">exp_groups_evo_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;exp&#39;</span><span class="p">)</span>
+<span class="n">exp_groups_evo_df</span> <span class="o">=</span> <span class="n">exp_groups_evo_df</span><span class="o">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="c1">#print(&#39;Max. Exp: &#39;, exp_groups_evo_df[&#39;exp&#39;].max(), &#39;Max. Count: &#39;)</span>
+<span class="n">exp_groups_evo_df</span>
 </pre></div>
 
 </div>
@@ -12799,7 +12617,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[12]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[13]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 <div>
@@ -12807,141 +12625,17 @@ div#notebook {
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>Time</th>
-      <th>Core</th>
-      <th>Regular</th>
-      <th>Casual</th>
-      <th>Quarter</th>
+      <th>2016</th>
+    </tr>
+    <tr>
+      <th>exp</th>
+      <th></th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <th>0</th>
-      <td>2013-01-01T00:00:00.000Z</td>
-      <td>246.0</td>
-      <td>249.0</td>
-      <td>669.0</td>
-      <td>2013Q1</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>2013-04-01T00:00:00.000Z</td>
-      <td>295.0</td>
-      <td>292.0</td>
-      <td>880.0</td>
-      <td>2013Q2</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>2013-07-01T00:00:00.000Z</td>
-      <td>307.0</td>
-      <td>292.0</td>
-      <td>989.0</td>
-      <td>2013Q3</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>2013-10-01T00:00:00.000Z</td>
-      <td>294.0</td>
-      <td>330.0</td>
-      <td>1146.0</td>
-      <td>2013Q4</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>2014-01-01T00:00:00.000Z</td>
-      <td>331.0</td>
-      <td>357.0</td>
-      <td>1304.0</td>
-      <td>2014Q1</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>2014-04-01T00:00:00.000Z</td>
-      <td>364.0</td>
-      <td>388.0</td>
-      <td>1447.0</td>
-      <td>2014Q2</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>2014-07-01T00:00:00.000Z</td>
-      <td>342.0</td>
-      <td>391.0</td>
-      <td>1520.0</td>
-      <td>2014Q3</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>2014-10-01T00:00:00.000Z</td>
-      <td>349.0</td>
-      <td>416.0</td>
-      <td>1652.0</td>
-      <td>2014Q4</td>
-    </tr>
-    <tr>
-      <th>8</th>
-      <td>2015-01-01T00:00:00.000Z</td>
-      <td>337.0</td>
-      <td>426.0</td>
-      <td>1784.0</td>
-      <td>2015Q1</td>
-    </tr>
-    <tr>
-      <th>9</th>
-      <td>2015-04-01T00:00:00.000Z</td>
-      <td>336.0</td>
-      <td>422.0</td>
-      <td>1724.0</td>
-      <td>2015Q2</td>
-    </tr>
-    <tr>
-      <th>10</th>
-      <td>2015-07-01T00:00:00.000Z</td>
-      <td>340.0</td>
-      <td>388.0</td>
-      <td>1626.0</td>
-      <td>2015Q3</td>
-    </tr>
-    <tr>
-      <th>11</th>
-      <td>2015-10-01T00:00:00.000Z</td>
-      <td>341.0</td>
-      <td>460.0</td>
-      <td>1695.0</td>
-      <td>2015Q4</td>
-    </tr>
-    <tr>
-      <th>12</th>
-      <td>2016-01-01T00:00:00.000Z</td>
-      <td>364.0</td>
-      <td>496.0</td>
-      <td>1686.0</td>
-      <td>2016Q1</td>
-    </tr>
-    <tr>
-      <th>13</th>
-      <td>2016-04-01T00:00:00.000Z</td>
-      <td>364.0</td>
-      <td>445.0</td>
-      <td>1524.0</td>
-      <td>2016Q2</td>
-    </tr>
-    <tr>
-      <th>14</th>
-      <td>2016-07-01T00:00:00.000Z</td>
-      <td>379.0</td>
-      <td>446.0</td>
-      <td>1352.0</td>
-      <td>2016Q3</td>
-    </tr>
-    <tr>
-      <th>15</th>
-      <td>2016-10-01T00:00:00.000Z</td>
-      <td>316.0</td>
-      <td>379.0</td>
-      <td>986.0</td>
-      <td>2016Q4</td>
+      <th>1.0</th>
+      <td>13.0</td>
     </tr>
   </tbody>
 </table>
@@ -12959,65 +12653,7 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h5 id="Table-1.-Contribution-patterns-evolution.-General-view">Table 1. Contribution patterns evolution. General view<a class="anchor-link" href="#Table-1.-Contribution-patterns-evolution.-General-view">&#182;</a></h5>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[13]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">print_grouped_bar</span><span class="p">(</span><span class="n">onion_df</span><span class="p">,</span> <span class="s1">&#39;Quarter&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;Core&#39;</span><span class="p">,</span> <span class="s1">&#39;Regular&#39;</span><span class="p">,</span> <span class="s1">&#39;Casual&#39;</span><span class="p">],</span> <span class="s1">&#39;Global Contribution Groups&#39;</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area"><div class="prompt"></div>
-
-<div class="output_html rendered_html output_subarea ">
-<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
-</div>
-
-</div>
-
-<div class="output_area"><div class="prompt"></div>
-
-<div class="output_html rendered_html output_subarea ">
-<div id="e27d08c4-a51b-4c82-ab1f-3a0ca463a0e7" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("e27d08c4-a51b-4c82-ab1f-3a0ca463a0e7", [{"y": [246.0, 295.0, 307.0, 294.0, 331.0, 364.0, 342.0, 349.0, 337.0, 336.0, 340.0, 341.0, 364.0, 364.0, 379.0, 316.0], "type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Core"}, {"y": [249.0, 292.0, 292.0, 330.0, 357.0, 388.0, 391.0, 416.0, 426.0, 422.0, 388.0, 460.0, 496.0, 445.0, 446.0, 379.0], "type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Regular"}, {"y": [669.0, 880.0, 989.0, 1146.0, 1304.0, 1447.0, 1520.0, 1652.0, 1784.0, 1724.0, 1626.0, 1695.0, 1686.0, 1524.0, 1352.0, 986.0], "type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Casual"}], {"title": "Global Contribution Groups", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h5 id="Figure-1.-Contribution-patterns-evolution.-General-view">Figure 1. Contribution patterns evolution. General view<a class="anchor-link" href="#Figure-1.-Contribution-patterns-evolution.-General-view">&#182;</a></h5>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Mozilla-Staff-and-Community-as-Different-Organizations">Mozilla Staff and Community as Different Organizations<a class="anchor-link" href="#Mozilla-Staff-and-Community-as-Different-Organizations">&#182;</a></h3><p>If we divide contributions and analyze contribution patterns we can talk about how each of them are structured regardless global patterns (<strong>TODO: analyze previous plots dividing groups by organization to get an insight of global patterns composition</strong>).</p>
-<p>Both of them (see <a href="#Figure-2.-Contribution-patterns-evolution.-Mozilla-Staff-isolated-view">Figure 2</a> and <a href="#Figure-3.-Contribution-patterns-evolution.-Community-isolated-view">3</a>) follow the same trend we mention for the general view above. As one could expect, Mozilla Staff shows smaller differences among groups. The group of people sending most of contributions is small compared to the other two groups when looking at community only.</p>
-<p>Comparing both, number of core developers is similar in both populations, so we can say that community has much more people doing small contributions than Mozilla Staff.</p>
-<p>Besides, when people belong to Mozilla Staff, that is, they are hired, there are more people involved in most of contributions. This sounds reasonable because they are paid to use their time contributing. When they are not, the proportion compared to other groups is smaller, moving towards bigger groups as engagement decreases.</p>
-
+<h3 id="Employees">Employees<a class="anchor-link" href="#Employees">&#182;</a></h3>
 </div>
 </div>
 </div>
@@ -13026,7 +12662,37 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[14]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">print_grouped_bar</span><span class="p">(</span><span class="n">moz_onion_df</span><span class="p">,</span> <span class="s1">&#39;Quarter&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;Core&#39;</span><span class="p">,</span> <span class="s1">&#39;Regular&#39;</span><span class="p">,</span> <span class="s1">&#39;Casual&#39;</span><span class="p">],</span> <span class="s1">&#39;Employees&#39;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">exp_groups_evo_moz_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">])</span>
+
+<span class="k">for</span> <span class="n">exp_df</span> <span class="ow">in</span> <span class="n">exp_df_list</span><span class="p">:</span>
+    
+    <span class="k">if</span> <span class="n">exp_df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">continue</span>
+        
+    <span class="n">exp_df</span> <span class="o">=</span> <span class="n">exp_df</span><span class="p">[[</span><span class="n">group2</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Mozilla Staff&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">group1</span><span class="p">,</span> <span class="n">group2</span> <span class="ow">in</span> <span class="n">exp_df</span><span class="o">.</span><span class="n">index</span><span class="p">]]</span>
+    
+    <span class="n">year</span> <span class="o">=</span> <span class="n">exp_df</span><span class="p">[</span><span class="s1">&#39;last_active&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">exp_groups_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">,</span> <span class="n">year</span><span class="p">])</span>
+    
+    <span class="n">experience</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">exp_df</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+    
+    <span class="k">for</span> <span class="n">exp</span> <span class="ow">in</span> <span class="n">experience</span><span class="p">:</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">exp_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">exp_df</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">exp</span><span class="p">])</span>
+        <span class="n">exp_groups_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">exp_groups_df</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[</span><span class="n">exp</span><span class="p">,</span> <span class="n">count</span><span class="p">]</span>
+
+    <span class="n">exp_groups_evo_moz_df</span> <span class="o">=</span> <span class="n">exp_groups_evo_moz_df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">exp_groups_df</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;exp&#39;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">)</span>
+
+
+<span class="c1"># Fill Nan with 0&#39;s</span>
+<span class="n">exp_groups_evo_moz_df</span> <span class="o">=</span> <span class="n">exp_groups_evo_moz_df</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Reorder columns</span>
+<span class="n">exp_groups_evo_moz_df</span> <span class="o">=</span> <span class="n">exp_groups_evo_moz_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;exp&#39;</span><span class="p">)</span>
+<span class="n">exp_groups_evo_moz_df</span> <span class="o">=</span> <span class="n">exp_groups_evo_moz_df</span><span class="o">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="c1">#print(&#39;Max. Exp: &#39;, exp_groups_evo_moz_df[&#39;exp&#39;].max(), &#39;Max. Count: &#39;)</span>
+<span class="n">exp_groups_evo_moz_df</span>
 </pre></div>
 
 </div>
@@ -13037,18 +12703,29 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt"></div>
+<div class="output_area"><div class="prompt output_prompt">Out[14]:</div>
 
-<div class="output_html rendered_html output_subarea ">
-<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>2016</th>
+    </tr>
+    <tr>
+      <th>exp</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1.0</th>
+      <td>11.0</td>
+    </tr>
+  </tbody>
+</table>
 </div>
-
-</div>
-
-<div class="output_area"><div class="prompt"></div>
-
-<div class="output_html rendered_html output_subarea ">
-<div id="40ad0efb-5e30-478b-aeda-75cc88c71562" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("40ad0efb-5e30-478b-aeda-75cc88c71562", [{"y": [189.0, 219.0, 234.0, 220.0, 242.0, 258.0, 252.0, 242.0, 229.0, 224.0, 233.0, 220.0, 231.0, 236.0, 243.0, 219.0], "type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Core"}, {"y": [155.0, 180.0, 188.0, 190.0, 192.0, 209.0, 206.0, 189.0, 185.0, 187.0, 191.0, 182.0, 179.0, 187.0, 179.0, 171.0], "type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Regular"}, {"y": [277.0, 362.0, 400.0, 459.0, 482.0, 505.0, 516.0, 529.0, 534.0, 512.0, 491.0, 494.0, 471.0, 426.0, 368.0, 272.0], "type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Casual"}], {"title": "Staff Contributors", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
 </div>
 
 </div>
@@ -13062,7 +12739,7 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h5 id="Figure-2.-Contribution-patterns-evolution.-Mozilla-Staff-isolated-view">Figure 2. Contribution patterns evolution. Mozilla Staff isolated view<a class="anchor-link" href="#Figure-2.-Contribution-patterns-evolution.-Mozilla-Staff-isolated-view">&#182;</a></h5>
+<h3 id="Non-employees">Non-employees<a class="anchor-link" href="#Non-employees">&#182;</a></h3>
 </div>
 </div>
 </div>
@@ -13071,7 +12748,118 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[15]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">print_grouped_bar</span><span class="p">(</span><span class="n">com_onion_df</span><span class="p">,</span> <span class="s1">&#39;Quarter&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;Core&#39;</span><span class="p">,</span> <span class="s1">&#39;Regular&#39;</span><span class="p">,</span> <span class="s1">&#39;Casual&#39;</span><span class="p">],</span> <span class="s1">&#39;Non-Employees&#39;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">exp_groups_evo_others_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">])</span>
+
+<span class="k">for</span> <span class="n">exp_df</span> <span class="ow">in</span> <span class="n">exp_df_list</span><span class="p">:</span>
+    
+    <span class="k">if</span> <span class="n">exp_df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">continue</span>
+        
+    <span class="n">exp_df</span> <span class="o">=</span> <span class="n">exp_df</span><span class="p">[[</span><span class="n">group2</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Mozilla Staff&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">group1</span><span class="p">,</span> <span class="n">group2</span> <span class="ow">in</span> <span class="n">exp_df</span><span class="o">.</span><span class="n">index</span><span class="p">]]</span>
+    
+    <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">exp_df</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="k">continue</span>
+    
+    <span class="n">year</span> <span class="o">=</span> <span class="n">exp_df</span><span class="p">[</span><span class="s1">&#39;last_active&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">exp_groups_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">,</span> <span class="n">year</span><span class="p">])</span>
+    
+    <span class="n">experience</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">exp_df</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+    
+    <span class="k">for</span> <span class="n">exp</span> <span class="ow">in</span> <span class="n">experience</span><span class="p">:</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">exp_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">exp_df</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">exp</span><span class="p">])</span>
+        <span class="n">exp_groups_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">exp_groups_df</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[</span><span class="n">exp</span><span class="p">,</span> <span class="n">count</span><span class="p">]</span>
+
+    <span class="n">exp_groups_evo_others_df</span> <span class="o">=</span> <span class="n">exp_groups_evo_others_df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">exp_groups_df</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;exp&#39;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">)</span>
+
+
+<span class="c1"># Fill Nan with 0&#39;s</span>
+<span class="n">exp_groups_evo_others_df</span> <span class="o">=</span> <span class="n">exp_groups_evo_others_df</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Reorder columns</span>
+<span class="n">exp_groups_evo_others_df</span> <span class="o">=</span> <span class="n">exp_groups_evo_others_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;exp&#39;</span><span class="p">)</span>
+<span class="n">exp_groups_evo_others_df</span> <span class="o">=</span> <span class="n">exp_groups_evo_others_df</span><span class="o">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="c1">#print(&#39;Max. Exp: &#39;, exp_groups_evo_others_df[&#39;exp&#39;].max(), &#39;Max. Count: &#39;)</span>
+<span class="n">exp_groups_evo_others_df</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[15]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>2016</th>
+    </tr>
+    <tr>
+      <th>exp</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1.0</th>
+      <td>2.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Next plot can be read as follows:</p>
+<ul>
+<li>Y axis corresponds to the number of contributors in the given group.</li>
+<li>X axis corresponds to years we are looking through.</li>
+<li>Each line corresponds to a given group based on their years of experience. </li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[16]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">plotly</span><span class="o">.</span><span class="n">offline</span><span class="o">.</span><span class="n">init_notebook_mode</span><span class="p">(</span><span class="n">connected</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">exp</span> <span class="ow">in</span> <span class="n">exp_groups_evo_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
+    <span class="c1">#print(exp, &#39;\n&#39;, exp_groups_evo_df.loc[exp].tolist(), &#39;\n&#39;, exp_groups_evo_df.loc[exp].index.values)</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">exp_groups_evo_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">exp</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">exp_groups_evo_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">exp</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;lines+markers&#39;</span><span class="p">,</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">exp</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39; years&#39;</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    
+
+
+<span class="n">plotly</span><span class="o">.</span><span class="n">offline</span><span class="o">.</span><span class="n">iplot</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;line-mode&#39;</span><span class="p">)</span>    
 </pre></div>
 
 </div>
@@ -13093,7 +12881,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="bab75e40-660f-44d3-a8e3-6b4a259bec70" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("bab75e40-660f-44d3-a8e3-6b4a259bec70", [{"y": [92.0, 112.0, 106.0, 125.0, 135.0, 152.0, 201.0, 228.0, 252.0, 235.0, 201.0, 250.0, 280.0, 222.0, 231.0, 141.0], "type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Core"}, {"y": [186.0, 219.0, 188.0, 263.0, 310.0, 326.0, 363.0, 424.0, 485.0, 451.0, 376.0, 466.0, 506.0, 456.0, 463.0, 386.0], "type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Regular"}, {"y": [265.0, 375.0, 472.0, 513.0, 631.0, 749.0, 715.0, 805.0, 862.0, 873.0, 862.0, 884.0, 879.0, 806.0, 693.0, 492.0], "type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"], "name": "Casual"}], {"title": "Other Contributors", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="ed8de3c0-3afc-486c-b6d3-c03ed6275cf3" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("ed8de3c0-3afc-486c-b6d3-c03ed6275cf3", [{"x": ["2016"], "type": "scatter", "name": "1 years", "mode": "lines+markers", "y": [13.0]}], {}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -13101,15 +12889,6 @@ div#notebook {
 </div>
 </div>
 
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h5 id="Figure-3.-Contribution-patterns-evolution.-Community-isolated-view">Figure 3. Contribution patterns evolution. Community isolated view<a class="anchor-link" href="#Figure-3.-Contribution-patterns-evolution.-Community-isolated-view">&#182;</a></h5>
-</div>
-</div>
 </div>
     </div>
   </div>
