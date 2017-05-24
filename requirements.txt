@@ -1,0 +1,6 @@
+jupyter-runner
+pandas
+plotly
+certifi
+elasticsearch-dsl
+xlrd
