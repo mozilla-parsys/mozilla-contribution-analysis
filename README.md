@@ -1,6 +1,6 @@
 # mozilla-contribution-analysis
 
-Notebooks and other data to reproduce the Mozilla Contributions Analysis, performed by Bitergia during May, June 2018.
+Notebooks and other data to reproduce the Mozilla Contributions Analysis, performed by Bitergia during May, June 2017.
 
 ## Configuration
 
