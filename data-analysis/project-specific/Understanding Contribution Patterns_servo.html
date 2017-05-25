@@ -11832,7 +11832,7 @@ div#notebook {
 
 <span class="n">project_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PROJECT&#39;</span><span class="p">,</span> <span class="s1">&#39;all&#39;</span><span class="p">)</span>
 
-<span class="n">date_range</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;gt&#39;</span><span class="p">:</span> <span class="s1">&#39;2013-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;lt&#39;</span><span class="p">:</span> <span class="s1">&#39;2017-01-01&#39;</span><span class="p">}</span>
+<span class="n">date_range</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;gte&#39;</span><span class="p">:</span> <span class="s1">&#39;2010-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;lt&#39;</span><span class="p">:</span> <span class="s1">&#39;now/y&#39;</span><span class="p">}</span>
 </pre></div>
 
 </div>
@@ -11847,9 +11847,15 @@ div#notebook {
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">create_search</span><span class="p">(</span><span class="n">source</span><span class="p">):</span>
     <span class="n">s</span> <span class="o">=</span> <span class="n">Search</span><span class="p">(</span><span class="n">using</span><span class="o">=</span><span class="n">es_conn</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">source</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">source</span> <span class="o">==</span> <span class="s1">&#39;git&#39;</span> <span class="ow">or</span> <span class="n">source</span> <span class="o">==</span> <span class="s1">&#39;github&#39;</span><span class="p">:</span>
+        <span class="n">github</span> <span class="o">=</span> <span class="n">projects</span><span class="p">[</span><span class="s1">&#39;Github&#39;</span><span class="p">]</span>
+        <span class="n">repos</span> <span class="o">=</span> <span class="n">github</span><span class="p">[</span><span class="s1">&#39;Repo&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="c1">#print (repos)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">repo_name</span><span class="o">=</span><span class="n">repos</span><span class="p">)</span>
+    
     <span class="c1"># TODO: Add bot and merges filtering.</span>
     <span class="c1">#s = s.filter(&#39;range&#39;, grimoire_creation_date={&#39;gt&#39;: &#39;now/M-2y&#39;, &#39;lt&#39;: &#39;now/M&#39;})</span>
-    <span class="n">s</span><span class="o">.</span><span class="n">params</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">s</span>
 </pre></div>
 
@@ -11871,6 +11877,17 @@ div#notebook {
     <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()[</span><span class="s1">&#39;aggregations&#39;</span><span class="p">][</span><span class="n">group_field</span><span class="p">][</span><span class="s1">&#39;buckets&#39;</span><span class="p">]:</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">b</span><span class="p">[</span><span class="n">time_field</span><span class="p">][</span><span class="s1">&#39;buckets&#39;</span><span class="p">]:</span>
             <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">],</span> <span class="n">i</span><span class="p">[</span><span class="s1">&#39;key_as_string&#39;</span><span class="p">],</span> <span class="n">i</span><span class="p">[</span><span class="n">value_field</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]]</span>
+    
+    <span class="k">return</span> <span class="n">df</span>
+
+<span class="k">def</span> <span class="nf">stack_by_2</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">group_column</span><span class="p">,</span> <span class="n">time_column</span><span class="p">,</span> <span class="n">value_column</span><span class="p">,</span> <span class="n">group_field</span><span class="p">,</span> <span class="n">time_field</span><span class="p">,</span> <span class="n">value_field</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Creates a dataframe based on group and time values</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">time_column</span><span class="p">,</span> <span class="n">group_column</span><span class="p">,</span> <span class="n">value_column</span><span class="p">])</span>
+
+    <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()[</span><span class="s1">&#39;aggregations&#39;</span><span class="p">][</span><span class="n">time_field</span><span class="p">][</span><span class="s1">&#39;buckets&#39;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">b</span><span class="p">[</span><span class="n">group_field</span><span class="p">][</span><span class="s1">&#39;buckets&#39;</span><span class="p">]:</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="s1">&#39;key_as_string&#39;</span><span class="p">],</span> <span class="n">i</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">],</span> <span class="n">i</span><span class="p">[</span><span class="n">value_field</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]]</span>
     
     <span class="k">return</span> <span class="n">df</span>
 </pre></div>
@@ -11916,7 +11933,9 @@ div#notebook {
 
 <span class="k">def</span> <span class="nf">onion_evolution</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">bucket_column</span><span class="p">,</span> <span class="n">time_column</span><span class="p">,</span> <span class="n">value_column</span><span class="p">,</span> <span class="n">bucket_field</span><span class="p">,</span> <span class="n">time_field</span><span class="p">,</span> <span class="n">metric_field</span><span class="p">):</span>
     
-    <span class="n">df</span> <span class="o">=</span> <span class="n">stack_by</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">bucket_column</span><span class="p">,</span> <span class="n">time_column</span><span class="p">,</span> <span class="n">value_column</span><span class="p">,</span> <span class="n">bucket_field</span><span class="p">,</span> <span class="n">time_field</span><span class="p">,</span> <span class="n">metric_field</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">stack_by_2</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">bucket_column</span><span class="p">,</span> <span class="n">time_column</span><span class="p">,</span> <span class="n">value_column</span><span class="p">,</span> <span class="n">bucket_field</span><span class="p">,</span> <span class="n">time_field</span><span class="p">,</span> <span class="n">metric_field</span><span class="p">)</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">))</span>
     
     <span class="n">onion_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;Core&#39;</span><span class="p">,</span> <span class="s1">&#39;Regular&#39;</span><span class="p">,</span> <span class="s1">&#39;Casual&#39;</span><span class="p">])</span>
     
@@ -11925,7 +11944,27 @@ div#notebook {
         <span class="n">slice_df</span> <span class="o">=</span> <span class="n">slice_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="n">value_column</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">onion_result</span> <span class="o">=</span> <span class="n">onion</span><span class="p">(</span><span class="n">slice_df</span><span class="p">,</span> <span class="n">bucket_column</span><span class="o">=</span><span class="n">bucket_column</span><span class="p">,</span> <span class="n">time_column</span><span class="o">=</span><span class="n">time_column</span><span class="p">,</span>\
                              <span class="n">value_column</span><span class="o">=</span><span class="n">value_column</span><span class="p">)</span>
-        <span class="c1">#print(time, &#39;-&gt;&#39;, len(slice_df), slice_df.columns.values.tolist(), &#39;-&gt;&#39;, onion_result)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="s1">&#39;-&gt;&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">slice_df</span><span class="p">))</span><span class="c1">#, slice_df.columns.values.tolist(), &#39;-&gt;&#39;, onion_result)</span>
+        <span class="n">onion_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">onion_df</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[</span><span class="n">time</span><span class="p">,</span> <span class="n">onion_result</span><span class="p">[</span><span class="s1">&#39;core&#39;</span><span class="p">],</span> <span class="n">onion_result</span><span class="p">[</span><span class="s1">&#39;regular&#39;</span><span class="p">],</span> <span class="n">onion_result</span><span class="p">[</span><span class="s1">&#39;casual&#39;</span><span class="p">]]</span>
+        
+    
+    <span class="c1">#print(len(df))</span>
+    <span class="k">return</span> <span class="n">onion_df</span>
+
+<span class="k">def</span> <span class="nf">onion_evolution_bad</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">bucket_column</span><span class="p">,</span> <span class="n">time_column</span><span class="p">,</span> <span class="n">value_column</span><span class="p">,</span> <span class="n">bucket_field</span><span class="p">,</span> <span class="n">time_field</span><span class="p">,</span> <span class="n">metric_field</span><span class="p">):</span>
+    
+    <span class="n">df</span> <span class="o">=</span> <span class="n">stack_by</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">bucket_column</span><span class="p">,</span> <span class="n">time_column</span><span class="p">,</span> <span class="n">value_column</span><span class="p">,</span> <span class="n">bucket_field</span><span class="p">,</span> <span class="n">time_field</span><span class="p">,</span> <span class="n">metric_field</span><span class="p">)</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">))</span>
+    
+    <span class="n">onion_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;Core&#39;</span><span class="p">,</span> <span class="s1">&#39;Regular&#39;</span><span class="p">,</span> <span class="s1">&#39;Casual&#39;</span><span class="p">])</span>
+    
+    <span class="k">for</span> <span class="n">time</span> <span class="ow">in</span> <span class="n">df</span><span class="p">[</span><span class="n">time_column</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
+        <span class="n">slice_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">time</span><span class="p">]</span>
+        <span class="n">slice_df</span> <span class="o">=</span> <span class="n">slice_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="n">value_column</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">onion_result</span> <span class="o">=</span> <span class="n">onion</span><span class="p">(</span><span class="n">slice_df</span><span class="p">,</span> <span class="n">bucket_column</span><span class="o">=</span><span class="n">bucket_column</span><span class="p">,</span> <span class="n">time_column</span><span class="o">=</span><span class="n">time_column</span><span class="p">,</span>\
+                             <span class="n">value_column</span><span class="o">=</span><span class="n">value_column</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="s1">&#39;-&gt;&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">slice_df</span><span class="p">))</span><span class="c1">#, slice_df.columns.values.tolist(), &#39;-&gt;&#39;, onion_result)</span>
         <span class="n">onion_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">onion_df</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[</span><span class="n">time</span><span class="p">,</span> <span class="n">onion_result</span><span class="p">[</span><span class="s1">&#39;core&#39;</span><span class="p">],</span> <span class="n">onion_result</span><span class="p">[</span><span class="s1">&#39;regular&#39;</span><span class="p">],</span> <span class="n">onion_result</span><span class="p">[</span><span class="s1">&#39;casual&#39;</span><span class="p">]]</span>
         
     
@@ -11963,6 +12002,27 @@ div#notebook {
 
     <span class="n">fig</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">bars</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="n">layout</span><span class="p">)</span>
     <span class="n">plotly</span><span class="o">.</span><span class="n">offline</span><span class="o">.</span><span class="n">iplot</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;grouped-bar&#39;</span><span class="p">)</span>
+    
+<span class="k">def</span> <span class="nf">print_stacked_bar</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">x_column</span><span class="p">,</span> <span class="n">value_columns</span><span class="p">,</span> <span class="n">title</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">plotly</span><span class="o">.</span><span class="n">offline</span><span class="o">.</span><span class="n">init_notebook_mode</span><span class="p">(</span><span class="n">connected</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">bars</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">x_values</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">x_column</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">value_column</span> <span class="ow">in</span> <span class="n">value_columns</span><span class="p">:</span>
+        <span class="n">bars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">go</span><span class="o">.</span><span class="n">Bar</span><span class="p">(</span>
+            <span class="n">x</span><span class="o">=</span><span class="n">x_values</span><span class="p">,</span>
+            <span class="n">y</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="n">value_column</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">value_column</span><span class="p">))</span>
+
+    <span class="n">layout</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Layout</span><span class="p">(</span>
+        <span class="n">barmode</span><span class="o">=</span><span class="s1">&#39;stack&#39;</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span> <span class="n">title</span>
+    <span class="p">)</span>
+
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">bars</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="n">layout</span><span class="p">)</span>
+    <span class="n">plotly</span><span class="o">.</span><span class="n">offline</span><span class="o">.</span><span class="n">iplot</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;stacked-bar&#39;</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -11984,6 +12044,12 @@ div#notebook {
 <span class="k">def</span> <span class="nf">add_date_filter</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;range&#39;</span><span class="p">,</span> <span class="n">grimoire_creation_date</span><span class="o">=</span><span class="n">date_range</span><span class="p">)</span>
 
+<span class="k">def</span> <span class="nf">add_general_date_filters</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="c1"># 01/01/1998</span>
+    <span class="n">initial_ts</span> <span class="o">=</span> <span class="s1">&#39;883609200000&#39;</span>
+    <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;range&#39;</span><span class="p">,</span> <span class="n">grimoire_creation_date</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;gt&#39;</span><span class="p">:</span> <span class="n">initial_ts</span><span class="p">})</span>
+
+
 <span class="k">def</span> <span class="nf">add_project_filter</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">project_name</span> <span class="o">!=</span> <span class="s1">&#39;all&#39;</span><span class="p">:</span>
         <span class="n">github</span> <span class="o">=</span> <span class="n">projects</span><span class="p">[</span><span class="s1">&#39;Github&#39;</span><span class="p">]</span>
@@ -11991,6 +12057,9 @@ div#notebook {
         <span class="c1">#print(repos)</span>
         <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">repo_name</span><span class="o">=</span><span class="n">repos</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">s</span>
+
+<span class="c1"># Let&#39;s load projects from the REVIEWED SPREADSHEET</span>
+<span class="n">projects</span> <span class="o">=</span> <span class="n">ut</span><span class="o">.</span><span class="n">read_projects</span><span class="p">(</span><span class="s2">&quot;data/Contributors and Communities Analysis - Project grouping.xlsx&quot;</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -12019,7 +12088,9 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[7]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">Search</span><span class="p">(</span><span class="n">using</span><span class="o">=</span><span class="n">es_conn</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">create_search</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">add_general_date_filters</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
 
 <span class="n">s</span> <span class="o">=</span> <span class="n">add_bot_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
 <span class="n">s</span> <span class="o">=</span> <span class="n">add_merges_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
@@ -12031,10 +12102,10 @@ div#notebook {
 <span class="n">s</span> <span class="o">=</span> <span class="n">add_date_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
 
 
-<span class="c1"># Unique count of Commits by Authors</span>
-<span class="n">s</span><span class="o">.</span><span class="n">aggs</span><span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;authors&#39;</span><span class="p">,</span> <span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_uuid&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span>\
-    <span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;date_histogram&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;grimoire_creation_date&#39;</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="s1">&#39;quarter&#39;</span><span class="p">)</span>\
-    <span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s1">&#39;commits&#39;</span><span class="p">,</span> <span class="s1">&#39;cardinality&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;hash&#39;</span><span class="p">,</span> <span class="n">precision_threshold</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="c1"># Unique count of Commits by Authors over time</span>
+<span class="n">s</span><span class="o">.</span><span class="n">aggs</span><span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;date_histogram&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;grimoire_creation_date&#39;</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="s1">&#39;quarter&#39;</span><span class="p">)</span>\
+    <span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;authors&#39;</span><span class="p">,</span> <span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_uuid&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span>\
+    <span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s1">&#39;commits&#39;</span><span class="p">,</span> <span class="s1">&#39;cardinality&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;hash&#39;</span><span class="p">,</span> <span class="n">precision_threshold</span><span class="o">=</span><span class="mi">3000</span><span class="p">)</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
 
 <span class="n">onion_df</span><span class="o">=</span><span class="n">onion_evolution</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">bucket_column</span><span class="o">=</span><span class="s1">&#39;Author&#39;</span><span class="p">,</span> <span class="n">time_column</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">value_column</span><span class="o">=</span><span class="s1">&#39;Commits&#39;</span><span class="p">,</span>\
@@ -12055,6 +12126,41 @@ div#notebook {
 <div class="output">
 
 
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>2409
+2010-01-01T00:00:00.000Z -&gt; 31
+2010-04-01T00:00:00.000Z -&gt; 28
+2010-07-01T00:00:00.000Z -&gt; 35
+2010-10-01T00:00:00.000Z -&gt; 36
+2011-01-01T00:00:00.000Z -&gt; 38
+2011-04-01T00:00:00.000Z -&gt; 41
+2011-07-01T00:00:00.000Z -&gt; 39
+2011-10-01T00:00:00.000Z -&gt; 39
+2012-01-01T00:00:00.000Z -&gt; 56
+2012-04-01T00:00:00.000Z -&gt; 58
+2012-07-01T00:00:00.000Z -&gt; 58
+2012-10-01T00:00:00.000Z -&gt; 47
+2013-01-01T00:00:00.000Z -&gt; 55
+2013-04-01T00:00:00.000Z -&gt; 74
+2013-07-01T00:00:00.000Z -&gt; 73
+2013-10-01T00:00:00.000Z -&gt; 75
+2014-01-01T00:00:00.000Z -&gt; 70
+2014-04-01T00:00:00.000Z -&gt; 105
+2014-07-01T00:00:00.000Z -&gt; 65
+2014-10-01T00:00:00.000Z -&gt; 145
+2015-01-01T00:00:00.000Z -&gt; 150
+2015-04-01T00:00:00.000Z -&gt; 135
+2015-07-01T00:00:00.000Z -&gt; 123
+2015-10-01T00:00:00.000Z -&gt; 150
+2016-01-01T00:00:00.000Z -&gt; 171
+2016-04-01T00:00:00.000Z -&gt; 177
+2016-07-01T00:00:00.000Z -&gt; 173
+2016-10-01T00:00:00.000Z -&gt; 162
+</pre>
+</div>
+</div>
+
 <div class="output_area"><div class="prompt output_prompt">Out[7]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
@@ -12073,118 +12179,102 @@ div#notebook {
   <tbody>
     <tr>
       <th>0</th>
-      <td>2013-07-01T00:00:00.000Z</td>
-      <td>21.0</td>
-      <td>19.0</td>
-      <td>43.0</td>
-      <td>2013Q3</td>
+      <td>2010-01-01T00:00:00.000Z</td>
+      <td>5.0</td>
+      <td>6.0</td>
+      <td>20.0</td>
+      <td>2010Q1</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>2013-10-01T00:00:00.000Z</td>
-      <td>19.0</td>
-      <td>19.0</td>
-      <td>49.0</td>
-      <td>2013Q4</td>
+      <td>2010-04-01T00:00:00.000Z</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>18.0</td>
+      <td>2010Q2</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>2014-01-01T00:00:00.000Z</td>
-      <td>12.0</td>
-      <td>16.0</td>
-      <td>61.0</td>
-      <td>2014Q1</td>
+      <td>2010-07-01T00:00:00.000Z</td>
+      <td>6.0</td>
+      <td>8.0</td>
+      <td>21.0</td>
+      <td>2010Q3</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>2014-04-01T00:00:00.000Z</td>
-      <td>20.0</td>
-      <td>28.0</td>
-      <td>77.0</td>
-      <td>2014Q2</td>
+      <td>2010-10-01T00:00:00.000Z</td>
+      <td>9.0</td>
+      <td>10.0</td>
+      <td>17.0</td>
+      <td>2010Q4</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>2014-07-01T00:00:00.000Z</td>
+      <td>2011-01-01T00:00:00.000Z</td>
       <td>10.0</td>
-      <td>15.0</td>
-      <td>68.0</td>
-      <td>2014Q3</td>
+      <td>10.0</td>
+      <td>18.0</td>
+      <td>2011Q1</td>
     </tr>
     <tr>
       <th>5</th>
-      <td>2014-10-01T00:00:00.000Z</td>
-      <td>22.0</td>
-      <td>53.0</td>
-      <td>94.0</td>
-      <td>2014Q4</td>
+      <td>2011-04-01T00:00:00.000Z</td>
+      <td>9.0</td>
+      <td>8.0</td>
+      <td>24.0</td>
+      <td>2011Q2</td>
     </tr>
     <tr>
       <th>6</th>
-      <td>2015-01-01T00:00:00.000Z</td>
-      <td>23.0</td>
-      <td>53.0</td>
-      <td>107.0</td>
-      <td>2015Q1</td>
+      <td>2011-07-01T00:00:00.000Z</td>
+      <td>9.0</td>
+      <td>8.0</td>
+      <td>22.0</td>
+      <td>2011Q3</td>
     </tr>
     <tr>
       <th>7</th>
-      <td>2015-04-01T00:00:00.000Z</td>
-      <td>20.0</td>
-      <td>41.0</td>
-      <td>123.0</td>
-      <td>2015Q2</td>
+      <td>2011-10-01T00:00:00.000Z</td>
+      <td>9.0</td>
+      <td>9.0</td>
+      <td>21.0</td>
+      <td>2011Q4</td>
     </tr>
     <tr>
       <th>8</th>
-      <td>2015-07-01T00:00:00.000Z</td>
-      <td>19.0</td>
-      <td>33.0</td>
-      <td>122.0</td>
-      <td>2015Q3</td>
+      <td>2012-01-01T00:00:00.000Z</td>
+      <td>12.0</td>
+      <td>14.0</td>
+      <td>30.0</td>
+      <td>2012Q1</td>
     </tr>
     <tr>
       <th>9</th>
-      <td>2015-10-01T00:00:00.000Z</td>
-      <td>20.0</td>
-      <td>50.0</td>
-      <td>130.0</td>
-      <td>2015Q4</td>
+      <td>2012-04-01T00:00:00.000Z</td>
+      <td>11.0</td>
+      <td>12.0</td>
+      <td>35.0</td>
+      <td>2012Q2</td>
     </tr>
     <tr>
       <th>10</th>
-      <td>2016-01-01T00:00:00.000Z</td>
-      <td>26.0</td>
-      <td>60.0</td>
-      <td>126.0</td>
-      <td>2016Q1</td>
+      <td>2012-07-01T00:00:00.000Z</td>
+      <td>17.0</td>
+      <td>12.0</td>
+      <td>29.0</td>
+      <td>2012Q3</td>
     </tr>
     <tr>
       <th>11</th>
-      <td>2016-04-01T00:00:00.000Z</td>
-      <td>29.0</td>
-      <td>51.0</td>
-      <td>129.0</td>
-      <td>2016Q2</td>
+      <td>2012-10-01T00:00:00.000Z</td>
+      <td>12.0</td>
+      <td>11.0</td>
+      <td>24.0</td>
+      <td>2012Q4</td>
     </tr>
     <tr>
       <th>12</th>
-      <td>2016-07-01T00:00:00.000Z</td>
-      <td>32.0</td>
-      <td>58.0</td>
-      <td>106.0</td>
-      <td>2016Q3</td>
-    </tr>
-    <tr>
-      <th>13</th>
-      <td>2016-10-01T00:00:00.000Z</td>
-      <td>22.0</td>
-      <td>48.0</td>
-      <td>92.0</td>
-      <td>2016Q4</td>
-    </tr>
-    <tr>
-      <th>14</th>
       <td>2013-01-01T00:00:00.000Z</td>
       <td>17.0</td>
       <td>12.0</td>
@@ -12192,12 +12282,124 @@ div#notebook {
       <td>2013Q1</td>
     </tr>
     <tr>
-      <th>15</th>
+      <th>13</th>
       <td>2013-04-01T00:00:00.000Z</td>
       <td>19.0</td>
       <td>17.0</td>
-      <td>41.0</td>
+      <td>38.0</td>
       <td>2013Q2</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>2013-07-01T00:00:00.000Z</td>
+      <td>21.0</td>
+      <td>19.0</td>
+      <td>33.0</td>
+      <td>2013Q3</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>2013-10-01T00:00:00.000Z</td>
+      <td>19.0</td>
+      <td>19.0</td>
+      <td>37.0</td>
+      <td>2013Q4</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>2014-01-01T00:00:00.000Z</td>
+      <td>12.0</td>
+      <td>16.0</td>
+      <td>42.0</td>
+      <td>2014Q1</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>2014-04-01T00:00:00.000Z</td>
+      <td>20.0</td>
+      <td>28.0</td>
+      <td>57.0</td>
+      <td>2014Q2</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>2014-07-01T00:00:00.000Z</td>
+      <td>10.0</td>
+      <td>15.0</td>
+      <td>40.0</td>
+      <td>2014Q3</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>2014-10-01T00:00:00.000Z</td>
+      <td>22.0</td>
+      <td>53.0</td>
+      <td>70.0</td>
+      <td>2014Q4</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>2015-01-01T00:00:00.000Z</td>
+      <td>23.0</td>
+      <td>53.0</td>
+      <td>74.0</td>
+      <td>2015Q1</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>2015-04-01T00:00:00.000Z</td>
+      <td>20.0</td>
+      <td>41.0</td>
+      <td>74.0</td>
+      <td>2015Q2</td>
+    </tr>
+    <tr>
+      <th>22</th>
+      <td>2015-07-01T00:00:00.000Z</td>
+      <td>19.0</td>
+      <td>33.0</td>
+      <td>71.0</td>
+      <td>2015Q3</td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <td>2015-10-01T00:00:00.000Z</td>
+      <td>20.0</td>
+      <td>50.0</td>
+      <td>80.0</td>
+      <td>2015Q4</td>
+    </tr>
+    <tr>
+      <th>24</th>
+      <td>2016-01-01T00:00:00.000Z</td>
+      <td>26.0</td>
+      <td>60.0</td>
+      <td>85.0</td>
+      <td>2016Q1</td>
+    </tr>
+    <tr>
+      <th>25</th>
+      <td>2016-04-01T00:00:00.000Z</td>
+      <td>29.0</td>
+      <td>51.0</td>
+      <td>97.0</td>
+      <td>2016Q2</td>
+    </tr>
+    <tr>
+      <th>26</th>
+      <td>2016-07-01T00:00:00.000Z</td>
+      <td>32.0</td>
+      <td>58.0</td>
+      <td>83.0</td>
+      <td>2016Q3</td>
+    </tr>
+    <tr>
+      <th>27</th>
+      <td>2016-10-01T00:00:00.000Z</td>
+      <td>22.0</td>
+      <td>48.0</td>
+      <td>92.0</td>
+      <td>2016Q4</td>
     </tr>
   </tbody>
 </table>
@@ -12209,13 +12411,41 @@ div#notebook {
 </div>
 </div>
 
-</div>
+</div>s = create_search(source='git')
+
+s = add_general_date_filters(s)
+
+s = add_bot_filter(s)
+s = add_merges_filter(s)
+
+# Filter commits to the Project Repos
+s = add_project_filter(s)
+
+# Adds date range to retrieve data from
+s = add_date_filter(s)
+
+
+# Unique count of Commits by Authors
+s.aggs.bucket('authors', 'terms', field='author_uuid', size=100000)\
+    .bucket('time', 'date_histogram', field='grimoire_creation_date', interval='quarter')\
+    .metric('commits', 'cardinality', field='hash', precision_threshold=3000)
+result = s.execute()
+
+onion_df_bad=onion_evolution_bad(result, bucket_column='Author', time_column='Time', value_column='Commits',\
+      bucket_field='authors', time_field='time', metric_field='commits')
+
+# Calculate quarters
+#onion_df['Quarter'] = pandas.PeriodIndex(pandas.to_datetime(onion_df.Time), freq='Q')
+onion_df_bad['Quarter'] = onion_df['Time'].map(lambda x: str(pandas.Period(x,'Q')))
+
+onion_df_bad
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[8]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">print_grouped_bar</span><span class="p">(</span><span class="n">onion_df</span><span class="p">,</span> <span class="s1">&#39;Quarter&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;Core&#39;</span><span class="p">,</span> <span class="s1">&#39;Regular&#39;</span><span class="p">,</span> <span class="s1">&#39;Casual&#39;</span><span class="p">],</span> <span class="s1">&#39;Global Contribution Groups&#39;</span><span class="p">)</span>
+<span class="n">print_stacked_bar</span><span class="p">(</span><span class="n">onion_df</span><span class="p">,</span> <span class="s1">&#39;Quarter&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;Core&#39;</span><span class="p">,</span> <span class="s1">&#39;Regular&#39;</span><span class="p">,</span> <span class="s1">&#39;Casual&#39;</span><span class="p">],</span> <span class="s1">&#39;Global Contribution Groups&#39;</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -12237,7 +12467,23 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="233279e4-7cb8-444e-b55f-497ab6242611" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("233279e4-7cb8-444e-b55f-497ab6242611", [{"type": "bar", "x": ["2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4", "2013Q1", "2013Q2"], "name": "Core", "y": [21.0, 19.0, 12.0, 20.0, 10.0, 22.0, 23.0, 20.0, 19.0, 20.0, 26.0, 29.0, 32.0, 22.0, 17.0, 19.0]}, {"type": "bar", "x": ["2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4", "2013Q1", "2013Q2"], "name": "Regular", "y": [19.0, 19.0, 16.0, 28.0, 15.0, 53.0, 53.0, 41.0, 33.0, 50.0, 60.0, 51.0, 58.0, 48.0, 12.0, 17.0]}, {"type": "bar", "x": ["2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4", "2013Q1", "2013Q2"], "name": "Casual", "y": [43.0, 49.0, 61.0, 77.0, 68.0, 94.0, 107.0, 123.0, 122.0, 130.0, 126.0, 129.0, 106.0, 92.0, 26.0, 41.0]}], {"barmode": "group", "title": "Global Contribution Groups"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="a4633be9-0e9d-4974-a149-2ebd34082f08" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("a4633be9-0e9d-4974-a149-2ebd34082f08", [{"name": "Core", "y": [5.0, 5.0, 6.0, 9.0, 10.0, 9.0, 9.0, 9.0, 12.0, 11.0, 17.0, 12.0, 17.0, 19.0, 21.0, 19.0, 12.0, 20.0, 10.0, 22.0, 23.0, 20.0, 19.0, 20.0, 26.0, 29.0, 32.0, 22.0], "type": "bar", "x": ["2010Q1", "2010Q2", "2010Q3", "2010Q4", "2011Q1", "2011Q2", "2011Q3", "2011Q4", "2012Q1", "2012Q2", "2012Q3", "2012Q4", "2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"]}, {"name": "Regular", "y": [6.0, 5.0, 8.0, 10.0, 10.0, 8.0, 8.0, 9.0, 14.0, 12.0, 12.0, 11.0, 12.0, 17.0, 19.0, 19.0, 16.0, 28.0, 15.0, 53.0, 53.0, 41.0, 33.0, 50.0, 60.0, 51.0, 58.0, 48.0], "type": "bar", "x": ["2010Q1", "2010Q2", "2010Q3", "2010Q4", "2011Q1", "2011Q2", "2011Q3", "2011Q4", "2012Q1", "2012Q2", "2012Q3", "2012Q4", "2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"]}, {"name": "Casual", "y": [20.0, 18.0, 21.0, 17.0, 18.0, 24.0, 22.0, 21.0, 30.0, 35.0, 29.0, 24.0, 26.0, 38.0, 33.0, 37.0, 42.0, 57.0, 40.0, 70.0, 74.0, 74.0, 71.0, 80.0, 85.0, 97.0, 83.0, 92.0], "type": "bar", "x": ["2010Q1", "2010Q2", "2010Q3", "2010Q4", "2011Q1", "2011Q2", "2011Q3", "2011Q4", "2012Q1", "2012Q2", "2012Q3", "2012Q4", "2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"]}], {"title": "Global Contribution Groups", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<div id="1f3be455-3ee2-4098-a7d7-6f592ae79daf" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("1f3be455-3ee2-4098-a7d7-6f592ae79daf", [{"name": "Core", "y": [5.0, 5.0, 6.0, 9.0, 10.0, 9.0, 9.0, 9.0, 12.0, 11.0, 17.0, 12.0, 17.0, 19.0, 21.0, 19.0, 12.0, 20.0, 10.0, 22.0, 23.0, 20.0, 19.0, 20.0, 26.0, 29.0, 32.0, 22.0], "type": "bar", "x": ["2010Q1", "2010Q2", "2010Q3", "2010Q4", "2011Q1", "2011Q2", "2011Q3", "2011Q4", "2012Q1", "2012Q2", "2012Q3", "2012Q4", "2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"]}, {"name": "Regular", "y": [6.0, 5.0, 8.0, 10.0, 10.0, 8.0, 8.0, 9.0, 14.0, 12.0, 12.0, 11.0, 12.0, 17.0, 19.0, 19.0, 16.0, 28.0, 15.0, 53.0, 53.0, 41.0, 33.0, 50.0, 60.0, 51.0, 58.0, 48.0], "type": "bar", "x": ["2010Q1", "2010Q2", "2010Q3", "2010Q4", "2011Q1", "2011Q2", "2011Q3", "2011Q4", "2012Q1", "2012Q2", "2012Q3", "2012Q4", "2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"]}, {"name": "Casual", "y": [20.0, 18.0, 21.0, 17.0, 18.0, 24.0, 22.0, 21.0, 30.0, 35.0, 29.0, 24.0, 26.0, 38.0, 33.0, 37.0, 42.0, 57.0, 40.0, 70.0, 74.0, 74.0, 71.0, 80.0, 85.0, 97.0, 83.0, 92.0], "type": "bar", "x": ["2010Q1", "2010Q2", "2010Q3", "2010Q4", "2011Q1", "2011Q2", "2011Q3", "2011Q4", "2012Q1", "2012Q2", "2012Q3", "2012Q4", "2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"]}], {"title": "Global Contribution Groups", "barmode": "stack"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -12260,10 +12506,12 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[9]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">Search</span><span class="p">(</span><span class="n">using</span><span class="o">=</span><span class="n">es_conn</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">create_search</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
 
 <span class="c1"># Adds date range to retrieve data from</span>
 <span class="n">s</span> <span class="o">=</span> <span class="n">add_date_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">add_general_date_filters</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
 
 
 <span class="n">s</span> <span class="o">=</span> <span class="n">add_bot_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
@@ -12273,14 +12521,15 @@ div#notebook {
 <span class="n">s</span> <span class="o">=</span> <span class="n">add_project_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
 
 <span class="c1">### INCLUDE EMPLOYEES ONLY #######################################</span>
-<span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">author_org_name</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Mozilla Staff&#39;</span><span class="p">])</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">author_org_name</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Mozilla Staff&#39;</span><span class="p">,</span> <span class="s1">&#39;Code Sheriff&#39;</span><span class="p">])</span>
 <span class="c1">##################################################################</span>
 
 
-<span class="c1"># Unique count of Commits by Project (max 100 projects)</span>
-<span class="n">s</span><span class="o">.</span><span class="n">aggs</span><span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;authors&#39;</span><span class="p">,</span> <span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_uuid&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span>\
-    <span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;date_histogram&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;grimoire_creation_date&#39;</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="s1">&#39;quarter&#39;</span><span class="p">)</span>\
-    <span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s1">&#39;commits&#39;</span><span class="p">,</span> <span class="s1">&#39;cardinality&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;hash&#39;</span><span class="p">,</span> <span class="n">precision_threshold</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="c1"># Unique count of Commits by Author over time (max 100 projects)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">aggs</span><span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;date_histogram&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;grimoire_creation_date&#39;</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="s1">&#39;quarter&#39;</span><span class="p">)</span>\
+    <span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;authors&#39;</span><span class="p">,</span> <span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_uuid&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span>\
+    <span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s1">&#39;commits&#39;</span><span class="p">,</span> <span class="s1">&#39;cardinality&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;hash&#39;</span><span class="p">,</span> <span class="n">precision_threshold</span><span class="o">=</span><span class="mi">3000</span><span class="p">)</span>
+    
 <span class="n">result</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
 
 <span class="n">moz_onion_df</span> <span class="o">=</span> <span class="n">onion_evolution</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">bucket_column</span><span class="o">=</span><span class="s1">&#39;Author&#39;</span><span class="p">,</span> <span class="n">time_column</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">value_column</span><span class="o">=</span><span class="s1">&#39;Commits&#39;</span><span class="p">,</span>\
@@ -12302,6 +12551,41 @@ div#notebook {
 <div class="output">
 
 
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>569
+2010-01-01T00:00:00.000Z -&gt; 8
+2010-04-01T00:00:00.000Z -&gt; 13
+2010-07-01T00:00:00.000Z -&gt; 7
+2010-10-01T00:00:00.000Z -&gt; 7
+2011-01-01T00:00:00.000Z -&gt; 9
+2011-04-01T00:00:00.000Z -&gt; 6
+2011-07-01T00:00:00.000Z -&gt; 5
+2011-10-01T00:00:00.000Z -&gt; 6
+2012-01-01T00:00:00.000Z -&gt; 10
+2012-04-01T00:00:00.000Z -&gt; 10
+2012-07-01T00:00:00.000Z -&gt; 9
+2012-10-01T00:00:00.000Z -&gt; 7
+2013-01-01T00:00:00.000Z -&gt; 12
+2013-04-01T00:00:00.000Z -&gt; 13
+2013-07-01T00:00:00.000Z -&gt; 19
+2013-10-01T00:00:00.000Z -&gt; 16
+2014-01-01T00:00:00.000Z -&gt; 18
+2014-04-01T00:00:00.000Z -&gt; 25
+2014-07-01T00:00:00.000Z -&gt; 26
+2014-10-01T00:00:00.000Z -&gt; 42
+2015-01-01T00:00:00.000Z -&gt; 36
+2015-04-01T00:00:00.000Z -&gt; 29
+2015-07-01T00:00:00.000Z -&gt; 39
+2015-10-01T00:00:00.000Z -&gt; 38
+2016-01-01T00:00:00.000Z -&gt; 30
+2016-04-01T00:00:00.000Z -&gt; 34
+2016-07-01T00:00:00.000Z -&gt; 50
+2016-10-01T00:00:00.000Z -&gt; 45
+</pre>
+</div>
+</div>
+
 <div class="output_area"><div class="prompt output_prompt">Out[9]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
@@ -12321,132 +12605,114 @@ div#notebook {
   <tbody>
     <tr>
       <th>0</th>
-      <td>2013-07-01T00:00:00.000Z</td>
+      <td>2010-01-01T00:00:00.000Z</td>
+      <td>2.0</td>
+      <td>1.0</td>
       <td>5.0</td>
-      <td>5.0</td>
-      <td>11.0</td>
-      <td>2013Q3</td>
+      <td>2010Q1</td>
       <td>Mozilla Staff</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>2013-10-01T00:00:00.000Z</td>
-      <td>5.0</td>
-      <td>3.0</td>
-      <td>13.0</td>
-      <td>2013Q4</td>
+      <td>2010-04-01T00:00:00.000Z</td>
+      <td>2.0</td>
+      <td>2.0</td>
+      <td>9.0</td>
+      <td>2010Q2</td>
       <td>Mozilla Staff</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>2014-01-01T00:00:00.000Z</td>
-      <td>5.0</td>
+      <td>2010-07-01T00:00:00.000Z</td>
       <td>3.0</td>
-      <td>17.0</td>
-      <td>2014Q1</td>
+      <td>1.0</td>
+      <td>3.0</td>
+      <td>2010Q3</td>
       <td>Mozilla Staff</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>2014-04-01T00:00:00.000Z</td>
-      <td>8.0</td>
-      <td>5.0</td>
-      <td>18.0</td>
-      <td>2014Q2</td>
+      <td>2010-10-01T00:00:00.000Z</td>
+      <td>3.0</td>
+      <td>1.0</td>
+      <td>3.0</td>
+      <td>2010Q4</td>
       <td>Mozilla Staff</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>2014-07-01T00:00:00.000Z</td>
-      <td>7.0</td>
-      <td>4.0</td>
-      <td>23.0</td>
-      <td>2014Q3</td>
+      <td>2011-01-01T00:00:00.000Z</td>
+      <td>2.0</td>
+      <td>1.0</td>
+      <td>6.0</td>
+      <td>2011Q1</td>
       <td>Mozilla Staff</td>
     </tr>
     <tr>
       <th>5</th>
-      <td>2014-10-01T00:00:00.000Z</td>
-      <td>10.0</td>
-      <td>7.0</td>
-      <td>34.0</td>
-      <td>2014Q4</td>
+      <td>2011-04-01T00:00:00.000Z</td>
+      <td>1.0</td>
+      <td>2.0</td>
+      <td>3.0</td>
+      <td>2011Q2</td>
       <td>Mozilla Staff</td>
     </tr>
     <tr>
       <th>6</th>
-      <td>2015-01-01T00:00:00.000Z</td>
-      <td>9.0</td>
-      <td>7.0</td>
-      <td>31.0</td>
-      <td>2015Q1</td>
+      <td>2011-07-01T00:00:00.000Z</td>
+      <td>2.0</td>
+      <td>2.0</td>
+      <td>1.0</td>
+      <td>2011Q3</td>
       <td>Mozilla Staff</td>
     </tr>
     <tr>
       <th>7</th>
-      <td>2015-04-01T00:00:00.000Z</td>
-      <td>11.0</td>
-      <td>5.0</td>
-      <td>28.0</td>
-      <td>2015Q2</td>
+      <td>2011-10-01T00:00:00.000Z</td>
+      <td>2.0</td>
+      <td>2.0</td>
+      <td>2.0</td>
+      <td>2011Q4</td>
       <td>Mozilla Staff</td>
     </tr>
     <tr>
       <th>8</th>
-      <td>2015-07-01T00:00:00.000Z</td>
-      <td>11.0</td>
-      <td>7.0</td>
-      <td>34.0</td>
-      <td>2015Q3</td>
+      <td>2012-01-01T00:00:00.000Z</td>
+      <td>2.0</td>
+      <td>3.0</td>
+      <td>5.0</td>
+      <td>2012Q1</td>
       <td>Mozilla Staff</td>
     </tr>
     <tr>
       <th>9</th>
-      <td>2015-10-01T00:00:00.000Z</td>
-      <td>11.0</td>
-      <td>7.0</td>
-      <td>32.0</td>
-      <td>2015Q4</td>
+      <td>2012-04-01T00:00:00.000Z</td>
+      <td>4.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>2012Q2</td>
       <td>Mozilla Staff</td>
     </tr>
     <tr>
       <th>10</th>
-      <td>2016-01-01T00:00:00.000Z</td>
-      <td>10.0</td>
-      <td>5.0</td>
-      <td>28.0</td>
-      <td>2016Q1</td>
+      <td>2012-07-01T00:00:00.000Z</td>
+      <td>4.0</td>
+      <td>2.0</td>
+      <td>3.0</td>
+      <td>2012Q3</td>
       <td>Mozilla Staff</td>
     </tr>
     <tr>
       <th>11</th>
-      <td>2016-04-01T00:00:00.000Z</td>
-      <td>10.0</td>
-      <td>9.0</td>
-      <td>24.0</td>
-      <td>2016Q2</td>
+      <td>2012-10-01T00:00:00.000Z</td>
+      <td>3.0</td>
+      <td>1.0</td>
+      <td>3.0</td>
+      <td>2012Q4</td>
       <td>Mozilla Staff</td>
     </tr>
     <tr>
       <th>12</th>
-      <td>2016-07-01T00:00:00.000Z</td>
-      <td>11.0</td>
-      <td>9.0</td>
-      <td>33.0</td>
-      <td>2016Q3</td>
-      <td>Mozilla Staff</td>
-    </tr>
-    <tr>
-      <th>13</th>
-      <td>2016-10-01T00:00:00.000Z</td>
-      <td>10.0</td>
-      <td>9.0</td>
-      <td>26.0</td>
-      <td>2016Q4</td>
-      <td>Mozilla Staff</td>
-    </tr>
-    <tr>
-      <th>14</th>
       <td>2013-01-01T00:00:00.000Z</td>
       <td>5.0</td>
       <td>1.0</td>
@@ -12455,12 +12721,138 @@ div#notebook {
       <td>Mozilla Staff</td>
     </tr>
     <tr>
-      <th>15</th>
+      <th>13</th>
       <td>2013-04-01T00:00:00.000Z</td>
       <td>4.0</td>
       <td>3.0</td>
-      <td>7.0</td>
+      <td>6.0</td>
       <td>2013Q2</td>
+      <td>Mozilla Staff</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>2013-07-01T00:00:00.000Z</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>9.0</td>
+      <td>2013Q3</td>
+      <td>Mozilla Staff</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>2013-10-01T00:00:00.000Z</td>
+      <td>5.0</td>
+      <td>3.0</td>
+      <td>8.0</td>
+      <td>2013Q4</td>
+      <td>Mozilla Staff</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>2014-01-01T00:00:00.000Z</td>
+      <td>5.0</td>
+      <td>3.0</td>
+      <td>10.0</td>
+      <td>2014Q1</td>
+      <td>Mozilla Staff</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>2014-04-01T00:00:00.000Z</td>
+      <td>8.0</td>
+      <td>5.0</td>
+      <td>12.0</td>
+      <td>2014Q2</td>
+      <td>Mozilla Staff</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>2014-07-01T00:00:00.000Z</td>
+      <td>7.0</td>
+      <td>4.0</td>
+      <td>15.0</td>
+      <td>2014Q3</td>
+      <td>Mozilla Staff</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>2014-10-01T00:00:00.000Z</td>
+      <td>10.0</td>
+      <td>7.0</td>
+      <td>25.0</td>
+      <td>2014Q4</td>
+      <td>Mozilla Staff</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>2015-01-01T00:00:00.000Z</td>
+      <td>9.0</td>
+      <td>7.0</td>
+      <td>20.0</td>
+      <td>2015Q1</td>
+      <td>Mozilla Staff</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>2015-04-01T00:00:00.000Z</td>
+      <td>11.0</td>
+      <td>5.0</td>
+      <td>13.0</td>
+      <td>2015Q2</td>
+      <td>Mozilla Staff</td>
+    </tr>
+    <tr>
+      <th>22</th>
+      <td>2015-07-01T00:00:00.000Z</td>
+      <td>11.0</td>
+      <td>7.0</td>
+      <td>21.0</td>
+      <td>2015Q3</td>
+      <td>Mozilla Staff</td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <td>2015-10-01T00:00:00.000Z</td>
+      <td>11.0</td>
+      <td>7.0</td>
+      <td>20.0</td>
+      <td>2015Q4</td>
+      <td>Mozilla Staff</td>
+    </tr>
+    <tr>
+      <th>24</th>
+      <td>2016-01-01T00:00:00.000Z</td>
+      <td>10.0</td>
+      <td>5.0</td>
+      <td>15.0</td>
+      <td>2016Q1</td>
+      <td>Mozilla Staff</td>
+    </tr>
+    <tr>
+      <th>25</th>
+      <td>2016-04-01T00:00:00.000Z</td>
+      <td>10.0</td>
+      <td>9.0</td>
+      <td>15.0</td>
+      <td>2016Q2</td>
+      <td>Mozilla Staff</td>
+    </tr>
+    <tr>
+      <th>26</th>
+      <td>2016-07-01T00:00:00.000Z</td>
+      <td>11.0</td>
+      <td>9.0</td>
+      <td>30.0</td>
+      <td>2016Q3</td>
+      <td>Mozilla Staff</td>
+    </tr>
+    <tr>
+      <th>27</th>
+      <td>2016-10-01T00:00:00.000Z</td>
+      <td>10.0</td>
+      <td>9.0</td>
+      <td>26.0</td>
+      <td>2016Q4</td>
       <td>Mozilla Staff</td>
     </tr>
   </tbody>
@@ -12479,7 +12871,7 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[10]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">Search</span><span class="p">(</span><span class="n">using</span><span class="o">=</span><span class="n">es_conn</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">create_search</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
 
 <span class="c1"># Adds date range to retrieve data from</span>
 <span class="n">s</span> <span class="o">=</span> <span class="n">add_date_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
@@ -12491,14 +12883,15 @@ div#notebook {
 <span class="n">s</span> <span class="o">=</span> <span class="n">add_project_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
 
 <span class="c1">### EXCLUDE EMPLOYEES ############################################</span>
-<span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">author_org_name</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Mozilla Staff&#39;</span><span class="p">])</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">author_org_name</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Mozilla Staff&#39;</span><span class="p">,</span> <span class="s1">&#39;Code Sheriff&#39;</span><span class="p">])</span>
 <span class="c1">##################################################################</span>
 
 
-<span class="c1"># Unique count of Commits by Project (max 100 projects)</span>
-<span class="n">s</span><span class="o">.</span><span class="n">aggs</span><span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;authors&#39;</span><span class="p">,</span> <span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_uuid&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span>\
-    <span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;date_histogram&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;grimoire_creation_date&#39;</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="s1">&#39;quarter&#39;</span><span class="p">)</span>\
-    <span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s1">&#39;commits&#39;</span><span class="p">,</span> <span class="s1">&#39;cardinality&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;hash&#39;</span><span class="p">,</span> <span class="n">precision_threshold</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="c1"># Unique count of Commits by Author over time (max 100 projects)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">aggs</span><span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;date_histogram&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;grimoire_creation_date&#39;</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="s1">&#39;quarter&#39;</span><span class="p">)</span>\
+    <span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;authors&#39;</span><span class="p">,</span> <span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_uuid&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span>\
+    <span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s1">&#39;commits&#39;</span><span class="p">,</span> <span class="s1">&#39;cardinality&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;hash&#39;</span><span class="p">,</span> <span class="n">precision_threshold</span><span class="o">=</span><span class="mi">3000</span><span class="p">)</span>
+    
 <span class="n">result</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
 
 <span class="n">com_onion_df</span> <span class="o">=</span> <span class="n">onion_evolution</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">bucket_column</span><span class="o">=</span><span class="s1">&#39;Author&#39;</span><span class="p">,</span> <span class="n">time_column</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">value_column</span><span class="o">=</span><span class="s1">&#39;Commits&#39;</span><span class="p">,</span>\
@@ -12520,6 +12913,41 @@ div#notebook {
 <div class="output">
 
 
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>1840
+2010-01-01T00:00:00.000Z -&gt; 23
+2010-04-01T00:00:00.000Z -&gt; 15
+2010-07-01T00:00:00.000Z -&gt; 28
+2010-10-01T00:00:00.000Z -&gt; 29
+2011-01-01T00:00:00.000Z -&gt; 29
+2011-04-01T00:00:00.000Z -&gt; 35
+2011-07-01T00:00:00.000Z -&gt; 34
+2011-10-01T00:00:00.000Z -&gt; 33
+2012-01-01T00:00:00.000Z -&gt; 46
+2012-04-01T00:00:00.000Z -&gt; 48
+2012-07-01T00:00:00.000Z -&gt; 49
+2012-10-01T00:00:00.000Z -&gt; 40
+2013-01-01T00:00:00.000Z -&gt; 43
+2013-04-01T00:00:00.000Z -&gt; 61
+2013-07-01T00:00:00.000Z -&gt; 54
+2013-10-01T00:00:00.000Z -&gt; 59
+2014-01-01T00:00:00.000Z -&gt; 52
+2014-04-01T00:00:00.000Z -&gt; 80
+2014-07-01T00:00:00.000Z -&gt; 39
+2014-10-01T00:00:00.000Z -&gt; 103
+2015-01-01T00:00:00.000Z -&gt; 114
+2015-04-01T00:00:00.000Z -&gt; 106
+2015-07-01T00:00:00.000Z -&gt; 84
+2015-10-01T00:00:00.000Z -&gt; 112
+2016-01-01T00:00:00.000Z -&gt; 141
+2016-04-01T00:00:00.000Z -&gt; 143
+2016-07-01T00:00:00.000Z -&gt; 123
+2016-10-01T00:00:00.000Z -&gt; 117
+</pre>
+</div>
+</div>
+
 <div class="output_area"><div class="prompt output_prompt">Out[10]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
@@ -12539,6 +12967,114 @@ div#notebook {
   <tbody>
     <tr>
       <th>0</th>
+      <td>2010-01-01T00:00:00.000Z</td>
+      <td>5.0</td>
+      <td>8.0</td>
+      <td>10.0</td>
+      <td>2010Q1</td>
+      <td>Other</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2010-04-01T00:00:00.000Z</td>
+      <td>3.0</td>
+      <td>4.0</td>
+      <td>8.0</td>
+      <td>2010Q2</td>
+      <td>Other</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2010-07-01T00:00:00.000Z</td>
+      <td>5.0</td>
+      <td>12.0</td>
+      <td>11.0</td>
+      <td>2010Q3</td>
+      <td>Other</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2010-10-01T00:00:00.000Z</td>
+      <td>8.0</td>
+      <td>9.0</td>
+      <td>12.0</td>
+      <td>2010Q4</td>
+      <td>Other</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2011-01-01T00:00:00.000Z</td>
+      <td>8.0</td>
+      <td>9.0</td>
+      <td>12.0</td>
+      <td>2011Q1</td>
+      <td>Other</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>2011-04-01T00:00:00.000Z</td>
+      <td>8.0</td>
+      <td>6.0</td>
+      <td>21.0</td>
+      <td>2011Q2</td>
+      <td>Other</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>2011-07-01T00:00:00.000Z</td>
+      <td>7.0</td>
+      <td>8.0</td>
+      <td>19.0</td>
+      <td>2011Q3</td>
+      <td>Other</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>2011-10-01T00:00:00.000Z</td>
+      <td>7.0</td>
+      <td>8.0</td>
+      <td>18.0</td>
+      <td>2011Q4</td>
+      <td>Other</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>2012-01-01T00:00:00.000Z</td>
+      <td>11.0</td>
+      <td>10.0</td>
+      <td>25.0</td>
+      <td>2012Q1</td>
+      <td>Other</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>2012-04-01T00:00:00.000Z</td>
+      <td>7.0</td>
+      <td>11.0</td>
+      <td>30.0</td>
+      <td>2012Q2</td>
+      <td>Other</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>2012-07-01T00:00:00.000Z</td>
+      <td>14.0</td>
+      <td>10.0</td>
+      <td>25.0</td>
+      <td>2012Q3</td>
+      <td>Other</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>2012-10-01T00:00:00.000Z</td>
+      <td>11.0</td>
+      <td>8.0</td>
+      <td>21.0</td>
+      <td>2012Q4</td>
+      <td>Other</td>
+    </tr>
+    <tr>
+      <th>12</th>
       <td>2013-01-01T00:00:00.000Z</td>
       <td>14.0</td>
       <td>10.0</td>
@@ -12547,138 +13083,138 @@ div#notebook {
       <td>Other</td>
     </tr>
     <tr>
-      <th>1</th>
+      <th>13</th>
       <td>2013-04-01T00:00:00.000Z</td>
       <td>16.0</td>
       <td>15.0</td>
-      <td>32.0</td>
+      <td>30.0</td>
       <td>2013Q2</td>
       <td>Other</td>
     </tr>
     <tr>
-      <th>2</th>
+      <th>14</th>
       <td>2013-07-01T00:00:00.000Z</td>
       <td>16.0</td>
       <td>15.0</td>
-      <td>31.0</td>
+      <td>23.0</td>
       <td>2013Q3</td>
       <td>Other</td>
     </tr>
     <tr>
-      <th>3</th>
+      <th>15</th>
       <td>2013-10-01T00:00:00.000Z</td>
       <td>15.0</td>
       <td>17.0</td>
-      <td>34.0</td>
+      <td>27.0</td>
       <td>2013Q4</td>
       <td>Other</td>
     </tr>
     <tr>
-      <th>4</th>
+      <th>16</th>
       <td>2014-01-01T00:00:00.000Z</td>
       <td>7.0</td>
       <td>14.0</td>
-      <td>43.0</td>
+      <td>31.0</td>
       <td>2014Q1</td>
       <td>Other</td>
     </tr>
     <tr>
-      <th>5</th>
+      <th>17</th>
       <td>2014-04-01T00:00:00.000Z</td>
       <td>15.0</td>
       <td>23.0</td>
-      <td>56.0</td>
+      <td>42.0</td>
       <td>2014Q2</td>
       <td>Other</td>
     </tr>
     <tr>
-      <th>6</th>
+      <th>18</th>
+      <td>2014-07-01T00:00:00.000Z</td>
+      <td>12.0</td>
+      <td>16.0</td>
+      <td>11.0</td>
+      <td>2014Q3</td>
+      <td>Other</td>
+    </tr>
+    <tr>
+      <th>19</th>
       <td>2014-10-01T00:00:00.000Z</td>
       <td>34.0</td>
       <td>46.0</td>
-      <td>38.0</td>
+      <td>23.0</td>
       <td>2014Q4</td>
       <td>Other</td>
     </tr>
     <tr>
-      <th>7</th>
+      <th>20</th>
       <td>2015-01-01T00:00:00.000Z</td>
       <td>44.0</td>
       <td>47.0</td>
-      <td>45.0</td>
+      <td>23.0</td>
       <td>2015Q1</td>
       <td>Other</td>
     </tr>
     <tr>
-      <th>8</th>
+      <th>21</th>
       <td>2015-04-01T00:00:00.000Z</td>
       <td>32.0</td>
       <td>48.0</td>
-      <td>60.0</td>
+      <td>26.0</td>
       <td>2015Q2</td>
       <td>Other</td>
     </tr>
     <tr>
-      <th>9</th>
+      <th>22</th>
       <td>2015-07-01T00:00:00.000Z</td>
       <td>21.0</td>
       <td>38.0</td>
-      <td>63.0</td>
+      <td>25.0</td>
       <td>2015Q3</td>
       <td>Other</td>
     </tr>
     <tr>
-      <th>10</th>
+      <th>23</th>
       <td>2015-10-01T00:00:00.000Z</td>
       <td>26.0</td>
       <td>45.0</td>
-      <td>79.0</td>
+      <td>41.0</td>
       <td>2015Q4</td>
       <td>Other</td>
     </tr>
     <tr>
-      <th>11</th>
+      <th>24</th>
       <td>2016-01-01T00:00:00.000Z</td>
       <td>48.0</td>
       <td>62.0</td>
-      <td>59.0</td>
+      <td>31.0</td>
       <td>2016Q1</td>
       <td>Other</td>
     </tr>
     <tr>
-      <th>12</th>
+      <th>25</th>
       <td>2016-04-01T00:00:00.000Z</td>
       <td>38.0</td>
       <td>62.0</td>
-      <td>66.0</td>
+      <td>43.0</td>
       <td>2016Q2</td>
       <td>Other</td>
     </tr>
     <tr>
-      <th>13</th>
+      <th>26</th>
       <td>2016-07-01T00:00:00.000Z</td>
       <td>42.0</td>
       <td>49.0</td>
-      <td>52.0</td>
+      <td>32.0</td>
       <td>2016Q3</td>
       <td>Other</td>
     </tr>
     <tr>
-      <th>14</th>
+      <th>27</th>
       <td>2016-10-01T00:00:00.000Z</td>
       <td>39.0</td>
       <td>51.0</td>
       <td>27.0</td>
       <td>2016Q4</td>
-      <td>Other</td>
-    </tr>
-    <tr>
-      <th>15</th>
-      <td>2014-07-01T00:00:00.000Z</td>
-      <td>12.0</td>
-      <td>16.0</td>
-      <td>31.0</td>
-      <td>2014Q3</td>
       <td>Other</td>
     </tr>
   </tbody>
@@ -12699,6 +13235,8 @@ div#notebook {
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">print_grouped_bar</span><span class="p">(</span><span class="n">moz_onion_df</span><span class="p">,</span> <span class="s1">&#39;Quarter&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;Core&#39;</span><span class="p">,</span> <span class="s1">&#39;Regular&#39;</span><span class="p">,</span> <span class="s1">&#39;Casual&#39;</span><span class="p">],</span> <span class="s1">&#39;Employees&#39;</span><span class="p">)</span>
 <span class="n">print_grouped_bar</span><span class="p">(</span><span class="n">com_onion_df</span><span class="p">,</span> <span class="s1">&#39;Quarter&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;Core&#39;</span><span class="p">,</span> <span class="s1">&#39;Regular&#39;</span><span class="p">,</span> <span class="s1">&#39;Casual&#39;</span><span class="p">],</span> <span class="s1">&#39;Non-Employees&#39;</span><span class="p">)</span>
+<span class="n">print_stacked_bar</span><span class="p">(</span><span class="n">moz_onion_df</span><span class="p">,</span> <span class="s1">&#39;Quarter&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;Core&#39;</span><span class="p">,</span> <span class="s1">&#39;Regular&#39;</span><span class="p">,</span> <span class="s1">&#39;Casual&#39;</span><span class="p">],</span> <span class="s1">&#39;Employees&#39;</span><span class="p">)</span>
+<span class="n">print_stacked_bar</span><span class="p">(</span><span class="n">com_onion_df</span><span class="p">,</span> <span class="s1">&#39;Quarter&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;Core&#39;</span><span class="p">,</span> <span class="s1">&#39;Regular&#39;</span><span class="p">,</span> <span class="s1">&#39;Casual&#39;</span><span class="p">],</span> <span class="s1">&#39;Non-Employees&#39;</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -12720,7 +13258,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="6ab8d0f2-cc29-427f-8df6-41715b7d7f1c" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("6ab8d0f2-cc29-427f-8df6-41715b7d7f1c", [{"type": "bar", "x": ["2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4", "2013Q1", "2013Q2"], "name": "Core", "y": [5.0, 5.0, 5.0, 8.0, 7.0, 10.0, 9.0, 11.0, 11.0, 11.0, 10.0, 10.0, 11.0, 10.0, 5.0, 4.0]}, {"type": "bar", "x": ["2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4", "2013Q1", "2013Q2"], "name": "Regular", "y": [5.0, 3.0, 3.0, 5.0, 4.0, 7.0, 7.0, 5.0, 7.0, 7.0, 5.0, 9.0, 9.0, 9.0, 1.0, 3.0]}, {"type": "bar", "x": ["2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4", "2013Q1", "2013Q2"], "name": "Casual", "y": [11.0, 13.0, 17.0, 18.0, 23.0, 34.0, 31.0, 28.0, 34.0, 32.0, 28.0, 24.0, 33.0, 26.0, 6.0, 7.0]}], {"barmode": "group", "title": "Employees"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="6ab29f52-d17d-43a3-91af-8b3792df3da1" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("6ab29f52-d17d-43a3-91af-8b3792df3da1", [{"name": "Core", "y": [2.0, 2.0, 3.0, 3.0, 2.0, 1.0, 2.0, 2.0, 2.0, 4.0, 4.0, 3.0, 5.0, 4.0, 5.0, 5.0, 5.0, 8.0, 7.0, 10.0, 9.0, 11.0, 11.0, 11.0, 10.0, 10.0, 11.0, 10.0], "type": "bar", "x": ["2010Q1", "2010Q2", "2010Q3", "2010Q4", "2011Q1", "2011Q2", "2011Q3", "2011Q4", "2012Q1", "2012Q2", "2012Q3", "2012Q4", "2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"]}, {"name": "Regular", "y": [1.0, 2.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 3.0, 2.0, 1.0, 1.0, 3.0, 5.0, 3.0, 3.0, 5.0, 4.0, 7.0, 7.0, 5.0, 7.0, 7.0, 5.0, 9.0, 9.0, 9.0], "type": "bar", "x": ["2010Q1", "2010Q2", "2010Q3", "2010Q4", "2011Q1", "2011Q2", "2011Q3", "2011Q4", "2012Q1", "2012Q2", "2012Q3", "2012Q4", "2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"]}, {"name": "Casual", "y": [5.0, 9.0, 3.0, 3.0, 6.0, 3.0, 1.0, 2.0, 5.0, 3.0, 3.0, 3.0, 6.0, 6.0, 9.0, 8.0, 10.0, 12.0, 15.0, 25.0, 20.0, 13.0, 21.0, 20.0, 15.0, 15.0, 30.0, 26.0], "type": "bar", "x": ["2010Q1", "2010Q2", "2010Q3", "2010Q4", "2011Q1", "2011Q2", "2011Q3", "2011Q4", "2012Q1", "2012Q2", "2012Q3", "2012Q4", "2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"]}], {"title": "Employees", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -12736,7 +13274,39 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="040385bd-0d5b-4363-9e8e-7ec157024f5c" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("040385bd-0d5b-4363-9e8e-7ec157024f5c", [{"type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4", "2014Q3"], "name": "Core", "y": [14.0, 16.0, 16.0, 15.0, 7.0, 15.0, 34.0, 44.0, 32.0, 21.0, 26.0, 48.0, 38.0, 42.0, 39.0, 12.0]}, {"type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4", "2014Q3"], "name": "Regular", "y": [10.0, 15.0, 15.0, 17.0, 14.0, 23.0, 46.0, 47.0, 48.0, 38.0, 45.0, 62.0, 62.0, 49.0, 51.0, 16.0]}, {"type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4", "2014Q3"], "name": "Casual", "y": [19.0, 32.0, 31.0, 34.0, 43.0, 56.0, 38.0, 45.0, 60.0, 63.0, 79.0, 59.0, 66.0, 52.0, 27.0, 31.0]}], {"barmode": "group", "title": "Non-Employees"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="cdb54ae6-d688-480c-8623-c699b5efd373" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("cdb54ae6-d688-480c-8623-c699b5efd373", [{"name": "Core", "y": [5.0, 3.0, 5.0, 8.0, 8.0, 8.0, 7.0, 7.0, 11.0, 7.0, 14.0, 11.0, 14.0, 16.0, 16.0, 15.0, 7.0, 15.0, 12.0, 34.0, 44.0, 32.0, 21.0, 26.0, 48.0, 38.0, 42.0, 39.0], "type": "bar", "x": ["2010Q1", "2010Q2", "2010Q3", "2010Q4", "2011Q1", "2011Q2", "2011Q3", "2011Q4", "2012Q1", "2012Q2", "2012Q3", "2012Q4", "2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"]}, {"name": "Regular", "y": [8.0, 4.0, 12.0, 9.0, 9.0, 6.0, 8.0, 8.0, 10.0, 11.0, 10.0, 8.0, 10.0, 15.0, 15.0, 17.0, 14.0, 23.0, 16.0, 46.0, 47.0, 48.0, 38.0, 45.0, 62.0, 62.0, 49.0, 51.0], "type": "bar", "x": ["2010Q1", "2010Q2", "2010Q3", "2010Q4", "2011Q1", "2011Q2", "2011Q3", "2011Q4", "2012Q1", "2012Q2", "2012Q3", "2012Q4", "2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"]}, {"name": "Casual", "y": [10.0, 8.0, 11.0, 12.0, 12.0, 21.0, 19.0, 18.0, 25.0, 30.0, 25.0, 21.0, 19.0, 30.0, 23.0, 27.0, 31.0, 42.0, 11.0, 23.0, 23.0, 26.0, 25.0, 41.0, 31.0, 43.0, 32.0, 27.0], "type": "bar", "x": ["2010Q1", "2010Q2", "2010Q3", "2010Q4", "2011Q1", "2011Q2", "2011Q3", "2011Q4", "2012Q1", "2012Q2", "2012Q3", "2012Q4", "2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"]}], {"title": "Non-Employees", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<div id="0d00e7c1-f1cd-4be1-9fab-166f6f3bd590" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("0d00e7c1-f1cd-4be1-9fab-166f6f3bd590", [{"name": "Core", "y": [2.0, 2.0, 3.0, 3.0, 2.0, 1.0, 2.0, 2.0, 2.0, 4.0, 4.0, 3.0, 5.0, 4.0, 5.0, 5.0, 5.0, 8.0, 7.0, 10.0, 9.0, 11.0, 11.0, 11.0, 10.0, 10.0, 11.0, 10.0], "type": "bar", "x": ["2010Q1", "2010Q2", "2010Q3", "2010Q4", "2011Q1", "2011Q2", "2011Q3", "2011Q4", "2012Q1", "2012Q2", "2012Q3", "2012Q4", "2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"]}, {"name": "Regular", "y": [1.0, 2.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 3.0, 2.0, 1.0, 1.0, 3.0, 5.0, 3.0, 3.0, 5.0, 4.0, 7.0, 7.0, 5.0, 7.0, 7.0, 5.0, 9.0, 9.0, 9.0], "type": "bar", "x": ["2010Q1", "2010Q2", "2010Q3", "2010Q4", "2011Q1", "2011Q2", "2011Q3", "2011Q4", "2012Q1", "2012Q2", "2012Q3", "2012Q4", "2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"]}, {"name": "Casual", "y": [5.0, 9.0, 3.0, 3.0, 6.0, 3.0, 1.0, 2.0, 5.0, 3.0, 3.0, 3.0, 6.0, 6.0, 9.0, 8.0, 10.0, 12.0, 15.0, 25.0, 20.0, 13.0, 21.0, 20.0, 15.0, 15.0, 30.0, 26.0], "type": "bar", "x": ["2010Q1", "2010Q2", "2010Q3", "2010Q4", "2011Q1", "2011Q2", "2011Q3", "2011Q4", "2012Q1", "2012Q2", "2012Q3", "2012Q4", "2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"]}], {"title": "Employees", "barmode": "stack"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<div id="fc2177be-f0aa-41b3-9ea5-75cf7c79073b" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("fc2177be-f0aa-41b3-9ea5-75cf7c79073b", [{"name": "Core", "y": [5.0, 3.0, 5.0, 8.0, 8.0, 8.0, 7.0, 7.0, 11.0, 7.0, 14.0, 11.0, 14.0, 16.0, 16.0, 15.0, 7.0, 15.0, 12.0, 34.0, 44.0, 32.0, 21.0, 26.0, 48.0, 38.0, 42.0, 39.0], "type": "bar", "x": ["2010Q1", "2010Q2", "2010Q3", "2010Q4", "2011Q1", "2011Q2", "2011Q3", "2011Q4", "2012Q1", "2012Q2", "2012Q3", "2012Q4", "2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"]}, {"name": "Regular", "y": [8.0, 4.0, 12.0, 9.0, 9.0, 6.0, 8.0, 8.0, 10.0, 11.0, 10.0, 8.0, 10.0, 15.0, 15.0, 17.0, 14.0, 23.0, 16.0, 46.0, 47.0, 48.0, 38.0, 45.0, 62.0, 62.0, 49.0, 51.0], "type": "bar", "x": ["2010Q1", "2010Q2", "2010Q3", "2010Q4", "2011Q1", "2011Q2", "2011Q3", "2011Q4", "2012Q1", "2012Q2", "2012Q3", "2012Q4", "2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"]}, {"name": "Casual", "y": [10.0, 8.0, 11.0, 12.0, 12.0, 21.0, 19.0, 18.0, 25.0, 30.0, 25.0, 21.0, 19.0, 30.0, 23.0, 27.0, 31.0, 42.0, 11.0, 23.0, 23.0, 26.0, 25.0, 41.0, 31.0, 43.0, 32.0, 27.0], "type": "bar", "x": ["2010Q1", "2010Q2", "2010Q3", "2010Q4", "2011Q1", "2011Q2", "2011Q3", "2011Q4", "2012Q1", "2012Q2", "2012Q3", "2012Q4", "2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"]}], {"title": "Non-Employees", "barmode": "stack"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -12817,118 +13387,102 @@ div#notebook {
   <tbody>
     <tr>
       <th>0</th>
-      <td>2013-07-01T00:00:00.000Z</td>
-      <td>21.0</td>
-      <td>19.0</td>
-      <td>43.0</td>
-      <td>2013Q3</td>
+      <td>2010-01-01T00:00:00.000Z</td>
+      <td>5.0</td>
+      <td>6.0</td>
+      <td>20.0</td>
+      <td>2010Q1</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>2013-10-01T00:00:00.000Z</td>
-      <td>19.0</td>
-      <td>19.0</td>
-      <td>49.0</td>
-      <td>2013Q4</td>
+      <td>2010-04-01T00:00:00.000Z</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>18.0</td>
+      <td>2010Q2</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>2014-01-01T00:00:00.000Z</td>
-      <td>12.0</td>
-      <td>16.0</td>
-      <td>61.0</td>
-      <td>2014Q1</td>
+      <td>2010-07-01T00:00:00.000Z</td>
+      <td>6.0</td>
+      <td>8.0</td>
+      <td>21.0</td>
+      <td>2010Q3</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>2014-04-01T00:00:00.000Z</td>
-      <td>20.0</td>
-      <td>28.0</td>
-      <td>77.0</td>
-      <td>2014Q2</td>
+      <td>2010-10-01T00:00:00.000Z</td>
+      <td>9.0</td>
+      <td>10.0</td>
+      <td>17.0</td>
+      <td>2010Q4</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>2014-07-01T00:00:00.000Z</td>
+      <td>2011-01-01T00:00:00.000Z</td>
       <td>10.0</td>
-      <td>15.0</td>
-      <td>68.0</td>
-      <td>2014Q3</td>
+      <td>10.0</td>
+      <td>18.0</td>
+      <td>2011Q1</td>
     </tr>
     <tr>
       <th>5</th>
-      <td>2014-10-01T00:00:00.000Z</td>
-      <td>22.0</td>
-      <td>53.0</td>
-      <td>94.0</td>
-      <td>2014Q4</td>
+      <td>2011-04-01T00:00:00.000Z</td>
+      <td>9.0</td>
+      <td>8.0</td>
+      <td>24.0</td>
+      <td>2011Q2</td>
     </tr>
     <tr>
       <th>6</th>
-      <td>2015-01-01T00:00:00.000Z</td>
-      <td>23.0</td>
-      <td>53.0</td>
-      <td>107.0</td>
-      <td>2015Q1</td>
+      <td>2011-07-01T00:00:00.000Z</td>
+      <td>9.0</td>
+      <td>8.0</td>
+      <td>22.0</td>
+      <td>2011Q3</td>
     </tr>
     <tr>
       <th>7</th>
-      <td>2015-04-01T00:00:00.000Z</td>
-      <td>20.0</td>
-      <td>41.0</td>
-      <td>123.0</td>
-      <td>2015Q2</td>
+      <td>2011-10-01T00:00:00.000Z</td>
+      <td>9.0</td>
+      <td>9.0</td>
+      <td>21.0</td>
+      <td>2011Q4</td>
     </tr>
     <tr>
       <th>8</th>
-      <td>2015-07-01T00:00:00.000Z</td>
-      <td>19.0</td>
-      <td>33.0</td>
-      <td>122.0</td>
-      <td>2015Q3</td>
+      <td>2012-01-01T00:00:00.000Z</td>
+      <td>12.0</td>
+      <td>14.0</td>
+      <td>30.0</td>
+      <td>2012Q1</td>
     </tr>
     <tr>
       <th>9</th>
-      <td>2015-10-01T00:00:00.000Z</td>
-      <td>20.0</td>
-      <td>50.0</td>
-      <td>130.0</td>
-      <td>2015Q4</td>
+      <td>2012-04-01T00:00:00.000Z</td>
+      <td>11.0</td>
+      <td>12.0</td>
+      <td>35.0</td>
+      <td>2012Q2</td>
     </tr>
     <tr>
       <th>10</th>
-      <td>2016-01-01T00:00:00.000Z</td>
-      <td>26.0</td>
-      <td>60.0</td>
-      <td>126.0</td>
-      <td>2016Q1</td>
+      <td>2012-07-01T00:00:00.000Z</td>
+      <td>17.0</td>
+      <td>12.0</td>
+      <td>29.0</td>
+      <td>2012Q3</td>
     </tr>
     <tr>
       <th>11</th>
-      <td>2016-04-01T00:00:00.000Z</td>
-      <td>29.0</td>
-      <td>51.0</td>
-      <td>129.0</td>
-      <td>2016Q2</td>
+      <td>2012-10-01T00:00:00.000Z</td>
+      <td>12.0</td>
+      <td>11.0</td>
+      <td>24.0</td>
+      <td>2012Q4</td>
     </tr>
     <tr>
       <th>12</th>
-      <td>2016-07-01T00:00:00.000Z</td>
-      <td>32.0</td>
-      <td>58.0</td>
-      <td>106.0</td>
-      <td>2016Q3</td>
-    </tr>
-    <tr>
-      <th>13</th>
-      <td>2016-10-01T00:00:00.000Z</td>
-      <td>22.0</td>
-      <td>48.0</td>
-      <td>92.0</td>
-      <td>2016Q4</td>
-    </tr>
-    <tr>
-      <th>14</th>
       <td>2013-01-01T00:00:00.000Z</td>
       <td>17.0</td>
       <td>12.0</td>
@@ -12936,12 +13490,124 @@ div#notebook {
       <td>2013Q1</td>
     </tr>
     <tr>
-      <th>15</th>
+      <th>13</th>
       <td>2013-04-01T00:00:00.000Z</td>
       <td>19.0</td>
       <td>17.0</td>
-      <td>41.0</td>
+      <td>38.0</td>
       <td>2013Q2</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>2013-07-01T00:00:00.000Z</td>
+      <td>21.0</td>
+      <td>19.0</td>
+      <td>33.0</td>
+      <td>2013Q3</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>2013-10-01T00:00:00.000Z</td>
+      <td>19.0</td>
+      <td>19.0</td>
+      <td>37.0</td>
+      <td>2013Q4</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>2014-01-01T00:00:00.000Z</td>
+      <td>12.0</td>
+      <td>16.0</td>
+      <td>42.0</td>
+      <td>2014Q1</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>2014-04-01T00:00:00.000Z</td>
+      <td>20.0</td>
+      <td>28.0</td>
+      <td>57.0</td>
+      <td>2014Q2</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>2014-07-01T00:00:00.000Z</td>
+      <td>10.0</td>
+      <td>15.0</td>
+      <td>40.0</td>
+      <td>2014Q3</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>2014-10-01T00:00:00.000Z</td>
+      <td>22.0</td>
+      <td>53.0</td>
+      <td>70.0</td>
+      <td>2014Q4</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>2015-01-01T00:00:00.000Z</td>
+      <td>23.0</td>
+      <td>53.0</td>
+      <td>74.0</td>
+      <td>2015Q1</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>2015-04-01T00:00:00.000Z</td>
+      <td>20.0</td>
+      <td>41.0</td>
+      <td>74.0</td>
+      <td>2015Q2</td>
+    </tr>
+    <tr>
+      <th>22</th>
+      <td>2015-07-01T00:00:00.000Z</td>
+      <td>19.0</td>
+      <td>33.0</td>
+      <td>71.0</td>
+      <td>2015Q3</td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <td>2015-10-01T00:00:00.000Z</td>
+      <td>20.0</td>
+      <td>50.0</td>
+      <td>80.0</td>
+      <td>2015Q4</td>
+    </tr>
+    <tr>
+      <th>24</th>
+      <td>2016-01-01T00:00:00.000Z</td>
+      <td>26.0</td>
+      <td>60.0</td>
+      <td>85.0</td>
+      <td>2016Q1</td>
+    </tr>
+    <tr>
+      <th>25</th>
+      <td>2016-04-01T00:00:00.000Z</td>
+      <td>29.0</td>
+      <td>51.0</td>
+      <td>97.0</td>
+      <td>2016Q2</td>
+    </tr>
+    <tr>
+      <th>26</th>
+      <td>2016-07-01T00:00:00.000Z</td>
+      <td>32.0</td>
+      <td>58.0</td>
+      <td>83.0</td>
+      <td>2016Q3</td>
+    </tr>
+    <tr>
+      <th>27</th>
+      <td>2016-10-01T00:00:00.000Z</td>
+      <td>22.0</td>
+      <td>48.0</td>
+      <td>92.0</td>
+      <td>2016Q4</td>
     </tr>
   </tbody>
 </table>
@@ -12990,7 +13656,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="085f34fc-307c-43f9-a271-6a3aa93832ee" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("085f34fc-307c-43f9-a271-6a3aa93832ee", [{"type": "bar", "x": ["2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4", "2013Q1", "2013Q2"], "name": "Core", "y": [21.0, 19.0, 12.0, 20.0, 10.0, 22.0, 23.0, 20.0, 19.0, 20.0, 26.0, 29.0, 32.0, 22.0, 17.0, 19.0]}, {"type": "bar", "x": ["2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4", "2013Q1", "2013Q2"], "name": "Regular", "y": [19.0, 19.0, 16.0, 28.0, 15.0, 53.0, 53.0, 41.0, 33.0, 50.0, 60.0, 51.0, 58.0, 48.0, 12.0, 17.0]}, {"type": "bar", "x": ["2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4", "2013Q1", "2013Q2"], "name": "Casual", "y": [43.0, 49.0, 61.0, 77.0, 68.0, 94.0, 107.0, 123.0, 122.0, 130.0, 126.0, 129.0, 106.0, 92.0, 26.0, 41.0]}], {"barmode": "group", "title": "Global Contribution Groups"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="84f1568e-dec0-4265-a4d0-57d12f3802f8" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("84f1568e-dec0-4265-a4d0-57d12f3802f8", [{"name": "Core", "y": [5.0, 5.0, 6.0, 9.0, 10.0, 9.0, 9.0, 9.0, 12.0, 11.0, 17.0, 12.0, 17.0, 19.0, 21.0, 19.0, 12.0, 20.0, 10.0, 22.0, 23.0, 20.0, 19.0, 20.0, 26.0, 29.0, 32.0, 22.0], "type": "bar", "x": ["2010Q1", "2010Q2", "2010Q3", "2010Q4", "2011Q1", "2011Q2", "2011Q3", "2011Q4", "2012Q1", "2012Q2", "2012Q3", "2012Q4", "2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"]}, {"name": "Regular", "y": [6.0, 5.0, 8.0, 10.0, 10.0, 8.0, 8.0, 9.0, 14.0, 12.0, 12.0, 11.0, 12.0, 17.0, 19.0, 19.0, 16.0, 28.0, 15.0, 53.0, 53.0, 41.0, 33.0, 50.0, 60.0, 51.0, 58.0, 48.0], "type": "bar", "x": ["2010Q1", "2010Q2", "2010Q3", "2010Q4", "2011Q1", "2011Q2", "2011Q3", "2011Q4", "2012Q1", "2012Q2", "2012Q3", "2012Q4", "2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"]}, {"name": "Casual", "y": [20.0, 18.0, 21.0, 17.0, 18.0, 24.0, 22.0, 21.0, 30.0, 35.0, 29.0, 24.0, 26.0, 38.0, 33.0, 37.0, 42.0, 57.0, 40.0, 70.0, 74.0, 74.0, 71.0, 80.0, 85.0, 97.0, 83.0, 92.0], "type": "bar", "x": ["2010Q1", "2010Q2", "2010Q3", "2010Q4", "2011Q1", "2011Q2", "2011Q3", "2011Q4", "2012Q1", "2012Q2", "2012Q3", "2012Q4", "2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"]}], {"title": "Global Contribution Groups", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -13048,7 +13714,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="fc4261c6-5bc6-4200-aadb-4344a86b25b9" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("fc4261c6-5bc6-4200-aadb-4344a86b25b9", [{"type": "bar", "x": ["2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4", "2013Q1", "2013Q2"], "name": "Core", "y": [5.0, 5.0, 5.0, 8.0, 7.0, 10.0, 9.0, 11.0, 11.0, 11.0, 10.0, 10.0, 11.0, 10.0, 5.0, 4.0]}, {"type": "bar", "x": ["2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4", "2013Q1", "2013Q2"], "name": "Regular", "y": [5.0, 3.0, 3.0, 5.0, 4.0, 7.0, 7.0, 5.0, 7.0, 7.0, 5.0, 9.0, 9.0, 9.0, 1.0, 3.0]}, {"type": "bar", "x": ["2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4", "2013Q1", "2013Q2"], "name": "Casual", "y": [11.0, 13.0, 17.0, 18.0, 23.0, 34.0, 31.0, 28.0, 34.0, 32.0, 28.0, 24.0, 33.0, 26.0, 6.0, 7.0]}], {"barmode": "group", "title": "Employees"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="0ba9deb9-b990-48af-bec3-f9ef9ba9993e" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("0ba9deb9-b990-48af-bec3-f9ef9ba9993e", [{"name": "Core", "y": [2.0, 2.0, 3.0, 3.0, 2.0, 1.0, 2.0, 2.0, 2.0, 4.0, 4.0, 3.0, 5.0, 4.0, 5.0, 5.0, 5.0, 8.0, 7.0, 10.0, 9.0, 11.0, 11.0, 11.0, 10.0, 10.0, 11.0, 10.0], "type": "bar", "x": ["2010Q1", "2010Q2", "2010Q3", "2010Q4", "2011Q1", "2011Q2", "2011Q3", "2011Q4", "2012Q1", "2012Q2", "2012Q3", "2012Q4", "2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"]}, {"name": "Regular", "y": [1.0, 2.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 3.0, 2.0, 1.0, 1.0, 3.0, 5.0, 3.0, 3.0, 5.0, 4.0, 7.0, 7.0, 5.0, 7.0, 7.0, 5.0, 9.0, 9.0, 9.0], "type": "bar", "x": ["2010Q1", "2010Q2", "2010Q3", "2010Q4", "2011Q1", "2011Q2", "2011Q3", "2011Q4", "2012Q1", "2012Q2", "2012Q3", "2012Q4", "2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"]}, {"name": "Casual", "y": [5.0, 9.0, 3.0, 3.0, 6.0, 3.0, 1.0, 2.0, 5.0, 3.0, 3.0, 3.0, 6.0, 6.0, 9.0, 8.0, 10.0, 12.0, 15.0, 25.0, 20.0, 13.0, 21.0, 20.0, 15.0, 15.0, 30.0, 26.0], "type": "bar", "x": ["2010Q1", "2010Q2", "2010Q3", "2010Q4", "2011Q1", "2011Q2", "2011Q3", "2011Q4", "2012Q1", "2012Q2", "2012Q3", "2012Q4", "2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"]}], {"title": "Employees", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -13093,7 +13759,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="d966e8bc-0ebd-43f9-9e61-664557e97e1f" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("d966e8bc-0ebd-43f9-9e61-664557e97e1f", [{"type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4", "2014Q3"], "name": "Core", "y": [14.0, 16.0, 16.0, 15.0, 7.0, 15.0, 34.0, 44.0, 32.0, 21.0, 26.0, 48.0, 38.0, 42.0, 39.0, 12.0]}, {"type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4", "2014Q3"], "name": "Regular", "y": [10.0, 15.0, 15.0, 17.0, 14.0, 23.0, 46.0, 47.0, 48.0, 38.0, 45.0, 62.0, 62.0, 49.0, 51.0, 16.0]}, {"type": "bar", "x": ["2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4", "2014Q3"], "name": "Casual", "y": [19.0, 32.0, 31.0, 34.0, 43.0, 56.0, 38.0, 45.0, 60.0, 63.0, 79.0, 59.0, 66.0, 52.0, 27.0, 31.0]}], {"barmode": "group", "title": "Non-Employees"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="c7be768c-4f48-4ec4-a3a0-e1ccdb000888" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("c7be768c-4f48-4ec4-a3a0-e1ccdb000888", [{"name": "Core", "y": [5.0, 3.0, 5.0, 8.0, 8.0, 8.0, 7.0, 7.0, 11.0, 7.0, 14.0, 11.0, 14.0, 16.0, 16.0, 15.0, 7.0, 15.0, 12.0, 34.0, 44.0, 32.0, 21.0, 26.0, 48.0, 38.0, 42.0, 39.0], "type": "bar", "x": ["2010Q1", "2010Q2", "2010Q3", "2010Q4", "2011Q1", "2011Q2", "2011Q3", "2011Q4", "2012Q1", "2012Q2", "2012Q3", "2012Q4", "2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"]}, {"name": "Regular", "y": [8.0, 4.0, 12.0, 9.0, 9.0, 6.0, 8.0, 8.0, 10.0, 11.0, 10.0, 8.0, 10.0, 15.0, 15.0, 17.0, 14.0, 23.0, 16.0, 46.0, 47.0, 48.0, 38.0, 45.0, 62.0, 62.0, 49.0, 51.0], "type": "bar", "x": ["2010Q1", "2010Q2", "2010Q3", "2010Q4", "2011Q1", "2011Q2", "2011Q3", "2011Q4", "2012Q1", "2012Q2", "2012Q3", "2012Q4", "2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"]}, {"name": "Casual", "y": [10.0, 8.0, 11.0, 12.0, 12.0, 21.0, 19.0, 18.0, 25.0, 30.0, 25.0, 21.0, 19.0, 30.0, 23.0, 27.0, 31.0, 42.0, 11.0, 23.0, 23.0, 26.0, 25.0, 41.0, 31.0, 43.0, 32.0, 27.0], "type": "bar", "x": ["2010Q1", "2010Q2", "2010Q3", "2010Q4", "2011Q1", "2011Q2", "2011Q3", "2011Q4", "2012Q1", "2012Q2", "2012Q3", "2012Q4", "2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4"]}], {"title": "Non-Employees", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>

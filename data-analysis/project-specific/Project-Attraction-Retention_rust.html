@@ -11809,6 +11809,13 @@ div#notebook {
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">create_search</span><span class="p">(</span><span class="n">source</span><span class="p">):</span>
     <span class="n">s</span> <span class="o">=</span> <span class="n">Search</span><span class="p">(</span><span class="n">using</span><span class="o">=</span><span class="n">es_conn</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">source</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">source</span> <span class="o">==</span> <span class="s1">&#39;git&#39;</span> <span class="ow">or</span> <span class="n">source</span> <span class="o">==</span> <span class="s1">&#39;github&#39;</span><span class="p">:</span>
+        <span class="n">github</span> <span class="o">=</span> <span class="n">projects</span><span class="p">[</span><span class="s1">&#39;Github&#39;</span><span class="p">]</span>
+        <span class="n">repos</span> <span class="o">=</span> <span class="n">github</span><span class="p">[</span><span class="s1">&#39;Repo&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="c1">#print (repos)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">repo_name</span><span class="o">=</span><span class="n">repos</span><span class="p">)</span>
+    
     <span class="c1"># TODO: Add bot and merges filtering.</span>
     <span class="c1">#s = s.filter(&#39;range&#39;, grimoire_creation_date={&#39;gt&#39;: &#39;now/M-2y&#39;, &#39;lt&#39;: &#39;now/M&#39;})</span>
     <span class="c1">#s.params(timeout=100)</span>
@@ -12012,198 +12019,198 @@ div#notebook {
 
 <div class="output_text output_subarea output_execute_result">
 <pre>[                                        author        first_commit  \
- 1449  149ad981c7f8acd65b9cb9a3f306833fc4b6ec8e 2016-12-31 12:01:23   
- 1745  57a1cf0d7a35c3f77475953873212148d3c01e1b 2016-12-30 21:55:02   
- 1522  26e5b20e7ccff92ec895b5f4af3f5f0b9a5b0f0a 2016-12-30 14:34:47   
- 1006  09a899922407e40e04fa6ab865da040f06c0d904 2016-12-30 12:22:11   
- 2123  c19b5436d45eb06bb0d9a16accd4a16da1ad9765 2016-12-29 14:21:07   
- 2035  a067de6a2df3134c3a54484d2c6c591e33292310 2016-12-28 14:40:00   
- 1089  37722e54fac83d1578a39a468fab477268003f2a 2016-12-28 11:11:17   
- 2272  f9c29c898de1dd801116553fd199756e8578cb16 2016-12-27 02:26:30   
- 1921  8029b8cbba702813f9db5fee076cd51cba88ea6b 2016-12-26 11:57:01   
- 1706  4ec03c3a988487c297943fbc52c059aecb51246c 2016-12-24 17:06:15   
- 1327  f31c3fa4696f8cbb1908c99ee9cdf46deba44bc8 2016-12-22 23:44:12   
- 643   b9d7847955b2ce10cbfdc9649fecff40c4649577 2016-12-22 22:01:15   
- 2259  f518dbc5594b68333659a43ea4c1284d33dc0c82 2016-12-18 22:45:04   
- 1437  11ef1cbca7c7366f64beb5a7f2309cb18d25c382 2016-12-18 14:34:22   
- 1341  ff3e7a0e12d913a61213f4c9162724e81043b49e 2016-12-17 23:10:18   
- 1953  86fba89fdcf49653029cb7449069ec0d8c257fda 2016-12-17 12:32:02   
- 2204  dde79923a762246df9b694a17fce0a8260df7774 2016-12-16 14:14:34   
- 2128  c2564caa36897a9751cfa8f6aec031ca65dc87f6 2016-12-14 13:30:04   
- 1738  5618e007dc7138d07dd6160c0cd7e19a902adf07 2016-12-08 22:37:36   
- 2074  ae2ddcaaaed3f7db6ce4cd1712108826a4dcf9f9 2016-12-08 20:56:24   
- 1967  8a9b98e2a107863bea3652457ebd9a8f00f966ea 2016-12-07 20:50:44   
- 2165  cf281e73a90dce92626b4156ebb452c28610933a 2016-12-07 16:23:21   
- 1335  fbd777a211c3aacac989834da4d3cb797edc8090 2016-12-07 08:47:31   
- 1334  faab0cc7448ca5de78076981eb5ecd37d7ec75fe 2016-12-04 16:38:27   
- 1046  1e3d62074c2b7f544e8b4bb6474ad9c7d68401ba 2016-12-04 14:57:43   
- 2099  b696dacd0a83be8f348aabed32238ae7c07d74df 2016-12-01 12:01:07   
- 2156  cda52afff7cebccff6435a523953cb6e6fc17082 2016-11-29 23:10:30   
- 2004  96ebfb7e1423cd67422fa5e6ff6e68f70ab96167 2016-11-27 15:01:59   
- 708   31dcd755cecdaccfd01a79db3b6e6ff5eddc0a9f 2016-11-26 00:23:25   
- 2237  ea9805a368fb6948372e9838bd3ae705cd9b0d45 2016-11-24 22:12:36   
+ 1462  149ad981c7f8acd65b9cb9a3f306833fc4b6ec8e 2016-12-31 12:01:23   
+ 1759  57a1cf0d7a35c3f77475953873212148d3c01e1b 2016-12-30 21:55:02   
+ 1535  26e5b20e7ccff92ec895b5f4af3f5f0b9a5b0f0a 2016-12-30 14:34:47   
+ 1015  09a899922407e40e04fa6ab865da040f06c0d904 2016-12-30 12:22:11   
+ 2137  c19b5436d45eb06bb0d9a16accd4a16da1ad9765 2016-12-29 14:21:07   
+ 2048  a067de6a2df3134c3a54484d2c6c591e33292310 2016-12-28 14:40:00   
+ 1096  37722e54fac83d1578a39a468fab477268003f2a 2016-12-28 11:11:17   
+ 2131  be7f54d1d9bdb9670d03199e686f1879c83c0676 2016-12-27 18:40:18   
+ 2289  f9c29c898de1dd801116553fd199756e8578cb16 2016-12-27 02:26:30   
+ 1935  8029b8cbba702813f9db5fee076cd51cba88ea6b 2016-12-26 11:57:01   
+ 1720  4ec03c3a988487c297943fbc52c059aecb51246c 2016-12-24 17:06:15   
+ 1338  f31c3fa4696f8cbb1908c99ee9cdf46deba44bc8 2016-12-22 23:44:12   
+ 2275  f518dbc5594b68333659a43ea4c1284d33dc0c82 2016-12-18 22:45:04   
+ 1450  11ef1cbca7c7366f64beb5a7f2309cb18d25c382 2016-12-18 14:34:22   
+ 642   a4ba1d9883c7180ca8e50802a9848fd21a4559ad 2016-12-18 11:31:14   
+ 1352  ff3e7a0e12d913a61213f4c9162724e81043b49e 2016-12-17 23:10:18   
+ 1967  86fba89fdcf49653029cb7449069ec0d8c257fda 2016-12-17 12:32:02   
+ 2220  dde79923a762246df9b694a17fce0a8260df7774 2016-12-16 14:14:34   
+ 1165  5aefd8fc8457ab68d95f5ebe0f9a90465a255bc6 2016-12-14 22:47:52   
+ 2142  c2564caa36897a9751cfa8f6aec031ca65dc87f6 2016-12-14 13:30:04   
+ 2215  dade84edafe863f14c432e36577b359738378c1b 2016-12-12 16:46:29   
+ 1752  5618e007dc7138d07dd6160c0cd7e19a902adf07 2016-12-08 22:37:36   
+ 2087  ae2ddcaaaed3f7db6ce4cd1712108826a4dcf9f9 2016-12-08 20:56:24   
+ 1981  8a9b98e2a107863bea3652457ebd9a8f00f966ea 2016-12-07 20:50:44   
+ 2180  cf281e73a90dce92626b4156ebb452c28610933a 2016-12-07 16:23:21   
+ 1346  fbd777a211c3aacac989834da4d3cb797edc8090 2016-12-07 08:47:31   
+ 1345  faab0cc7448ca5de78076981eb5ecd37d7ec75fe 2016-12-04 16:38:27   
+ 1053  1e3d62074c2b7f544e8b4bb6474ad9c7d68401ba 2016-12-04 14:57:43   
+ 2112  b696dacd0a83be8f348aabed32238ae7c07d74df 2016-12-01 12:01:07   
+ 650   b9856523e163d3fdce8ed1af8311099b697be7b2 2016-11-30 08:49:00   
  ...                                        ...                 ...   
  23    07bb0097cd5be6ccc137a77c5f339f23a3f0f596 2011-05-25 15:25:48   
  14    82782d61d520190116fec9e67bdc2a1e240593e6 2011-05-17 20:35:46   
  43    780827bd7ed3c12a31a64e601bdbad3cf42775ea 2011-05-16 18:05:21   
  22    f537b7e9a9d081958222825becde1eb684b72198 2011-05-16 15:20:15   
- 507   0d1907fa63be66b4cfbd23566d8f85c207dafc29 2011-05-05 14:08:52   
+ 515   0d1907fa63be66b4cfbd23566d8f85c207dafc29 2011-05-05 14:08:52   
  6     91dfc9eec717efdf81affc16fedcea176ac75df5 2011-03-14 17:28:11   
  25    301c1ae51049cb9efa33cfb71e6b9431808b2018 2011-03-14 16:44:12   
  8     46b700f7f98ffc7792b600e8f8ba204d34042cf7 2011-03-04 07:22:43   
- 1773  5c8b59d844d7d4b1d79a900c60c583c1a6cb5fcd 2011-01-27 02:48:54   
- 1546  2aca9677b9496e72cdd258ddf2c6db2aa077f271 2011-01-17 18:09:35   
+ 1787  5c8b59d844d7d4b1d79a900c60c583c1a6cb5fcd 2011-01-27 02:48:54   
+ 1559  2aca9677b9496e72cdd258ddf2c6db2aa077f271 2011-01-17 18:09:35   
  41    392ff5add13daee372f439faae454b04c831381a 2010-12-24 16:56:08   
- 238   3a7e460e186ccc5d86922a11ccba04833306b3f3 2010-11-27 14:59:33   
+ 239   3a7e460e186ccc5d86922a11ccba04833306b3f3 2010-11-27 14:59:33   
  105   03e6f642bc6fc389b280735383f34bd777f9605c 2010-10-18 17:00:28   
- 1463  18ef5ebe32da16e79bc370f4824b570be1074e39 2010-09-20 22:08:28   
+ 1477  18ef5ebe32da16e79bc370f4824b570be1074e39 2010-09-20 22:08:28   
  73    0aad9ed784fa31953f5bcfd7797e786fa44d2cf5 2010-09-14 01:43:13   
- 2280  fc077021dfac2f764734096b3f80634e3e0caf34 2010-09-14 01:43:00   
- 1466  19ccd3737140d6a9ebd54dbfa7d4155077daf403 2010-09-14 01:42:56   
- 795   04b8ade49f843e61c912c2e95ade259a584f3973 2010-08-05 03:44:29   
- 494   d2330cfc44a4102bbabccee6f97340016eb7d4a5 2010-08-05 03:44:29   
+ 2297  fc077021dfac2f764734096b3f80634e3e0caf34 2010-09-14 01:43:00   
+ 1480  19ccd3737140d6a9ebd54dbfa7d4155077daf403 2010-09-14 01:42:56   
+ 502   d2330cfc44a4102bbabccee6f97340016eb7d4a5 2010-08-05 03:44:29   
+ 805   04b8ade49f843e61c912c2e95ade259a584f3973 2010-08-05 03:44:29   
  87    5669df21931df9b3a5fc5616b58422aca94b1286 2010-07-19 14:05:18   
  0     0f4a88b35a4dbd766f5c0fd225aeff6259a4655f 2010-07-17 06:50:18   
- 928   97ab021d664c07bdb040a8a6f5c42e805cf82cf8 2010-07-13 02:51:52   
- 2157  cdb438b714cf3fd08f928b9ce8c2c69ef8d04557 2010-07-12 23:14:28   
- 131   46a24c78718b1c36c7f94c84eacdfeab551d584b 2010-07-10 15:43:48   
- 1570  2f01e65549bb2ecd12fd0dcaaf8502eea26be4e6 2010-07-10 05:20:05   
- 1162  60fb317c597989659d947eaa8e3ce6fb5153ee04 2010-07-09 15:23:12   
- 71    0510befb97d662ac58d25a553a55d043d4add67a 2010-07-08 17:01:25   
+ 939   97ab021d664c07bdb040a8a6f5c42e805cf82cf8 2010-07-13 02:51:52   
+ 2172  cdb438b714cf3fd08f928b9ce8c2c69ef8d04557 2010-07-12 23:14:28   
+ 132   46a24c78718b1c36c7f94c84eacdfeab551d584b 2010-07-10 15:43:48   
+ 1584  2f01e65549bb2ecd12fd0dcaaf8502eea26be4e6 2010-07-10 05:20:05   
+ 1170  60fb317c597989659d947eaa8e3ce6fb5153ee04 2010-07-09 15:23:12   
+ 69    0510befb97d662ac58d25a553a55d043d4add67a 2010-07-08 17:01:25   
  4     9a4f7d1c440e63eae393ac33318ac2c5d98228ed 2010-06-29 19:53:24   
- 69    0ee9b807fc53aef32f980771423c6f09f554ede1 2010-06-24 08:13:32   
+ 71    0ee9b807fc53aef32f980771423c6f09f554ede1 2010-06-24 08:13:32   
  5     276007debe0f2fe81767eeb2f98ebd0a7e1fe28e 2010-06-16 14:30:45   
  
               last_commit            org  \
- 1449 2016-12-31 12:01:23      Community   
- 1745 2016-12-30 21:55:02      Community   
- 1522 2016-12-30 14:34:47      Community   
- 1006 2016-12-30 13:21:21      Community   
- 2123 2016-12-29 14:21:07      Community   
- 2035 2016-12-28 14:40:00      Community   
- 1089 2016-12-28 12:57:50      Community   
- 2272 2016-12-27 02:26:30      Community   
- 1921 2016-12-26 11:57:01      Community   
- 1706 2016-12-24 17:06:15      Community   
- 1327 2016-12-25 05:43:25      Community   
- 643  2016-12-30 10:38:53      Community   
- 2259 2016-12-18 22:45:04      Community   
- 1437 2016-12-18 14:34:22      Community   
- 1341 2016-12-26 07:26:53      Community   
- 1953 2016-12-17 12:32:02      Community   
- 2204 2016-12-16 14:14:34      Community   
- 2128 2016-12-14 13:30:04      Community   
- 1738 2016-12-08 22:37:36      Community   
- 2074 2016-12-08 20:56:24      Community   
- 1967 2016-12-07 20:50:44      Community   
- 2165 2016-12-07 16:23:21      Community   
- 1335 2016-12-27 09:12:51      Community   
- 1334 2016-12-12 15:34:09      Community   
- 1046 2016-12-05 08:26:48      Community   
- 2099 2016-12-01 12:01:07      Community   
- 2156 2016-11-29 23:10:30      Community   
- 2004 2016-11-27 15:01:59      Community   
- 708  2016-11-26 22:05:51      Community   
- 2237 2016-11-24 22:12:36      Community   
+ 1462 2016-12-31 12:01:23      Community   
+ 1759 2016-12-30 21:55:02      Community   
+ 1535 2016-12-30 14:34:47      Community   
+ 1015 2016-12-30 13:21:21      Community   
+ 2137 2016-12-29 14:21:07      Community   
+ 2048 2016-12-28 14:40:00      Community   
+ 1096 2016-12-28 12:57:50      Community   
+ 2131 2016-12-27 18:40:18      Community   
+ 2289 2016-12-27 02:26:30      Community   
+ 1935 2016-12-26 11:57:01      Community   
+ 1720 2016-12-24 17:06:15      Community   
+ 1338 2016-12-25 05:43:25      Community   
+ 2275 2016-12-18 22:45:04      Community   
+ 1450 2016-12-18 14:34:22      Community   
+ 642  2016-12-20 15:29:17      Community   
+ 1352 2016-12-26 07:26:53      Community   
+ 1967 2016-12-17 12:32:02      Community   
+ 2220 2016-12-16 14:14:34      Community   
+ 1165 2016-12-14 23:32:40  Mozilla Staff   
+ 2142 2016-12-14 13:30:04      Community   
+ 2215 2016-12-12 16:46:29      Community   
+ 1752 2016-12-08 22:37:36      Community   
+ 2087 2016-12-08 20:56:24      Community   
+ 1981 2016-12-07 20:50:44      Community   
+ 2180 2016-12-07 16:23:21      Community   
+ 1346 2016-12-27 09:12:51      Community   
+ 1345 2016-12-12 15:34:09      Community   
+ 1053 2016-12-05 08:26:48      Community   
+ 2112 2016-12-01 12:01:07      Community   
+ 650  2016-12-02 19:43:37      Community   
  ...                  ...            ...   
  23   2013-08-22 17:00:12  Mozilla Staff   
  14   2016-12-15 09:15:19      Community   
  43   2014-05-11 18:58:58      Community   
  22   2013-11-28 13:03:42  Mozilla Staff   
- 507  2011-07-01 00:56:49      Community   
+ 515  2011-07-01 00:56:49      Community   
  6    2013-11-13 22:41:50  Mozilla Staff   
  25   2014-03-16 20:12:49  Mozilla Staff   
  8    2012-05-11 06:18:23      Community   
- 1773 2011-01-27 02:48:54  Mozilla Staff   
- 1546 2011-01-17 18:09:35      Community   
+ 1787 2011-01-27 02:48:54  Mozilla Staff   
+ 1559 2011-01-17 18:09:35      Community   
  41   2011-08-11 19:09:52  Mozilla Staff   
- 238  2011-08-03 21:46:24  Mozilla Staff   
+ 239  2011-08-03 21:46:24  Mozilla Staff   
  105  2016-11-10 16:02:37  Mozilla Staff   
- 1463 2010-09-20 22:08:28      Community   
+ 1477 2010-09-20 22:08:28      Community   
  73   2014-11-11 13:53:39  Mozilla Staff   
- 2280 2010-09-14 01:43:00      Community   
- 1466 2010-09-14 01:42:56  Mozilla Staff   
- 795  2010-08-06 17:15:55      Community   
- 494  2010-08-31 06:07:32      Community   
+ 2297 2010-09-14 01:43:00      Community   
+ 1480 2010-09-14 01:42:56  Mozilla Staff   
+ 502  2010-08-31 06:07:32      Community   
+ 805  2010-08-06 17:15:55      Community   
  87   2010-09-15 11:56:45  Mozilla Staff   
  0    2016-12-30 21:47:47  Mozilla Staff   
- 928  2013-11-24 22:29:48  Mozilla Staff   
- 2157 2010-07-12 23:14:28  Mozilla Staff   
- 131  2015-09-16 20:37:45      Community   
- 1570 2010-07-10 05:20:05  Mozilla Staff   
- 1162 2010-07-10 12:11:07      Community   
- 71   2016-11-10 09:28:56  Mozilla Staff   
+ 939  2013-11-24 22:29:48  Mozilla Staff   
+ 2172 2010-07-12 23:14:28  Mozilla Staff   
+ 132  2015-09-16 20:37:45      Community   
+ 1584 2010-07-10 05:20:05  Mozilla Staff   
+ 1170 2010-07-10 12:11:07      Community   
+ 69   2016-11-10 09:28:56  Mozilla Staff   
  4    2016-09-21 12:17:56  Mozilla Staff   
- 69   2010-09-20 17:42:14  Mozilla Staff   
+ 71   2010-09-20 17:42:14  Mozilla Staff   
  5    2015-04-17 20:02:55  Mozilla Staff   
  
                                                repo_name  active_years project  
- 1449              https://github.com/rust-lang/rust.git           0.0    Rust  
- 1745              https://github.com/rust-lang/rust.git           0.0    Rust  
- 1522              https://github.com/rust-lang/rust.git           0.0    Rust  
- 1006              https://github.com/rust-lang/rust.git           0.0    Rust  
- 2123              https://github.com/rust-lang/rust.git           0.0    Rust  
- 2035              https://github.com/rust-lang/rust.git           0.0    Rust  
- 1089              https://github.com/rust-lang/rust.git           0.0    Rust  
- 2272              https://github.com/rust-lang/rust.git           0.0    Rust  
- 1921              https://github.com/rust-lang/rust.git           0.0    Rust  
- 1706          https://github.com/rust-lang/rust-www.git           0.0    Rust  
- 1327         https://github.com/rust-lang/rust-mode.git           0.0    Rust  
- 643               https://github.com/rust-lang/rust.git           0.0    Rust  
- 2259      https://github.com/rust-lang/rust-playpen.git           0.0    Rust  
- 1437              https://github.com/rust-lang/book.git           0.0    Rust  
- 1341              https://github.com/rust-lang/book.git           0.0    Rust  
- 1953              https://github.com/rust-lang/book.git           0.0    Rust  
- 2204              https://github.com/rust-lang/rfcs.git           0.0    Rust  
- 2128   https://github.com/rust-lang/rust-guidelines.git           0.0    Rust  
- 1738              https://github.com/rust-lang/rust.git           0.0    Rust  
- 2074             https://github.com/rust-lang/regex.git           0.0    Rust  
- 1967             https://github.com/rust-lang/regex.git           0.0    Rust  
- 2165          https://github.com/rust-lang/rust-www.git           0.0    Rust  
- 1335              https://github.com/rust-lang/rfcs.git           0.0    Rust  
- 1334              https://github.com/rust-lang/rust.git           0.0    Rust  
- 1046              https://github.com/rust-lang/book.git           0.0    Rust  
- 2099              https://github.com/rust-lang/rust.git           0.0    Rust  
- 2156              https://github.com/rust-lang/book.git           0.0    Rust  
- 2004          https://github.com/rust-lang/rust.vim.git           0.0    Rust  
- 708          https://github.com/rust-lang/crates.io.git           0.0    Rust  
- 2237              https://github.com/rust-lang/rust.git           0.0    Rust  
+ 1462              https://github.com/rust-lang/rust.git           0.0    Rust  
+ 1759              https://github.com/rust-lang/rust.git           0.0    Rust  
+ 1535              https://github.com/rust-lang/rust.git           0.0    Rust  
+ 1015              https://github.com/rust-lang/rust.git           0.0    Rust  
+ 2137              https://github.com/rust-lang/rust.git           0.0    Rust  
+ 2048              https://github.com/rust-lang/rust.git           0.0    Rust  
+ 1096              https://github.com/rust-lang/rust.git           0.0    Rust  
+ 2131              https://github.com/rust-lang/libc.git           0.0    Rust  
+ 2289              https://github.com/rust-lang/rust.git           0.0    Rust  
+ 1935              https://github.com/rust-lang/rust.git           0.0    Rust  
+ 1720          https://github.com/rust-lang/rust-www.git           0.0    Rust  
+ 1338         https://github.com/rust-lang/rust-mode.git           0.0    Rust  
+ 2275      https://github.com/rust-lang/rust-playpen.git           0.0    Rust  
+ 1450              https://github.com/rust-lang/book.git           0.0    Rust  
+ 642               https://github.com/rust-lang/libc.git           0.0    Rust  
+ 1352              https://github.com/rust-lang/book.git           0.0    Rust  
+ 1967              https://github.com/rust-lang/book.git           0.0    Rust  
+ 2220              https://github.com/rust-lang/rfcs.git           0.0    Rust  
+ 1165              https://github.com/rust-lang/libc.git           0.0    Rust  
+ 2142   https://github.com/rust-lang/rust-guidelines.git           0.0    Rust  
+ 2215              https://github.com/rust-lang/libc.git           0.0    Rust  
+ 1752              https://github.com/rust-lang/rust.git           0.0    Rust  
+ 2087             https://github.com/rust-lang/regex.git           0.0    Rust  
+ 1981             https://github.com/rust-lang/regex.git           0.0    Rust  
+ 2180          https://github.com/rust-lang/rust-www.git           0.0    Rust  
+ 1346              https://github.com/rust-lang/rfcs.git           0.0    Rust  
+ 1345              https://github.com/rust-lang/rust.git           0.0    Rust  
+ 1053              https://github.com/rust-lang/book.git           0.0    Rust  
+ 2112              https://github.com/rust-lang/rust.git           0.0    Rust  
+ 650              https://github.com/rust-lang/cargo.git           0.0    Rust  
  ...                                                 ...           ...     ...  
  23                https://github.com/rust-lang/rust.git           2.0    Rust  
  14                https://github.com/rust-lang/rust.git           5.0    Rust  
  43                https://github.com/rust-lang/rust.git           2.0    Rust  
  22    https://github.com/rust-lang/rust-wiki-backup.git           2.0    Rust  
- 507               https://github.com/rust-lang/rust.git           0.0    Rust  
+ 515               https://github.com/rust-lang/rust.git           0.0    Rust  
  6     https://github.com/rust-lang/rust-wiki-backup.git           2.0    Rust  
  25    https://github.com/rust-lang/rust-wiki-backup.git           3.0    Rust  
  8                 https://github.com/rust-lang/rust.git           1.0    Rust  
- 1773              https://github.com/rust-lang/rust.git           0.0    Rust  
- 1546              https://github.com/rust-lang/rust.git           0.0    Rust  
+ 1787              https://github.com/rust-lang/rust.git           0.0    Rust  
+ 1559              https://github.com/rust-lang/rust.git           0.0    Rust  
  41                https://github.com/rust-lang/rust.git           0.0    Rust  
- 238   https://github.com/rust-lang/rust-wiki-backup.git           0.0    Rust  
+ 239   https://github.com/rust-lang/rust-wiki-backup.git           0.0    Rust  
  105               https://github.com/rust-lang/rust.git           6.0    Rust  
- 1463              https://github.com/rust-lang/rust.git           0.0    Rust  
+ 1477              https://github.com/rust-lang/rust.git           0.0    Rust  
  73    https://github.com/rust-lang/rust-wiki-backup.git           4.0    Rust  
- 2280  https://github.com/rust-lang/rust-wiki-backup.git           0.0    Rust  
- 1466  https://github.com/rust-lang/rust-wiki-backup.git           0.0    Rust  
- 795               https://github.com/rust-lang/rust.git           0.0    Rust  
- 494               https://github.com/rust-lang/rust.git           0.0    Rust  
+ 2297  https://github.com/rust-lang/rust-wiki-backup.git           0.0    Rust  
+ 1480  https://github.com/rust-lang/rust-wiki-backup.git           0.0    Rust  
+ 502               https://github.com/rust-lang/rust.git           0.0    Rust  
+ 805               https://github.com/rust-lang/rust.git           0.0    Rust  
  87                https://github.com/rust-lang/rust.git           0.0    Rust  
  0                 https://github.com/rust-lang/rust.git           6.0    Rust  
- 928               https://github.com/rust-lang/rust.git           3.0    Rust  
- 2157              https://github.com/rust-lang/rust.git           0.0    Rust  
- 131               https://github.com/rust-lang/rust.git           5.0    Rust  
- 1570              https://github.com/rust-lang/rust.git           0.0    Rust  
- 1162              https://github.com/rust-lang/rust.git           0.0    Rust  
- 71                https://github.com/rust-lang/rust.git           6.0    Rust  
+ 939               https://github.com/rust-lang/rust.git           3.0    Rust  
+ 2172              https://github.com/rust-lang/rust.git           0.0    Rust  
+ 132               https://github.com/rust-lang/rust.git           5.0    Rust  
+ 1584              https://github.com/rust-lang/rust.git           0.0    Rust  
+ 1170              https://github.com/rust-lang/rust.git           0.0    Rust  
+ 69                https://github.com/rust-lang/rust.git           6.0    Rust  
  4                 https://github.com/rust-lang/rust.git           6.0    Rust  
- 69                https://github.com/rust-lang/rust.git           0.0    Rust  
+ 71                https://github.com/rust-lang/rust.git           0.0    Rust  
  5                 https://github.com/rust-lang/rust.git           4.0    Rust  
  
- [2290 rows x 7 columns],
+ [2307 rows x 7 columns],
                                          author        first_commit  \
  1419  71b45c8ce6448259a93e45d66dffab8ab7468835 2015-12-31 18:13:39   
- 1215  3975871ceff73b48d4c04038e622dade54b0738a 2015-12-30 15:25:59   
+ 1216  3975871ceff73b48d4c04038e622dade54b0738a 2015-12-30 15:25:59   
  992   dba4d7b301d655f6f33322f08a9894695d3a4430 2015-12-29 09:43:45   
  1649  d2f08563c9977f012c7ab84b33d1568e22665d12 2015-12-28 23:53:38   
  939   8f602223673aa977acd96d971237474160ca5b8b 2015-12-28 21:09:06   
@@ -12266,7 +12273,7 @@ div#notebook {
  
               last_commit            org  \
  1419 2015-12-31 18:13:39      Community   
- 1215 2015-12-30 15:25:59      Community   
+ 1216 2015-12-30 15:25:59      Community   
  992  2015-12-29 09:52:22      Community   
  1649 2015-12-28 23:53:38      Community   
  939  2015-12-29 06:37:06      Community   
@@ -12329,7 +12336,7 @@ div#notebook {
  
                                                repo_name  active_years project  
  1419              https://github.com/rust-lang/rust.git           0.0    Rust  
- 1215              https://github.com/rust-lang/libc.git           0.0    Rust  
+ 1216              https://github.com/rust-lang/libc.git           0.0    Rust  
  992               https://github.com/rust-lang/book.git           0.0    Rust  
  1649   https://github.com/rust-lang/rust-by-example.git           0.0    Rust  
  939               https://github.com/rust-lang/rust.git           0.0    Rust  
@@ -12969,6 +12976,124 @@ div#notebook {
 </div>
 
 </div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># AUTHORS GROUPED BY FIRST COMMIT DATE</span>
+
+<span class="n">attraction_dfs</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">authors_df</span> <span class="ow">in</span> <span class="n">authors_dfs</span><span class="p">:</span>
+    <span class="n">attraction_df</span> <span class="o">=</span> <span class="n">authors_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">attraction_df</span><span class="p">[</span><span class="s1">&#39;first_commit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">attraction_df</span><span class="p">[</span><span class="s1">&#39;first_commit&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">pandas</span><span class="o">.</span><span class="n">Period</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="s1">&#39;A&#39;</span><span class="p">)))</span>
+    <span class="n">attraction_df</span><span class="p">[</span><span class="s1">&#39;first_commit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">attraction_df</span><span class="p">[</span><span class="s1">&#39;first_commit&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">attraction_df</span> <span class="o">=</span> <span class="n">attraction_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;first_commit&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s1">&#39;author&#39;</span><span class="p">:</span> <span class="n">pandas</span><span class="o">.</span><span class="n">Series</span><span class="o">.</span><span class="n">nunique</span><span class="p">})</span>
+    <span class="n">attraction_df</span> <span class="o">=</span> <span class="n">attraction_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>  
+    <span class="n">attraction_dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attraction_df</span><span class="p">)</span>  
+
+<span class="n">attraction_dfs</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[7]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[   first_commit  author
+ 0         -2016     567
+ 1         -2015     719
+ 2         -2014     588
+ 3         -2013     278
+ 4         -2012     105
+ 5         -2011      30
+ 6         -2010      20,    first_commit  author
+ 0         -2015     719
+ 1         -2014     588
+ 2         -2013     278
+ 3         -2012     105
+ 4         -2011      30
+ 5         -2010      20,    first_commit  author
+ 0         -2014     588
+ 1         -2013     278
+ 2         -2012     105
+ 3         -2011      30
+ 4         -2010      20,    first_commit  author
+ 0         -2013     278
+ 1         -2012     105
+ 2         -2011      30
+ 3         -2010      20,    first_commit  author
+ 0         -2012     105
+ 1         -2011      30
+ 2         -2010      20]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Plot bar charts for each dataframe</span>
+<span class="n">attraction_df</span> <span class="o">=</span> <span class="n">attraction_dfs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    
+<span class="n">plotly</span><span class="o">.</span><span class="n">offline</span><span class="o">.</span><span class="n">init_notebook_mode</span><span class="p">(</span><span class="n">connected</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        
+<span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">go</span><span class="o">.</span><span class="n">Bar</span><span class="p">(</span>
+        <span class="n">x</span><span class="o">=</span><span class="n">attraction_df</span><span class="p">[</span><span class="s1">&#39;author&#39;</span><span class="p">],</span>
+        <span class="n">y</span><span class="o">=</span><span class="n">attraction_df</span><span class="p">[</span><span class="s1">&#39;first_commit&#39;</span><span class="p">],</span>
+        <span class="n">orientation</span> <span class="o">=</span> <span class="s1">&#39;h&#39;</span>
+<span class="p">)]</span>
+
+<span class="n">layout</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Layout</span><span class="p">(</span>
+    <span class="n">barmode</span><span class="o">=</span><span class="s1">&#39;group&#39;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="n">project_name</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="mi">2016</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="n">layout</span><span class="p">)</span>
+<span class="n">plotly</span><span class="o">.</span><span class="n">offline</span><span class="o">.</span><span class="n">iplot</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;horizontal-bar&#39;</span><span class="p">)</span>   
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<div id="2a41cc74-9c1e-41bc-b013-fd167e91d3ef" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("2a41cc74-9c1e-41bc-b013-fd167e91d3ef", [{"type": "bar", "y": [-2016, -2015, -2014, -2013, -2012, -2011, -2010], "orientation": "h", "x": [567, 719, 588, 278, 105, 30, 20]}], {"barmode": "group", "title": "Rust 2016"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="prompt input_prompt">
 </div>
@@ -12987,7 +13112,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Plot bar charts for each dataframe</span>
@@ -13017,7 +13142,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="f99d3e68-c812-42af-be7d-cc69bf836c78" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("f99d3e68-c812-42af-be7d-cc69bf836c78", [{"orientation": "h", "type": "bar", "x": [1960, 194, 88, 32, 9, 3, 4], "y": [0, 1, 2, 3, 4, 5, 6]}], {"title": "Rust 2016", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="08efe3ff-8e35-4855-badd-2316d3815400" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("08efe3ff-8e35-4855-badd-2316d3815400", [{"type": "bar", "y": [0, 1, 2, 3, 4, 5, 6], "orientation": "h", "x": [1974, 195, 89, 32, 10, 3, 4]}], {"barmode": "group", "title": "Rust 2016"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -13033,7 +13158,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="e3681e20-7e7f-4cf3-b015-f3955f720ae6" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("e3681e20-7e7f-4cf3-b015-f3955f720ae6", [{"orientation": "h", "type": "bar", "x": [1522, 138, 60, 10, 5, 5], "y": [0, 1, 2, 3, 4, 5]}], {"title": "Rust 2015", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="017daff4-92e0-433f-b74a-70bd205035dc" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("017daff4-92e0-433f-b74a-70bd205035dc", [{"type": "bar", "y": [0, 1, 2, 3, 4, 5], "orientation": "h", "x": [1522, 138, 60, 10, 5, 5]}], {"barmode": "group", "title": "Rust 2015"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -13049,7 +13174,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="e69ba547-93e9-4f94-a53f-0edb09ebedd0" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("e69ba547-93e9-4f94-a53f-0edb09ebedd0", [{"orientation": "h", "type": "bar", "x": [911, 77, 24, 5, 4], "y": [0, 1, 2, 3, 4]}], {"title": "Rust 2014", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="78a88886-e5d2-4907-bbe6-eefa983c621e" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("78a88886-e5d2-4907-bbe6-eefa983c621e", [{"type": "bar", "y": [0, 1, 2, 3, 4], "orientation": "h", "x": [911, 77, 24, 5, 4]}], {"barmode": "group", "title": "Rust 2014"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -13065,7 +13190,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="6f927c47-e410-4576-b3a3-81cca54dc526" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("6f927c47-e410-4576-b3a3-81cca54dc526", [{"orientation": "h", "type": "bar", "x": [392, 27, 10, 4], "y": [0, 1, 2, 3]}], {"title": "Rust 2013", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="ab1aea92-de56-4223-8cba-d99e8ba1bd73" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("ab1aea92-de56-4223-8cba-d99e8ba1bd73", [{"type": "bar", "y": [0, 1, 2, 3], "orientation": "h", "x": [392, 27, 10, 4]}], {"barmode": "group", "title": "Rust 2013"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -13081,7 +13206,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="0fe24d30-5991-4659-89cb-0abccfd9a2e1" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("0fe24d30-5991-4659-89cb-0abccfd9a2e1", [{"orientation": "h", "type": "bar", "x": [138, 13, 4], "y": [0, 1, 2]}], {"title": "Rust 2012", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="f3929e82-e589-4e7b-a8b7-96aaa20c7bb1" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("f3929e82-e589-4e7b-a8b7-96aaa20c7bb1", [{"type": "bar", "y": [0, 1, 2], "orientation": "h", "x": [138, 13, 4]}], {"barmode": "group", "title": "Rust 2012"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -13108,7 +13233,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">active_authors_dfs</span> <span class="o">=</span> <span class="p">[]</span>
@@ -13131,46 +13256,45 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[8]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[10]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
 <pre>[                                       author        first_commit  \
- 591  149ad981c7f8acd65b9cb9a3f306833fc4b6ec8e 2016-12-31 12:01:23   
- 680  57a1cf0d7a35c3f77475953873212148d3c01e1b 2016-12-30 21:55:02   
- 617  26e5b20e7ccff92ec895b5f4af3f5f0b9a5b0f0a 2016-12-30 14:34:47   
- 437  09a899922407e40e04fa6ab865da040f06c0d904 2016-12-30 12:22:11   
- 786  c19b5436d45eb06bb0d9a16accd4a16da1ad9765 2016-12-29 14:21:07   
- 763  a067de6a2df3134c3a54484d2c6c591e33292310 2016-12-28 14:40:00   
- 467  37722e54fac83d1578a39a468fab477268003f2a 2016-12-28 11:11:17   
- 830  f9c29c898de1dd801116553fd199756e8578cb16 2016-12-27 02:26:30   
- 731  8029b8cbba702813f9db5fee076cd51cba88ea6b 2016-12-26 11:57:01   
- 666  4ec03c3a988487c297943fbc52c059aecb51246c 2016-12-24 17:06:15   
- 549  f31c3fa4696f8cbb1908c99ee9cdf46deba44bc8 2016-12-22 23:44:12   
- 309  b9d7847955b2ce10cbfdc9649fecff40c4649577 2016-12-22 22:01:15   
- 828  f518dbc5594b68333659a43ea4c1284d33dc0c82 2016-12-18 22:45:04   
- 586  11ef1cbca7c7366f64beb5a7f2309cb18d25c382 2016-12-18 14:34:22   
- 557  ff3e7a0e12d913a61213f4c9162724e81043b49e 2016-12-17 23:10:18   
- 740  86fba89fdcf49653029cb7449069ec0d8c257fda 2016-12-17 12:32:02   
- 811  dde79923a762246df9b694a17fce0a8260df7774 2016-12-16 14:14:34   
- 788  c2564caa36897a9751cfa8f6aec031ca65dc87f6 2016-12-14 13:30:04   
- 677  5618e007dc7138d07dd6160c0cd7e19a902adf07 2016-12-08 22:37:36   
- 770  ae2ddcaaaed3f7db6ce4cd1712108826a4dcf9f9 2016-12-08 20:56:24   
- 743  8a9b98e2a107863bea3652457ebd9a8f00f966ea 2016-12-07 20:50:44   
- 799  cf281e73a90dce92626b4156ebb452c28610933a 2016-12-07 16:23:21   
- 552  fbd777a211c3aacac989834da4d3cb797edc8090 2016-12-07 08:47:31   
- 551  faab0cc7448ca5de78076981eb5ecd37d7ec75fe 2016-12-04 16:38:27   
- 449  1e3d62074c2b7f544e8b4bb6474ad9c7d68401ba 2016-12-04 14:57:43   
- 777  b696dacd0a83be8f348aabed32238ae7c07d74df 2016-12-01 12:01:07   
- 795  cda52afff7cebccff6435a523953cb6e6fc17082 2016-11-29 23:10:30   
- 753  96ebfb7e1423cd67422fa5e6ff6e68f70ab96167 2016-11-27 15:01:59   
- 339  31dcd755cecdaccfd01a79db3b6e6ff5eddc0a9f 2016-11-26 00:23:25   
- 822  ea9805a368fb6948372e9838bd3ae705cd9b0d45 2016-11-24 22:12:36   
+ 606  149ad981c7f8acd65b9cb9a3f306833fc4b6ec8e 2016-12-31 12:01:23   
+ 697  57a1cf0d7a35c3f77475953873212148d3c01e1b 2016-12-30 21:55:02   
+ 633  26e5b20e7ccff92ec895b5f4af3f5f0b9a5b0f0a 2016-12-30 14:34:47   
+ 447  09a899922407e40e04fa6ab865da040f06c0d904 2016-12-30 12:22:11   
+ 804  c19b5436d45eb06bb0d9a16accd4a16da1ad9765 2016-12-29 14:21:07   
+ 780  a067de6a2df3134c3a54484d2c6c591e33292310 2016-12-28 14:40:00   
+ 476  37722e54fac83d1578a39a468fab477268003f2a 2016-12-28 11:11:17   
+ 801  be7f54d1d9bdb9670d03199e686f1879c83c0676 2016-12-27 18:40:18   
+ 851  f9c29c898de1dd801116553fd199756e8578cb16 2016-12-27 02:26:30   
+ 748  8029b8cbba702813f9db5fee076cd51cba88ea6b 2016-12-26 11:57:01   
+ 683  4ec03c3a988487c297943fbc52c059aecb51246c 2016-12-24 17:06:15   
+ 562  f31c3fa4696f8cbb1908c99ee9cdf46deba44bc8 2016-12-22 23:44:12   
+ 848  f518dbc5594b68333659a43ea4c1284d33dc0c82 2016-12-18 22:45:04   
+ 601  11ef1cbca7c7366f64beb5a7f2309cb18d25c382 2016-12-18 14:34:22   
+ 313  a4ba1d9883c7180ca8e50802a9848fd21a4559ad 2016-12-18 11:31:14   
+ 570  ff3e7a0e12d913a61213f4c9162724e81043b49e 2016-12-17 23:10:18   
+ 757  86fba89fdcf49653029cb7449069ec0d8c257fda 2016-12-17 12:32:02   
+ 831  dde79923a762246df9b694a17fce0a8260df7774 2016-12-16 14:14:34   
+ 504  5aefd8fc8457ab68d95f5ebe0f9a90465a255bc6 2016-12-14 22:47:52   
+ 806  c2564caa36897a9751cfa8f6aec031ca65dc87f6 2016-12-14 13:30:04   
+ 829  dade84edafe863f14c432e36577b359738378c1b 2016-12-12 16:46:29   
+ 694  5618e007dc7138d07dd6160c0cd7e19a902adf07 2016-12-08 22:37:36   
+ 787  ae2ddcaaaed3f7db6ce4cd1712108826a4dcf9f9 2016-12-08 20:56:24   
+ 760  8a9b98e2a107863bea3652457ebd9a8f00f966ea 2016-12-07 20:50:44   
+ 818  cf281e73a90dce92626b4156ebb452c28610933a 2016-12-07 16:23:21   
+ 565  fbd777a211c3aacac989834da4d3cb797edc8090 2016-12-07 08:47:31   
+ 564  faab0cc7448ca5de78076981eb5ecd37d7ec75fe 2016-12-04 16:38:27   
+ 458  1e3d62074c2b7f544e8b4bb6474ad9c7d68401ba 2016-12-04 14:57:43   
+ 794  b696dacd0a83be8f348aabed32238ae7c07d74df 2016-12-01 12:01:07   
+ 317  b9856523e163d3fdce8ed1af8311099b697be7b2 2016-11-30 08:49:00   
  ..                                        ...                 ...   
- 26   233e6c568249b54cdda2cf7cd3932b326cc85853 2013-04-12 19:21:46   
  35   1e932af038461c5ed481c5d188a1a33b7fd2b4a7 2013-04-03 19:40:27   
- 297  57f3d105895dcff496e419ec8bc69faf382b3ae9 2013-04-03 18:52:28   
- 121  680bc6d7ec2ec671fee440b696b76e00b7989161 2013-04-02 05:37:37   
+ 304  57f3d105895dcff496e419ec8bc69faf382b3ae9 2013-04-03 18:52:28   
+ 123  680bc6d7ec2ec671fee440b696b76e00b7989161 2013-04-02 05:37:37   
  53   ebc3918c9aa58903580c6207125d88e0f5004a26 2013-02-06 16:49:24   
  7    173db7cf5f3f3fcf5bdf6969ac97e52264a96843 2013-01-29 10:14:05   
  33   3c92217162512963764310f2c41b55536fbb2f33 2013-01-20 12:01:18   
@@ -13178,125 +13302,125 @@ div#notebook {
  1    b85560a4c0f43bcb864f4110c7860175f6741dab 2013-01-15 12:43:40   
  23   0ea8557ee6c647c367b659cc8564e0f6403b3a99 2013-01-02 22:22:13   
  2    0183bd06d487bf71fd39a568ae892e3ec3079d82 2012-12-27 22:15:17   
- 86   e885659e1ba02886b3188babaa0f478c85769f68 2012-12-27 06:16:16   
+ 73   e885659e1ba02886b3188babaa0f478c85769f68 2012-12-27 06:16:16   
  6    3960dae4954d0d4f8737ece9a18af8642212f818 2012-12-10 03:29:33   
  19   2b9e64818ee9b53005fb8e9f9519493c4a9fb0fc 2012-10-18 20:58:57   
- 129  173ac6bc5ac33a37a06ff2bdf47530a94312ef5d 2012-10-01 23:09:56   
- 333  24b2054d8979ff7f3125d1b552647d81159cab53 2012-09-27 15:03:44   
+ 130  173ac6bc5ac33a37a06ff2bdf47530a94312ef5d 2012-10-01 23:09:56   
+ 341  24b2054d8979ff7f3125d1b552647d81159cab53 2012-09-27 15:03:44   
  28   e54cc15afd5245d872c78b4b23a15e66f68f312b 2012-09-03 13:44:37   
- 178  10ac66426b3b85a85f1b2033a7f20f69c575f2f0 2012-08-19 16:06:42   
+ 182  10ac66426b3b85a85f1b2033a7f20f69c575f2f0 2012-08-19 16:06:42   
  41   105e5c5b64c60a005458268abfda5a86d3a42097 2012-07-16 19:28:32   
- 133  4a225e54197993d27be39934f9a5afb704e7a5d7 2012-07-08 00:39:20   
- 63   d9e3d9b63fdb022cf54a050c090dae895620da33 2012-07-06 23:55:25   
- 102  219481c9d373af2a75745abbfcd3579ec6044bda 2012-02-16 23:05:54   
- 224  d463c65391674d85d5736fb706b49fd634db013a 2012-02-12 03:42:11   
+ 134  4a225e54197993d27be39934f9a5afb704e7a5d7 2012-07-08 00:39:20   
+ 64   d9e3d9b63fdb022cf54a050c090dae895620da33 2012-07-06 23:55:25   
+ 103  219481c9d373af2a75745abbfcd3579ec6044bda 2012-02-16 23:05:54   
+ 231  d463c65391674d85d5736fb706b49fd634db013a 2012-02-12 03:42:11   
  111  457ec5f0d5753ec5220fb85569d0270ab1b10d26 2012-02-03 18:43:48   
+ 209  473ac3bfe60c592f83ddbb9c7b42396eb0839f20 2012-01-29 19:43:11   
  3    65e81bb85929964508daa5922a23e4026a393691 2011-10-05 15:25:50   
  10   82782d61d520190116fec9e67bdc2a1e240593e6 2011-05-17 20:35:46   
  66   03e6f642bc6fc389b280735383f34bd777f9605c 2010-10-18 17:00:28   
  0    0f4a88b35a4dbd766f5c0fd225aeff6259a4655f 2010-07-17 06:50:18   
- 48   0510befb97d662ac58d25a553a55d043d4add67a 2010-07-08 17:01:25   
+ 47   0510befb97d662ac58d25a553a55d043d4add67a 2010-07-08 17:01:25   
  4    9a4f7d1c440e63eae393ac33318ac2c5d98228ed 2010-06-29 19:53:24   
  
              last_commit            org  \
- 591 2016-12-31 12:01:23      Community   
- 680 2016-12-30 21:55:02      Community   
- 617 2016-12-30 14:34:47      Community   
- 437 2016-12-30 13:21:21      Community   
- 786 2016-12-29 14:21:07      Community   
- 763 2016-12-28 14:40:00      Community   
- 467 2016-12-28 12:57:50      Community   
- 830 2016-12-27 02:26:30      Community   
- 731 2016-12-26 11:57:01      Community   
- 666 2016-12-24 17:06:15      Community   
- 549 2016-12-25 05:43:25      Community   
- 309 2016-12-30 10:38:53      Community   
- 828 2016-12-18 22:45:04      Community   
- 586 2016-12-18 14:34:22      Community   
- 557 2016-12-26 07:26:53      Community   
- 740 2016-12-17 12:32:02      Community   
- 811 2016-12-16 14:14:34      Community   
- 788 2016-12-14 13:30:04      Community   
- 677 2016-12-08 22:37:36      Community   
- 770 2016-12-08 20:56:24      Community   
- 743 2016-12-07 20:50:44      Community   
- 799 2016-12-07 16:23:21      Community   
- 552 2016-12-27 09:12:51      Community   
- 551 2016-12-12 15:34:09      Community   
- 449 2016-12-05 08:26:48      Community   
- 777 2016-12-01 12:01:07      Community   
- 795 2016-11-29 23:10:30      Community   
- 753 2016-11-27 15:01:59      Community   
- 339 2016-11-26 22:05:51      Community   
- 822 2016-11-24 22:12:36      Community   
+ 606 2016-12-31 12:01:23      Community   
+ 697 2016-12-30 21:55:02      Community   
+ 633 2016-12-30 14:34:47      Community   
+ 447 2016-12-30 13:21:21      Community   
+ 804 2016-12-29 14:21:07      Community   
+ 780 2016-12-28 14:40:00      Community   
+ 476 2016-12-28 12:57:50      Community   
+ 801 2016-12-27 18:40:18      Community   
+ 851 2016-12-27 02:26:30      Community   
+ 748 2016-12-26 11:57:01      Community   
+ 683 2016-12-24 17:06:15      Community   
+ 562 2016-12-25 05:43:25      Community   
+ 848 2016-12-18 22:45:04      Community   
+ 601 2016-12-18 14:34:22      Community   
+ 313 2016-12-20 15:29:17      Community   
+ 570 2016-12-26 07:26:53      Community   
+ 757 2016-12-17 12:32:02      Community   
+ 831 2016-12-16 14:14:34      Community   
+ 504 2016-12-14 23:32:40  Mozilla Staff   
+ 806 2016-12-14 13:30:04      Community   
+ 829 2016-12-12 16:46:29      Community   
+ 694 2016-12-08 22:37:36      Community   
+ 787 2016-12-08 20:56:24      Community   
+ 760 2016-12-07 20:50:44      Community   
+ 818 2016-12-07 16:23:21      Community   
+ 565 2016-12-27 09:12:51      Community   
+ 564 2016-12-12 15:34:09      Community   
+ 458 2016-12-05 08:26:48      Community   
+ 794 2016-12-01 12:01:07      Community   
+ 317 2016-12-02 19:43:37      Community   
  ..                  ...            ...   
- 26  2016-12-29 02:20:26      Community   
  35  2016-09-29 17:07:03      Community   
- 297 2016-07-28 19:02:25      Community   
- 121 2016-06-20 18:18:45      Community   
+ 304 2016-07-28 19:02:25      Community   
+ 123 2016-06-20 18:18:45      Community   
  53  2016-10-24 01:46:05      Community   
  7   2016-12-29 16:00:53  Mozilla Staff   
- 33  2016-10-21 16:51:59  Mozilla Staff   
+ 33  2016-11-28 21:41:21  Mozilla Staff   
  31  2016-06-24 23:41:39      Community   
  1   2016-12-30 19:50:57  Mozilla Staff   
  23  2016-12-19 16:59:44      Community   
  2   2016-12-31 21:09:00  Mozilla Staff   
- 86  2016-08-07 17:15:54      Community   
+ 73  2016-12-05 23:51:35      Community   
  6   2016-01-06 12:28:34      Community   
  19  2016-10-11 23:46:22  Mozilla Staff   
- 129 2016-05-14 18:57:09      Community   
- 333 2016-01-18 20:24:13  Mozilla Staff   
+ 130 2016-05-14 18:57:09      Community   
+ 341 2016-01-18 20:24:13  Mozilla Staff   
  28  2016-10-01 08:39:11      Community   
- 178 2016-01-12 16:28:07  Mozilla Staff   
+ 182 2016-01-12 16:28:07  Mozilla Staff   
  41  2016-01-18 12:54:44  Mozilla Staff   
- 133 2016-09-14 18:54:06      Community   
- 63  2016-03-31 20:07:23      Community   
- 102 2016-03-27 18:47:32  Mozilla Staff   
- 224 2016-05-02 14:20:22      Community   
+ 134 2016-09-14 18:54:06      Community   
+ 64  2016-03-31 20:07:23      Community   
+ 103 2016-03-27 18:47:32  Mozilla Staff   
+ 231 2016-05-02 14:20:22      Community   
  111 2016-03-26 21:40:13      Community   
+ 209 2016-12-06 10:07:52      Community   
  3   2016-12-30 10:51:32  Mozilla Staff   
  10  2016-12-15 09:15:19      Community   
  66  2016-11-10 16:02:37  Mozilla Staff   
  0   2016-12-30 21:47:47  Mozilla Staff   
- 48  2016-11-10 09:28:56  Mozilla Staff   
+ 47  2016-11-10 09:28:56  Mozilla Staff   
  4   2016-09-21 12:17:56  Mozilla Staff   
  
                                               repo_name  active_years project  
- 591              https://github.com/rust-lang/rust.git           0.0    Rust  
- 680              https://github.com/rust-lang/rust.git           0.0    Rust  
- 617              https://github.com/rust-lang/rust.git           0.0    Rust  
- 437              https://github.com/rust-lang/rust.git           0.0    Rust  
- 786              https://github.com/rust-lang/rust.git           0.0    Rust  
- 763              https://github.com/rust-lang/rust.git           0.0    Rust  
- 467              https://github.com/rust-lang/rust.git           0.0    Rust  
- 830              https://github.com/rust-lang/rust.git           0.0    Rust  
- 731              https://github.com/rust-lang/rust.git           0.0    Rust  
- 666          https://github.com/rust-lang/rust-www.git           0.0    Rust  
- 549         https://github.com/rust-lang/rust-mode.git           0.0    Rust  
- 309              https://github.com/rust-lang/rust.git           0.0    Rust  
- 828      https://github.com/rust-lang/rust-playpen.git           0.0    Rust  
- 586              https://github.com/rust-lang/book.git           0.0    Rust  
- 557              https://github.com/rust-lang/book.git           0.0    Rust  
- 740              https://github.com/rust-lang/book.git           0.0    Rust  
- 811              https://github.com/rust-lang/rfcs.git           0.0    Rust  
- 788   https://github.com/rust-lang/rust-guidelines.git           0.0    Rust  
- 677              https://github.com/rust-lang/rust.git           0.0    Rust  
- 770             https://github.com/rust-lang/regex.git           0.0    Rust  
- 743             https://github.com/rust-lang/regex.git           0.0    Rust  
- 799          https://github.com/rust-lang/rust-www.git           0.0    Rust  
- 552              https://github.com/rust-lang/rfcs.git           0.0    Rust  
- 551              https://github.com/rust-lang/rust.git           0.0    Rust  
- 449              https://github.com/rust-lang/book.git           0.0    Rust  
- 777              https://github.com/rust-lang/rust.git           0.0    Rust  
- 795              https://github.com/rust-lang/book.git           0.0    Rust  
- 753          https://github.com/rust-lang/rust.vim.git           0.0    Rust  
- 339         https://github.com/rust-lang/crates.io.git           0.0    Rust  
- 822              https://github.com/rust-lang/rust.git           0.0    Rust  
+ 606              https://github.com/rust-lang/rust.git           0.0    Rust  
+ 697              https://github.com/rust-lang/rust.git           0.0    Rust  
+ 633              https://github.com/rust-lang/rust.git           0.0    Rust  
+ 447              https://github.com/rust-lang/rust.git           0.0    Rust  
+ 804              https://github.com/rust-lang/rust.git           0.0    Rust  
+ 780              https://github.com/rust-lang/rust.git           0.0    Rust  
+ 476              https://github.com/rust-lang/rust.git           0.0    Rust  
+ 801              https://github.com/rust-lang/libc.git           0.0    Rust  
+ 851              https://github.com/rust-lang/rust.git           0.0    Rust  
+ 748              https://github.com/rust-lang/rust.git           0.0    Rust  
+ 683          https://github.com/rust-lang/rust-www.git           0.0    Rust  
+ 562         https://github.com/rust-lang/rust-mode.git           0.0    Rust  
+ 848      https://github.com/rust-lang/rust-playpen.git           0.0    Rust  
+ 601              https://github.com/rust-lang/book.git           0.0    Rust  
+ 313              https://github.com/rust-lang/libc.git           0.0    Rust  
+ 570              https://github.com/rust-lang/book.git           0.0    Rust  
+ 757              https://github.com/rust-lang/book.git           0.0    Rust  
+ 831              https://github.com/rust-lang/rfcs.git           0.0    Rust  
+ 504              https://github.com/rust-lang/libc.git           0.0    Rust  
+ 806   https://github.com/rust-lang/rust-guidelines.git           0.0    Rust  
+ 829              https://github.com/rust-lang/libc.git           0.0    Rust  
+ 694              https://github.com/rust-lang/rust.git           0.0    Rust  
+ 787             https://github.com/rust-lang/regex.git           0.0    Rust  
+ 760             https://github.com/rust-lang/regex.git           0.0    Rust  
+ 818          https://github.com/rust-lang/rust-www.git           0.0    Rust  
+ 565              https://github.com/rust-lang/rfcs.git           0.0    Rust  
+ 564              https://github.com/rust-lang/rust.git           0.0    Rust  
+ 458              https://github.com/rust-lang/book.git           0.0    Rust  
+ 794              https://github.com/rust-lang/rust.git           0.0    Rust  
+ 317             https://github.com/rust-lang/cargo.git           0.0    Rust  
  ..                                                 ...           ...     ...  
- 26               https://github.com/rust-lang/rust.git           3.0    Rust  
  35               https://github.com/rust-lang/rust.git           3.0    Rust  
- 297              https://github.com/rust-lang/rust.git           3.0    Rust  
- 121  https://github.com/rust-lang/rust-wiki-backup.git           3.0    Rust  
+ 304              https://github.com/rust-lang/rust.git           3.0    Rust  
+ 123  https://github.com/rust-lang/rust-wiki-backup.git           3.0    Rust  
  53               https://github.com/rust-lang/rust.git           3.0    Rust  
  7                https://github.com/rust-lang/rust.git           3.0    Rust  
  33               https://github.com/rust-lang/rust.git           3.0    Rust  
@@ -13304,30 +13428,31 @@ div#notebook {
  1                https://github.com/rust-lang/rust.git           3.0    Rust  
  23   https://github.com/rust-lang/rust-wiki-backup.git           3.0    Rust  
  2                https://github.com/rust-lang/rust.git           4.0    Rust  
- 86               https://github.com/rust-lang/rust.git           3.0    Rust  
+ 73               https://github.com/rust-lang/rust.git           3.0    Rust  
  6                https://github.com/rust-lang/rust.git           3.0    Rust  
  19               https://github.com/rust-lang/rust.git           3.0    Rust  
- 129              https://github.com/rust-lang/rust.git           3.0    Rust  
- 333              https://github.com/rust-lang/rust.git           3.0    Rust  
+ 130              https://github.com/rust-lang/rust.git           3.0    Rust  
+ 341              https://github.com/rust-lang/rust.git           3.0    Rust  
  28               https://github.com/rust-lang/rust.git           4.0    Rust  
- 178              https://github.com/rust-lang/rust.git           3.0    Rust  
+ 182              https://github.com/rust-lang/rust.git           3.0    Rust  
  41               https://github.com/rust-lang/rust.git           3.0    Rust  
- 133              https://github.com/rust-lang/rust.git           4.0    Rust  
- 63               https://github.com/rust-lang/rust.git           3.0    Rust  
- 102              https://github.com/rust-lang/rust.git           4.0    Rust  
- 224              https://github.com/rust-lang/rust.git           4.0    Rust  
+ 134              https://github.com/rust-lang/rust.git           4.0    Rust  
+ 64               https://github.com/rust-lang/rust.git           3.0    Rust  
+ 103              https://github.com/rust-lang/rust.git           4.0    Rust  
+ 231              https://github.com/rust-lang/rust.git           4.0    Rust  
  111              https://github.com/rust-lang/rust.git           4.0    Rust  
+ 209              https://github.com/rust-lang/rust.git           4.0    Rust  
  3                https://github.com/rust-lang/rust.git           5.0    Rust  
  10               https://github.com/rust-lang/rust.git           5.0    Rust  
  66               https://github.com/rust-lang/rust.git           6.0    Rust  
  0                https://github.com/rust-lang/rust.git           6.0    Rust  
- 48               https://github.com/rust-lang/rust.git           6.0    Rust  
+ 47               https://github.com/rust-lang/rust.git           6.0    Rust  
  4                https://github.com/rust-lang/rust.git           6.0    Rust  
  
- [836 rows x 7 columns],
+ [857 rows x 7 columns],
                                         author        first_commit  \
  808  71b45c8ce6448259a93e45d66dffab8ab7468835 2015-12-31 18:13:39   
- 705  3975871ceff73b48d4c04038e622dade54b0738a 2015-12-30 15:25:59   
+ 706  3975871ceff73b48d4c04038e622dade54b0738a 2015-12-30 15:25:59   
  599  dba4d7b301d655f6f33322f08a9894695d3a4430 2015-12-29 09:43:45   
  926  d2f08563c9977f012c7ab84b33d1568e22665d12 2015-12-28 23:53:38   
  571  8f602223673aa977acd96d971237474160ca5b8b 2015-12-28 21:09:06   
@@ -13390,7 +13515,7 @@ div#notebook {
  
              last_commit            org  \
  808 2015-12-31 18:13:39      Community   
- 705 2015-12-30 15:25:59      Community   
+ 706 2015-12-30 15:25:59      Community   
  599 2015-12-29 09:52:22      Community   
  926 2015-12-28 23:53:38      Community   
  571 2015-12-29 06:37:06      Community   
@@ -13453,7 +13578,7 @@ div#notebook {
  
                                               repo_name  active_years project  
  808              https://github.com/rust-lang/rust.git           0.0    Rust  
- 705              https://github.com/rust-lang/libc.git           0.0    Rust  
+ 706              https://github.com/rust-lang/libc.git           0.0    Rust  
  599              https://github.com/rust-lang/book.git           0.0    Rust  
  926   https://github.com/rust-lang/rust-by-example.git           0.0    Rust  
  571              https://github.com/rust-lang/rust.git           0.0    Rust  
@@ -14095,7 +14220,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Plot bar charts for each dataframe</span>
@@ -14125,7 +14250,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="f8c30620-18d2-4911-a3bb-80cbbf54e873" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("f8c30620-18d2-4911-a3bb-80cbbf54e873", [{"orientation": "h", "type": "bar", "x": [627, 113, 56, 28, 6, 2, 4], "y": [0, 1, 2, 3, 4, 5, 6]}], {"title": "Rust 2016", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="0139c1fd-1445-466c-bf65-590e303f901b" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("0139c1fd-1445-466c-bf65-590e303f901b", [{"type": "bar", "y": [0, 1, 2, 3, 4, 5, 6], "orientation": "h", "x": [644, 114, 58, 28, 7, 2, 4]}], {"barmode": "group", "title": "Rust 2016"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -14141,7 +14266,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="bc9cce72-7b24-42db-87dd-255e8292ab66" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("bc9cce72-7b24-42db-87dd-255e8292ab66", [{"orientation": "h", "type": "bar", "x": [810, 103, 46, 8, 4, 5], "y": [0, 1, 2, 3, 4, 5]}], {"title": "Rust 2015", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="8cfa7e16-ce65-40d3-8e3c-6f03b41ee02d" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("8cfa7e16-ce65-40d3-8e3c-6f03b41ee02d", [{"type": "bar", "y": [0, 1, 2, 3, 4, 5], "orientation": "h", "x": [810, 103, 46, 8, 4, 5]}], {"barmode": "group", "title": "Rust 2015"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -14157,7 +14282,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="4e08c078-4119-44c9-9e77-bd9776b0f146" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("4e08c078-4119-44c9-9e77-bd9776b0f146", [{"orientation": "h", "type": "bar", "x": [627, 68, 19, 3, 4], "y": [0, 1, 2, 3, 4]}], {"title": "Rust 2014", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="55246e6c-1aa3-4a08-918f-f6a6afcca75d" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("55246e6c-1aa3-4a08-918f-f6a6afcca75d", [{"type": "bar", "y": [0, 1, 2, 3, 4], "orientation": "h", "x": [627, 68, 19, 3, 4]}], {"barmode": "group", "title": "Rust 2014"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -14173,7 +14298,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="c9555218-7348-4db6-baf2-08399939c8b5" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("c9555218-7348-4db6-baf2-08399939c8b5", [{"orientation": "h", "type": "bar", "x": [293, 23, 10, 4], "y": [0, 1, 2, 3]}], {"title": "Rust 2013", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="498ec146-28cb-4fcd-bbb8-b71a84310c51" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("498ec146-28cb-4fcd-bbb8-b71a84310c51", [{"type": "bar", "y": [0, 1, 2, 3], "orientation": "h", "x": [293, 23, 10, 4]}], {"barmode": "group", "title": "Rust 2013"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -14189,7 +14314,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="b7e98d2a-5bfb-4146-b062-c883fdd0ea51" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("b7e98d2a-5bfb-4146-b062-c883fdd0ea51", [{"orientation": "h", "type": "bar", "x": [112, 13, 4], "y": [0, 1, 2]}], {"title": "Rust 2012", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="1faa1ed0-523e-4157-bf94-2bb58b9e40a4" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("1faa1ed0-523e-4157-bf94-2bb58b9e40a4", [{"type": "bar", "y": [0, 1, 2], "orientation": "h", "x": [112, 13, 4]}], {"barmode": "group", "title": "Rust 2012"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -14217,7 +14342,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">###</span>
@@ -14265,7 +14390,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">###</span>
@@ -14310,7 +14435,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[11]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[13]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -14327,6 +14452,7 @@ div#notebook {
  0a0f2a5bec864af78db5142d84e5f8434f459db6 Community        2        2016   
  0bdfef22030655745444eca78634d8eafe603361 Community        1        2016   
  0d254fa8d52e9d5ac00aefa2a6346fe5de0eac6a Community        4        2016   
+ 0e19fd243b0e9556b0f3714d605e304b26a3017b Community        1        2016   
  0ea8557ee6c647c367b659cc8564e0f6403b3a99 Community        4        2016   
  0f4a88b35a4dbd766f5c0fd225aeff6259a4655f Mozilla Staff    6        2016   
  128dc2044a44f5495f925f950ee9218d23740fd3 Community        2        2016   
@@ -14345,7 +14471,6 @@ div#notebook {
  3c19e85b863bbe9507c80da64354e1c3f8340ae8 Community        1        2016   
  3c92217162512963764310f2c41b55536fbb2f33 Mozilla Staff    4        2016   
  40d708417b0b3818e605c4b2f05727acf72f951d Community        2        2016   
- 412b8ceac29829d9ffb9fc723708a9bb54f23a58 Community        1        2016   
  ...                                                     ...         ...   
  a8ade9237d7a255328b414f683d980b246a80a70 Community        2        2016   
  a8f44c34c3daf9d2fd5ff7b101316b38e6441796 Community        2        2016   
@@ -14391,6 +14516,7 @@ div#notebook {
  0a0f2a5bec864af78db5142d84e5f8434f459db6 Community        Rust  
  0bdfef22030655745444eca78634d8eafe603361 Community        Rust  
  0d254fa8d52e9d5ac00aefa2a6346fe5de0eac6a Community        Rust  
+ 0e19fd243b0e9556b0f3714d605e304b26a3017b Community        Rust  
  0ea8557ee6c647c367b659cc8564e0f6403b3a99 Community        Rust  
  0f4a88b35a4dbd766f5c0fd225aeff6259a4655f Mozilla Staff    Rust  
  128dc2044a44f5495f925f950ee9218d23740fd3 Community        Rust  
@@ -14409,7 +14535,6 @@ div#notebook {
  3c19e85b863bbe9507c80da64354e1c3f8340ae8 Community        Rust  
  3c92217162512963764310f2c41b55536fbb2f33 Mozilla Staff    Rust  
  40d708417b0b3818e605c4b2f05727acf72f951d Community        Rust  
- 412b8ceac29829d9ffb9fc723708a9bb54f23a58 Community        Rust  
  ...                                                        ...  
  a8ade9237d7a255328b414f683d980b246a80a70 Community        Rust  
  a8f44c34c3daf9d2fd5ff7b101316b38e6441796 Community        Rust  
@@ -14442,11 +14567,11 @@ div#notebook {
  ef7476ee05d4459d07e00d41e0ec4f024bbe34ad Community        Rust  
  f5194760b3c69840a1a6f330f0f608943bf3ccbb Community        Rust  
  
- [96 rows x 3 columns],
+ [100 rows x 3 columns],
                                                          exp last_active  \
  Author                                   Org                              
  0183bd06d487bf71fd39a568ae892e3ec3079d82 Mozilla Staff    3        2015   
- 019ee580517ec3e8eb2c90ad0e3b2d749e9f0359 Mozilla Staff    1        2015   
+ 019ee580517ec3e8eb2c90ad0e3b2d749e9f0359 Code Sheriff     1        2015   
  03e6f642bc6fc389b280735383f34bd777f9605c Mozilla Staff    1        2015   
  0510befb97d662ac58d25a553a55d043d4add67a Mozilla Staff    3        2015   
  06d0b433907642bd7d4c8b5ed33f28e0886d628f Community        2        2015   
@@ -14510,7 +14635,7 @@ div#notebook {
                                                         project  
  Author                                   Org                    
  0183bd06d487bf71fd39a568ae892e3ec3079d82 Mozilla Staff    Rust  
- 019ee580517ec3e8eb2c90ad0e3b2d749e9f0359 Mozilla Staff    Rust  
+ 019ee580517ec3e8eb2c90ad0e3b2d749e9f0359 Code Sheriff     Rust  
  03e6f642bc6fc389b280735383f34bd777f9605c Mozilla Staff    Rust  
  0510befb97d662ac58d25a553a55d043d4add67a Mozilla Staff    Rust  
  06d0b433907642bd7d4c8b5ed33f28e0886d628f Community        Rust  
@@ -14913,7 +15038,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Plot bar charts for each dataframe</span>
@@ -14953,7 +15078,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="f40d358c-12f0-4ab5-adc4-0aa0f8d4f2c6" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("f40d358c-12f0-4ab5-adc4-0aa0f8d4f2c6", [{"orientation": "h", "type": "bar", "x": [43, 27, 13, 10, 0, 3], "y": [1, 2, 3, 4, 5, 6]}], {"title": "Rust 2016", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="20caeca0-ac18-4faf-a4fe-8f97d62bd12d" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("20caeca0-ac18-4faf-a4fe-8f97d62bd12d", [{"type": "bar", "y": [1, 2, 3, 4, 5, 6], "orientation": "h", "x": [47, 27, 13, 10, 0, 3]}], {"barmode": "group", "title": "Rust 2016"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -14969,7 +15094,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="9c622d8d-406f-4cb1-bac9-1ac335b0cd7f" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("9c622d8d-406f-4cb1-bac9-1ac335b0cd7f", [{"orientation": "h", "type": "bar", "x": [3, 2, 3, 5, 0, 2], "y": [1, 2, 3, 4, 5, 6]}], {"title": "Rust employees 2016", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="6132d5bd-9a60-4387-914e-3ec44f244e0e" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("6132d5bd-9a60-4387-914e-3ec44f244e0e", [{"type": "bar", "y": [1, 2, 3, 4, 5, 6], "orientation": "h", "x": [3, 2, 3, 5, 0, 2]}], {"barmode": "group", "title": "Rust employees 2016"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -14985,7 +15110,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="57456bd5-b8d5-4d28-895b-315dccf1c7a5" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("57456bd5-b8d5-4d28-895b-315dccf1c7a5", [{"orientation": "h", "type": "bar", "x": [40, 25, 10, 5, 0, 1], "y": [1, 2, 3, 4, 5, 6]}], {"title": "Rust non-employees 2016", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="9606a81e-cfc1-400a-8ca5-bc3a02d352e7" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("9606a81e-cfc1-400a-8ca5-bc3a02d352e7", [{"type": "bar", "y": [1, 2, 3, 4, 5, 6], "orientation": "h", "x": [44, 25, 10, 5, 0, 1]}], {"barmode": "group", "title": "Rust non-employees 2016"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15001,7 +15126,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="e19b16f8-b7c1-4f31-b151-fd75465e407f" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("e19b16f8-b7c1-4f31-b151-fd75465e407f", [{"orientation": "h", "type": "bar", "x": [78, 29, 18, 0, 3], "y": [1, 2, 3, 4, 5]}], {"title": "Rust 2015", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="cda9b158-c90a-4f59-a674-7b1e89c34a01" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("cda9b158-c90a-4f59-a674-7b1e89c34a01", [{"type": "bar", "y": [1, 2, 3, 4, 5], "orientation": "h", "x": [78, 29, 18, 0, 3]}], {"barmode": "group", "title": "Rust 2015"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15017,7 +15142,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="3aaaa9ca-c2ec-4925-83a4-5f414ccbc7d0" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("3aaaa9ca-c2ec-4925-83a4-5f414ccbc7d0", [{"orientation": "h", "type": "bar", "x": [6, 4, 6, 0, 2], "y": [1, 2, 3, 4, 5]}], {"title": "Rust employees 2015", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="34929164-fbcd-44b0-96df-57fc59bd5aa0" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("34929164-fbcd-44b0-96df-57fc59bd5aa0", [{"type": "bar", "y": [1, 2, 3, 4, 5], "orientation": "h", "x": [5, 4, 6, 0, 2]}], {"barmode": "group", "title": "Rust employees 2015"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15033,7 +15158,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="4e3955b2-38d8-4edb-ae32-90f86fd4d0dc" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("4e3955b2-38d8-4edb-ae32-90f86fd4d0dc", [{"orientation": "h", "type": "bar", "x": [72, 25, 12, 0, 1], "y": [1, 2, 3, 4, 5]}], {"title": "Rust non-employees 2015", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="65f57129-bbd8-4718-a113-a9eaca55c32e" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("65f57129-bbd8-4718-a113-a9eaca55c32e", [{"type": "bar", "y": [1, 2, 3, 4, 5], "orientation": "h", "x": [73, 25, 12, 0, 1]}], {"barmode": "group", "title": "Rust non-employees 2015"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15049,7 +15174,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="6c194f34-25f9-47ed-95a8-3ea49f2e6a32" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("6c194f34-25f9-47ed-95a8-3ea49f2e6a32", [{"orientation": "h", "type": "bar", "x": [63, 27, 1, 4, 1], "y": [1, 2, 3, 4, 5]}], {"title": "Rust 2014", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="acf08b27-002c-4c36-93b6-ef19572e0768" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("acf08b27-002c-4c36-93b6-ef19572e0768", [{"type": "bar", "y": [1, 2, 3, 4, 5], "orientation": "h", "x": [63, 27, 1, 4, 1]}], {"barmode": "group", "title": "Rust 2014"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15065,7 +15190,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="c6cb28fa-336f-462f-9821-32bc8615a77e" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("c6cb28fa-336f-462f-9821-32bc8615a77e", [{"orientation": "h", "type": "bar", "x": [7, 8, 0, 2, 1], "y": [1, 2, 3, 4, 5]}], {"title": "Rust employees 2014", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="abfa812a-cab3-44ba-b55e-765082546d7a" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("abfa812a-cab3-44ba-b55e-765082546d7a", [{"type": "bar", "y": [1, 2, 3, 4, 5], "orientation": "h", "x": [7, 8, 0, 2, 1]}], {"barmode": "group", "title": "Rust employees 2014"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15081,7 +15206,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="a8c75a0b-bed5-465c-9dfa-1aad13e3b15e" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("a8c75a0b-bed5-465c-9dfa-1aad13e3b15e", [{"orientation": "h", "type": "bar", "x": [56, 19, 1, 2], "y": [1, 2, 3, 4]}], {"title": "Rust non-employees 2014", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="a15d6de5-5c13-4387-a26e-92a95bbcedc2" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("a15d6de5-5c13-4387-a26e-92a95bbcedc2", [{"type": "bar", "y": [1, 2, 3, 4], "orientation": "h", "x": [56, 19, 1, 2]}], {"barmode": "group", "title": "Rust non-employees 2014"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15097,7 +15222,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="86376280-efbc-40b9-8ba1-15a7ab74cfbe" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("86376280-efbc-40b9-8ba1-15a7ab74cfbe", [{"orientation": "h", "type": "bar", "x": [60, 7, 8, 3], "y": [1, 2, 3, 4]}], {"title": "Rust 2013", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="ccccf10e-4c87-48c1-8501-989c3b285d32" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("ccccf10e-4c87-48c1-8501-989c3b285d32", [{"type": "bar", "y": [1, 2, 3, 4], "orientation": "h", "x": [60, 7, 8, 3]}], {"barmode": "group", "title": "Rust 2013"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15113,7 +15238,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="6b3051c2-828c-4b22-b9f7-170c9b2df547" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("6b3051c2-828c-4b22-b9f7-170c9b2df547", [{"orientation": "h", "type": "bar", "x": [12, 1, 6, 3], "y": [1, 2, 3, 4]}], {"title": "Rust employees 2013", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="f0547e97-6b5e-415b-a2b2-38d75fa53561" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("f0547e97-6b5e-415b-a2b2-38d75fa53561", [{"type": "bar", "y": [1, 2, 3, 4], "orientation": "h", "x": [12, 1, 6, 3]}], {"barmode": "group", "title": "Rust employees 2013"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15129,7 +15254,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="3f94c442-e5cf-42b1-b09a-efdaf5d637e5" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("3f94c442-e5cf-42b1-b09a-efdaf5d637e5", [{"orientation": "h", "type": "bar", "x": [48, 6, 2], "y": [1, 2, 3]}], {"title": "Rust non-employees 2013", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="619f6af8-3b5e-4664-9f45-ac918b0fc988" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("619f6af8-3b5e-4664-9f45-ac918b0fc988", [{"type": "bar", "y": [1, 2, 3], "orientation": "h", "x": [48, 6, 2]}], {"barmode": "group", "title": "Rust non-employees 2013"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15145,7 +15270,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="77cecc0f-603e-45b2-bc7e-42d60fce58d0" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("77cecc0f-603e-45b2-bc7e-42d60fce58d0", [{"orientation": "h", "type": "bar", "x": [18, 13, 3], "y": [1, 2, 3]}], {"title": "Rust 2012", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="27a816c4-c74b-4e13-856c-aaa917d26705" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("27a816c4-c74b-4e13-856c-aaa917d26705", [{"type": "bar", "y": [1, 2, 3], "orientation": "h", "x": [18, 13, 3]}], {"barmode": "group", "title": "Rust 2012"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15161,7 +15286,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="62efc340-ba55-455c-94d1-28a11e8fb7c2" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("62efc340-ba55-455c-94d1-28a11e8fb7c2", [{"orientation": "h", "type": "bar", "x": [2, 8, 3], "y": [1, 2, 3]}], {"title": "Rust employees 2012", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="3c6c2599-de1b-402e-beb7-d6981c5a8625" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("3c6c2599-de1b-402e-beb7-d6981c5a8625", [{"type": "bar", "y": [1, 2, 3], "orientation": "h", "x": [2, 8, 3]}], {"barmode": "group", "title": "Rust employees 2012"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15177,7 +15302,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="f0c99093-089c-4850-9e82-b9e754aea14d" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("f0c99093-089c-4850-9e82-b9e754aea14d", [{"orientation": "h", "type": "bar", "x": [16, 5], "y": [1, 2]}], {"title": "Rust non-employees 2012", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="74206cf9-607c-4213-b3ee-ba05fd69e21f" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("74206cf9-607c-4213-b3ee-ba05fd69e21f", [{"type": "bar", "y": [1, 2], "orientation": "h", "x": [16, 5]}], {"barmode": "group", "title": "Rust non-employees 2012"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15205,7 +15330,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">exp_groups_evo_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">])</span>
@@ -15247,7 +15372,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[13]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[15]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 <div>
@@ -15277,7 +15402,7 @@ div#notebook {
       <td>60.0</td>
       <td>63.0</td>
       <td>78.0</td>
-      <td>43.0</td>
+      <td>47.0</td>
     </tr>
     <tr>
       <th>2.0</th>
@@ -15341,7 +15466,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="prompt input_prompt">In&nbsp;[16]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">exp_groups_evo_moz_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">])</span>
@@ -15385,7 +15510,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[14]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[16]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 <div>
@@ -15414,7 +15539,7 @@ div#notebook {
       <td>2.0</td>
       <td>12.0</td>
       <td>7.0</td>
-      <td>6.0</td>
+      <td>5.0</td>
       <td>3.0</td>
     </tr>
     <tr>
@@ -15479,7 +15604,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[15]:</div>
+<div class="prompt input_prompt">In&nbsp;[17]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">exp_groups_evo_others_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">])</span>
@@ -15526,7 +15651,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[15]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[17]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 <div>
@@ -15555,8 +15680,8 @@ div#notebook {
       <td>16.0</td>
       <td>48.0</td>
       <td>56.0</td>
-      <td>72.0</td>
-      <td>40.0</td>
+      <td>73.0</td>
+      <td>44.0</td>
     </tr>
     <tr>
       <th>2.0</th>
@@ -15626,7 +15751,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[16]:</div>
+<div class="prompt input_prompt">In&nbsp;[18]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">plotly</span><span class="o">.</span><span class="n">offline</span><span class="o">.</span><span class="n">init_notebook_mode</span><span class="p">(</span><span class="n">connected</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -15667,7 +15792,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="204338e2-7cc3-4e26-bc21-2ff5767b765b" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("204338e2-7cc3-4e26-bc21-2ff5767b765b", [{"type": "scatter", "mode": "lines+markers", "x": ["2012", "2013", "2014", "2015", "2016"], "name": "1 years", "y": [18.0, 60.0, 63.0, 78.0, 43.0]}, {"type": "scatter", "mode": "lines+markers", "x": ["2012", "2013", "2014", "2015", "2016"], "name": "2 years", "y": [13.0, 7.0, 27.0, 29.0, 27.0]}, {"type": "scatter", "mode": "lines+markers", "x": ["2012", "2013", "2014", "2015", "2016"], "name": "3 years", "y": [3.0, 8.0, 1.0, 18.0, 13.0]}, {"type": "scatter", "mode": "lines+markers", "x": ["2012", "2013", "2014", "2015", "2016"], "name": "4 years", "y": [0.0, 3.0, 4.0, 0.0, 10.0]}, {"type": "scatter", "mode": "lines+markers", "x": ["2012", "2013", "2014", "2015", "2016"], "name": "5 years", "y": [0.0, 0.0, 1.0, 3.0, 0.0]}, {"type": "scatter", "mode": "lines+markers", "x": ["2012", "2013", "2014", "2015", "2016"], "name": "6 years", "y": [0.0, 0.0, 0.0, 0.0, 3.0]}], {}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="d7c3edab-1244-4e3a-af8c-5d1f8afec3bd" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("d7c3edab-1244-4e3a-af8c-5d1f8afec3bd", [{"type": "scatter", "y": [18.0, 60.0, 63.0, 78.0, 47.0], "x": ["2012", "2013", "2014", "2015", "2016"], "mode": "lines+markers", "name": "1 years"}, {"type": "scatter", "y": [13.0, 7.0, 27.0, 29.0, 27.0], "x": ["2012", "2013", "2014", "2015", "2016"], "mode": "lines+markers", "name": "2 years"}, {"type": "scatter", "y": [3.0, 8.0, 1.0, 18.0, 13.0], "x": ["2012", "2013", "2014", "2015", "2016"], "mode": "lines+markers", "name": "3 years"}, {"type": "scatter", "y": [0.0, 3.0, 4.0, 0.0, 10.0], "x": ["2012", "2013", "2014", "2015", "2016"], "mode": "lines+markers", "name": "4 years"}, {"type": "scatter", "y": [0.0, 0.0, 1.0, 3.0, 0.0], "x": ["2012", "2013", "2014", "2015", "2016"], "mode": "lines+markers", "name": "5 years"}, {"type": "scatter", "y": [0.0, 0.0, 0.0, 0.0, 3.0], "x": ["2012", "2013", "2014", "2015", "2016"], "mode": "lines+markers", "name": "6 years"}], {}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
