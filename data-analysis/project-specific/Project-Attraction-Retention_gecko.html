@@ -11777,6 +11777,7 @@ div#notebook {
 <span class="kn">import</span> <span class="nn">os</span>
 
 <span class="kn">import</span> <span class="nn">plotly</span> <span class="k">as</span> <span class="nn">plotly</span>
+<span class="kn">import</span> <span class="nn">plotly.figure_factory</span> <span class="k">as</span> <span class="nn">ff</span>
 <span class="kn">import</span> <span class="nn">plotly.graph_objs</span> <span class="k">as</span> <span class="nn">go</span>
 
 <span class="kn">import</span> <span class="nn">util</span> <span class="k">as</span> <span class="nn">ut</span>
@@ -11962,16 +11963,166 @@ div#notebook {
 </div>
 
 </div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="First-project">First project<a class="anchor-link" href="#First-project">&#182;</a></h2><p>Get the project in which auhtors made their first contribution to Mozilla. Show a ranking of top 5 projects in number of newcomers to Mozilla per year.</p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[6]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#results = []</span>
+<span class="c1">#for i in analyzed_range:</span>
+
+<span class="c1"># Buckets by author name, finding first commit for each of them</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">create_search</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
+
+<span class="c1"># General filters</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">add_general_date_filters</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">add_bot_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">add_merges_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+<span class="c1"># Filter commits to the Project Repos</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">add_project_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+
+<span class="c1"># Retrieve commits before given year</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;range&#39;</span><span class="p">,</span> <span class="n">grimoire_creation_date</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;lt&#39;</span><span class="p">:</span> <span class="s1">&#39;now/y&#39;</span><span class="p">})</span>
+
+<span class="c1"># Bucketize by uuid and get first and last commit</span>
+<span class="n">s</span><span class="o">.</span><span class="n">aggs</span><span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;authors&#39;</span><span class="p">,</span> <span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_uuid&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s1">&#39;first&#39;</span><span class="p">,</span> <span class="s1">&#39;top_hits&#39;</span><span class="p">,</span> <span class="n">_source</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;author_date&#39;</span><span class="p">,</span> <span class="s1">&#39;author_org_name&#39;</span><span class="p">,</span> <span class="s1">&#39;author_uuid&#39;</span><span class="p">,</span> <span class="s1">&#39;repo_name&#39;</span><span class="p">],</span>
+            <span class="n">size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;author_date&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;order&quot;</span><span class="p">:</span> <span class="s2">&quot;asc&quot;</span><span class="p">}}])</span> \
+    <span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s1">&#39;last_commit&#39;</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_date&#39;</span><span class="p">)</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="s2">&quot;author_date&quot;</span><span class="p">)</span>
+<span class="c1">#print(s.to_dict())</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+
+<span class="n">authors_df</span> <span class="o">=</span> <span class="n">get_authors_df</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">author_bucket_field</span><span class="o">=</span><span class="s1">&#39;authors&#39;</span><span class="p">)</span>
+<span class="c1">#authors_df[&#39;active_years&#39;] = (authors_df.last_commit-authors_df.first_commit).astype(&#39;timedelta64[Y]&#39;)</span>
+<span class="n">authors_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;repo_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Repo&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Merge Spreadsheet data to get project names</span>
+<span class="n">authors_project_df</span> <span class="o">=</span> <span class="n">authors_df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">projects</span><span class="p">[</span><span class="s1">&#39;Github&#39;</span><span class="p">],</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;Repo&#39;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+<span class="n">authors_project_df</span><span class="p">[</span><span class="s1">&#39;first_commit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">authors_project_df</span><span class="p">[</span><span class="s1">&#39;first_commit&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">()</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
+
+
+<span class="n">projects_df</span> <span class="o">=</span> <span class="n">authors_project_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;first_commit&#39;</span><span class="p">,</span> <span class="s1">&#39;Project&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s1">&#39;author&#39;</span><span class="p">:</span> <span class="n">pandas</span><span class="o">.</span><span class="n">Series</span><span class="o">.</span><span class="n">nunique</span><span class="p">})</span>
+<span class="n">projects_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;author&quot;</span><span class="p">:</span> <span class="s2">&quot;# authors&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">projects_df</span> <span class="o">=</span> <span class="n">projects_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;first_commit&#39;</span><span class="p">,</span> <span class="s1">&#39;# authors&#39;</span><span class="p">],</span> <span class="n">ascending</span><span class="o">=</span><span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">])</span>
+
+<span class="n">rankings_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">projects_df</span><span class="p">[</span><span class="s1">&#39;first_commit&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">year</span> <span class="o">&gt;</span> <span class="mi">2011</span><span class="p">:</span>
+        <span class="n">year_df</span> <span class="o">=</span> <span class="n">projects_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">projects_df</span><span class="p">[</span><span class="s1">&#39;first_commit&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">year</span><span class="p">]</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+        <span class="n">rankings_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">rankings_df</span><span class="p">,</span> <span class="n">year_df</span><span class="p">])</span> 
+
+<span class="c1"># Print a table</span>
+<span class="n">plotly</span><span class="o">.</span><span class="n">offline</span><span class="o">.</span><span class="n">init_notebook_mode</span><span class="p">(</span><span class="n">connected</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">table</span> <span class="o">=</span> <span class="n">ff</span><span class="o">.</span><span class="n">create_table</span><span class="p">(</span><span class="n">rankings_df</span><span class="p">)</span>
+<span class="n">plotly</span><span class="o">.</span><span class="n">offline</span><span class="o">.</span><span class="n">iplot</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;git-top-projects-newcomers-table&#39;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<div id="27ef30d7-758e-4478-937a-ea237b98fdca" style="height: 230px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("27ef30d7-758e-4478-937a-ea237b98fdca", [{"hoverinfo": "none", "colorscale": [[0, "#00083e"], [0.5, "#ededee"], [1, "#ffffff"]], "opacity": 0.75, "showscale": false, "type": "heatmap", "z": [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1], [0.5, 0.5, 0.5], [1, 1, 1], [0.5, 0.5, 0.5]]}], {"xaxis": {"dtick": 1, "zeroline": false, "showticklabels": false, "gridwidth": 2, "ticks": "", "tick0": -0.5}, "annotations": [{"showarrow": false, "font": {"color": "#ffffff"}, "xanchor": "left", "x": -0.45, "text": "<b>first_commit</b>", "xref": "x1", "yref": "y1", "align": "left", "y": 0}, {"showarrow": false, "font": {"color": "#ffffff"}, "xanchor": "left", "x": 0.55, "text": "<b>Project</b>", "xref": "x1", "yref": "y1", "align": "left", "y": 0}, {"showarrow": false, "font": {"color": "#ffffff"}, "xanchor": "left", "x": 1.55, "text": "<b># authors</b>", "xref": "x1", "yref": "y1", "align": "left", "y": 0}, {"showarrow": false, "font": {"color": "#000000"}, "xanchor": "left", "x": -0.45, "text": "2016", "xref": "x1", "yref": "y1", "align": "left", "y": 1}, {"showarrow": false, "font": {"color": "#000000"}, "xanchor": "left", "x": 0.55, "text": "Gecko", "xref": "x1", "yref": "y1", "align": "left", "y": 1}, {"showarrow": false, "font": {"color": "#000000"}, "xanchor": "left", "x": 1.55, "text": "657", "xref": "x1", "yref": "y1", "align": "left", "y": 1}, {"showarrow": false, "font": {"color": "#000000"}, "xanchor": "left", "x": -0.45, "text": "2015", "xref": "x1", "yref": "y1", "align": "left", "y": 2}, {"showarrow": false, "font": {"color": "#000000"}, "xanchor": "left", "x": 0.55, "text": "Gecko", "xref": "x1", "yref": "y1", "align": "left", "y": 2}, {"showarrow": false, "font": {"color": "#000000"}, "xanchor": "left", "x": 1.55, "text": "663", "xref": "x1", "yref": "y1", "align": "left", "y": 2}, {"showarrow": false, "font": {"color": "#000000"}, "xanchor": "left", "x": -0.45, "text": "2014", "xref": "x1", "yref": "y1", "align": "left", "y": 3}, {"showarrow": false, "font": {"color": "#000000"}, "xanchor": "left", "x": 0.55, "text": "Gecko", "xref": "x1", "yref": "y1", "align": "left", "y": 3}, {"showarrow": false, "font": {"color": "#000000"}, "xanchor": "left", "x": 1.55, "text": "659", "xref": "x1", "yref": "y1", "align": "left", "y": 3}, {"showarrow": false, "font": {"color": "#000000"}, "xanchor": "left", "x": -0.45, "text": "2013", "xref": "x1", "yref": "y1", "align": "left", "y": 4}, {"showarrow": false, "font": {"color": "#000000"}, "xanchor": "left", "x": 0.55, "text": "Gecko", "xref": "x1", "yref": "y1", "align": "left", "y": 4}, {"showarrow": false, "font": {"color": "#000000"}, "xanchor": "left", "x": 1.55, "text": "524", "xref": "x1", "yref": "y1", "align": "left", "y": 4}, {"showarrow": false, "font": {"color": "#000000"}, "xanchor": "left", "x": -0.45, "text": "2012", "xref": "x1", "yref": "y1", "align": "left", "y": 5}, {"showarrow": false, "font": {"color": "#000000"}, "xanchor": "left", "x": 0.55, "text": "Gecko", "xref": "x1", "yref": "y1", "align": "left", "y": 5}, {"showarrow": false, "font": {"color": "#000000"}, "xanchor": "left", "x": 1.55, "text": "444", "xref": "x1", "yref": "y1", "align": "left", "y": 5}], "yaxis": {"dtick": 1, "zeroline": false, "showticklabels": false, "autorange": "reversed", "gridwidth": 2, "ticks": "", "tick0": 0.5}, "margin": {"l": 0, "b": 0, "r": 0, "t": 0}, "height": 230}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">plotly</span><span class="o">.</span><span class="n">offline</span><span class="o">.</span><span class="n">init_notebook_mode</span><span class="p">(</span><span class="n">connected</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">project</span> <span class="ow">in</span> <span class="n">rankings_df</span><span class="p">[</span><span class="s1">&#39;Project&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
+    <span class="c1">#print(exp, &#39;\n&#39;, exp_groups_evo_df.loc[exp].tolist(), &#39;\n&#39;, exp_groups_evo_df.loc[exp].index.values)</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">rankings_df</span><span class="p">[</span><span class="s1">&#39;first_commit&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">(),</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">rankings_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">rankings_df</span><span class="p">[</span><span class="s1">&#39;Project&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">project</span><span class="p">),</span> <span class="s1">&#39;# authors&#39;</span><span class="p">],</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;lines+markers&#39;</span><span class="p">,</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">project</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    
+
+
+<span class="n">plotly</span><span class="o">.</span><span class="n">offline</span><span class="o">.</span><span class="n">iplot</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;line-mode&#39;</span><span class="p">)</span>    
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<div id="164c2646-0630-425f-84f0-53b1c9c7b582" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("164c2646-0630-425f-84f0-53b1c9c7b582", [{"mode": "lines+markers", "type": "scatter", "name": "Gecko", "y": [657, 663, 659, 524, 444], "x": [2016, 2015, 2014, 2013, 2012]}], {}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">### DIFFERENCE BETWEEN FIRST AND LAST CONTRIBUTION</span>
+<span class="c1">### GET SNAPSHOTS FOR DIFFERENT YEARS</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">analyzed_range</span><span class="p">:</span>
 
     <span class="c1"># Buckets by author name, finding first commit for each of them</span>
-    <span class="n">s</span> <span class="o">=</span> <span class="n">Search</span><span class="p">(</span><span class="n">using</span><span class="o">=</span><span class="n">es_conn</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">create_search</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
     <span class="n">s</span><span class="o">.</span><span class="n">params</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
 
     <span class="c1"># General filters</span>
@@ -12014,7 +12165,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[6]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[8]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -12177,7 +12328,7 @@ div#notebook {
  2611      https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
  ...                                                 ...           ...     ...  
  785       https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
- 897   https://github.com/mozilla/universal-search-ge...           0.0   Gecko  
+ 897            https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
  1124      https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
  641       https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
  1619           https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
@@ -12367,7 +12518,7 @@ div#notebook {
  2539           https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
  ...                                                 ...           ...     ...  
  740       https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
- 840   https://github.com/mozilla/universal-search-ge...           0.0   Gecko  
+ 840            https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
  1063      https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
  610       https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
  1497           https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
@@ -12548,7 +12699,7 @@ div#notebook {
  2517      https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
  2083           https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
  1844  https://github.com/mozilla/universal-search-ge...           0.0   Gecko  
- 2714           https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
+ 2714  https://github.com/mozilla/universal-search-ge...           0.0   Gecko  
  3276           https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
  2047           https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
  2843           https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
@@ -12557,7 +12708,7 @@ div#notebook {
  2700           https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
  ...                                                 ...           ...     ...  
  695       https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
- 796   https://github.com/mozilla/universal-search-ge...           0.0   Gecko  
+ 796            https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
  1010      https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
  572       https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
  1409           https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
@@ -12725,12 +12876,12 @@ div#notebook {
  1994      https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
  2300      https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
  2839      https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
- 1725      https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
+ 1725           https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
  2202           https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
  1670  https://github.com/mozilla/universal-search-ge...           0.0   Gecko  
  2419           https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
- 1979           https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
- 1143      https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
+ 1979  https://github.com/mozilla/universal-search-ge...           0.0   Gecko  
+ 1143  https://github.com/mozilla/universal-search-ge...           0.0   Gecko  
  2022      https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
  1948  https://github.com/mozilla/universal-search-ge...           0.0   Gecko  
  2280           https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
@@ -12747,7 +12898,7 @@ div#notebook {
  2209           https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
  ...                                                 ...           ...     ...  
  629       https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
- 716   https://github.com/mozilla/universal-search-ge...           0.0   Gecko  
+ 716            https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
  916       https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
  515       https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
  1263           https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
@@ -12905,15 +13056,15 @@ div#notebook {
  1341 1998-06-22 21:28:47      Community   
  
                                                repo_name  active_years project  
- 1927  https://github.com/mozilla/universal-search-ge...           0.0   Gecko  
+ 1927      https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
  1584  https://github.com/mozilla/universal-search-ge...           0.0   Gecko  
  1435           https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
  2487           https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
  1886      https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
- 1825  https://github.com/mozilla/universal-search-ge...           0.0   Gecko  
+ 1825      https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
  1870           https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
  2461      https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
- 2001  https://github.com/mozilla/universal-search-ge...           0.0   Gecko  
+ 2001           https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
  2191      https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
  2095  https://github.com/mozilla/universal-search-ge...           0.0   Gecko  
  1626      https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
@@ -12937,7 +13088,7 @@ div#notebook {
  2252           https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
  ...                                                 ...           ...     ...  
  563       https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
- 633   https://github.com/mozilla/universal-search-ge...           0.0   Gecko  
+ 633            https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
  820       https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
  461       https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
  1131           https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
@@ -12978,7 +13129,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># AUTHORS GROUPED BY FIRST COMMIT DATE</span>
@@ -13003,7 +13154,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[7]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[9]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -13103,7 +13254,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Plot bar charts for each dataframe</span>
@@ -13145,7 +13296,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="6d7c17dc-03e0-411a-a688-fa18f17e5140" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("6d7c17dc-03e0-411a-a688-fa18f17e5140", [{"type": "bar", "y": [-2016, -2015, -2014, -2013, -2012, -2011, -2010, -2009, -2008, -2007, -2006, -2005, -2004, -2003, -2002, -2001, -2000, -1999, -1998], "x": [657, 663, 659, 524, 444, 330, 260, 286, 306, 175, 63, 53, 45, 49, 51, 92, 114, 91, 232], "orientation": "h"}], {"barmode": "group", "title": "Gecko 2016"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="f7ae562e-52ca-4ec5-b3d9-caad72e0d686" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("f7ae562e-52ca-4ec5-b3d9-caad72e0d686", [{"type": "bar", "orientation": "h", "x": [657, 663, 659, 524, 444, 330, 260, 286, 306, 175, 63, 53, 45, 49, 51, 92, 114, 91, 232], "y": [-2016, -2015, -2014, -2013, -2012, -2011, -2010, -2009, -2008, -2007, -2006, -2005, -2004, -2003, -2002, -2001, -2000, -1999, -1998]}], {"title": "Gecko 2016", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -13172,7 +13323,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Plot bar charts for each dataframe</span>
@@ -13202,7 +13353,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="5c6f1ee6-db9a-435c-a159-978fede12709" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("5c6f1ee6-db9a-435c-a159-978fede12709", [{"type": "bar", "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], "x": [3479, 438, 314, 210, 166, 130, 113, 93, 99, 44, 0, 2, 2, 1, 1, 1, 1], "orientation": "h"}], {"barmode": "group", "title": "Gecko 2016"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="954b213d-2699-4199-84df-4fceb8b84f23" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("954b213d-2699-4199-84df-4fceb8b84f23", [{"type": "bar", "orientation": "h", "x": [3479, 438, 314, 210, 166, 130, 113, 93, 99, 44, 0, 2, 2, 1, 1, 1, 1], "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]}], {"title": "Gecko 2016", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -13218,7 +13369,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="1598500c-a5e0-40a0-82fd-a925045aad85" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("1598500c-a5e0-40a0-82fd-a925045aad85", [{"type": "bar", "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], "x": [2985, 386, 312, 184, 147, 113, 106, 102, 93, 1, 1, 1, 2, 1, 2, 1], "orientation": "h"}], {"barmode": "group", "title": "Gecko 2015"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="f1f31cd8-da91-468c-bd97-94ef3d28b7bb" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("f1f31cd8-da91-468c-bd97-94ef3d28b7bb", [{"type": "bar", "orientation": "h", "x": [2985, 386, 312, 184, 147, 113, 106, 102, 93, 1, 1, 1, 2, 1, 2, 1], "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]}], {"title": "Gecko 2015", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -13234,7 +13385,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="aa7b7f8f-1a8a-40d2-83b0-7ee27c62ecdc" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("aa7b7f8f-1a8a-40d2-83b0-7ee27c62ecdc", [{"type": "bar", "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "x": [2472, 372, 276, 154, 115, 125, 115, 99, 37, 2, 0, 1, 2, 2, 2], "orientation": "h"}], {"barmode": "group", "title": "Gecko 2014"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="a41d9c00-75ca-431b-841e-4558c7172493" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("a41d9c00-75ca-431b-841e-4558c7172493", [{"type": "bar", "orientation": "h", "x": [2472, 372, 276, 154, 115, 125, 115, 99, 37, 2, 0, 1, 2, 2, 2], "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]}], {"title": "Gecko 2014", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -13250,7 +13401,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="fe181c7f-6a97-4c06-a5ff-718c10d9b4a3" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("fe181c7f-6a97-4c06-a5ff-718c10d9b4a3", [{"type": "bar", "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], "x": [1988, 333, 230, 117, 121, 129, 109, 42, 39, 0, 1, 1, 3, 2], "orientation": "h"}], {"barmode": "group", "title": "Gecko 2013"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="d614148b-6f8d-4f1e-9d31-eaa91f5e80b8" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("d614148b-6f8d-4f1e-9d31-eaa91f5e80b8", [{"type": "bar", "orientation": "h", "x": [1988, 333, 230, 117, 121, 129, 109, 42, 39, 0, 1, 1, 3, 2], "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]}], {"title": "Gecko 2013", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -13266,7 +13417,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="aebd01cd-425b-448c-b77e-3f5785be8384" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("aebd01cd-425b-448c-b77e-3f5785be8384", [{"type": "bar", "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], "x": [1632, 267, 188, 124, 119, 117, 56, 44, 37, 1, 0, 3, 2, 1], "orientation": "h"}], {"barmode": "group", "title": "Gecko 2012"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="c226a438-c8c8-4c07-96f7-da6389e1e4f2" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("c226a438-c8c8-4c07-96f7-da6389e1e4f2", [{"type": "bar", "orientation": "h", "x": [1632, 267, 188, 124, 119, 117, 56, 44, 37, 1, 0, 3, 2, 1], "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]}], {"title": "Gecko 2012", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -13293,7 +13444,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">active_authors_dfs</span> <span class="o">=</span> <span class="p">[]</span>
@@ -13316,7 +13467,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[10]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[12]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -13481,7 +13632,7 @@ div#notebook {
  257            https://github.com/mozilla/gecko-dev.git           9.0   Gecko  
  159       https://github.com/mozilla/gecko-projects.git           9.0   Gecko  
  180            https://github.com/mozilla/gecko-dev.git           9.0   Gecko  
- 69             https://github.com/mozilla/gecko-dev.git           9.0   Gecko  
+ 69        https://github.com/mozilla/gecko-projects.git           9.0   Gecko  
  41    https://github.com/mozilla/universal-search-ge...           9.0   Gecko  
  1              https://github.com/mozilla/gecko-dev.git           9.0   Gecko  
  23             https://github.com/mozilla/gecko-dev.git           9.0   Gecko  
@@ -13503,7 +13654,7 @@ div#notebook {
  122       https://github.com/mozilla/gecko-projects.git           9.0   Gecko  
  62             https://github.com/mozilla/gecko-dev.git           9.0   Gecko  
  6         https://github.com/mozilla/gecko-projects.git           9.0   Gecko  
- 25        https://github.com/mozilla/gecko-projects.git           9.0   Gecko  
+ 25    https://github.com/mozilla/universal-search-ge...           9.0   Gecko  
  74    https://github.com/mozilla/universal-search-ge...           9.0   Gecko  
  3         https://github.com/mozilla/gecko-projects.git          11.0   Gecko  
  231       https://github.com/mozilla/gecko-projects.git          15.0   Gecko  
@@ -13689,7 +13840,7 @@ div#notebook {
  115       https://github.com/mozilla/gecko-projects.git           7.0   Gecko  
  60             https://github.com/mozilla/gecko-dev.git           8.0   Gecko  
  5         https://github.com/mozilla/gecko-projects.git           8.0   Gecko  
- 23        https://github.com/mozilla/gecko-projects.git           8.0   Gecko  
+ 23    https://github.com/mozilla/universal-search-ge...           8.0   Gecko  
  105       https://github.com/mozilla/gecko-projects.git           8.0   Gecko  
  65    https://github.com/mozilla/universal-search-ge...           8.0   Gecko  
  10        https://github.com/mozilla/gecko-projects.git           9.0   Gecko  
@@ -13850,7 +14001,7 @@ div#notebook {
  946       https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
  812            https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
  723   https://github.com/mozilla/universal-search-ge...           0.0   Gecko  
- 1015           https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
+ 1015  https://github.com/mozilla/universal-search-ge...           0.0   Gecko  
  1168           https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
  800            https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
  1056           https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
@@ -13871,7 +14022,7 @@ div#notebook {
  18             https://github.com/mozilla/gecko-dev.git           7.0   Gecko  
  85        https://github.com/mozilla/gecko-projects.git           7.0   Gecko  
  14        https://github.com/mozilla/gecko-projects.git           7.0   Gecko  
- 237            https://github.com/mozilla/gecko-dev.git           7.0   Gecko  
+ 237   https://github.com/mozilla/universal-search-ge...           7.0   Gecko  
  33    https://github.com/mozilla/universal-search-ge...           7.0   Gecko  
  150            https://github.com/mozilla/gecko-dev.git           7.0   Gecko  
  70             https://github.com/mozilla/gecko-dev.git           7.0   Gecko  
@@ -13879,7 +14030,7 @@ div#notebook {
  100       https://github.com/mozilla/gecko-projects.git           7.0   Gecko  
  53             https://github.com/mozilla/gecko-dev.git           7.0   Gecko  
  5         https://github.com/mozilla/gecko-projects.git           7.0   Gecko  
- 20        https://github.com/mozilla/gecko-projects.git           7.0   Gecko  
+ 20    https://github.com/mozilla/universal-search-ge...           7.0   Gecko  
  89        https://github.com/mozilla/gecko-projects.git           7.0   Gecko  
  60    https://github.com/mozilla/universal-search-ge...           7.0   Gecko  
  6         https://github.com/mozilla/gecko-projects.git           9.0   Gecko  
@@ -14027,12 +14178,12 @@ div#notebook {
  756       https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
  858       https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
  1013      https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
- 657       https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
+ 657            https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
  828            https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
  638   https://github.com/mozilla/universal-search-ge...           0.0   Gecko  
  893            https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
- 753            https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
- 450       https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
+ 753   https://github.com/mozilla/universal-search-ge...           0.0   Gecko  
+ 450   https://github.com/mozilla/universal-search-ge...           0.0   Gecko  
  764       https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
  748   https://github.com/mozilla/universal-search-ge...           0.0   Gecko  
  854            https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
@@ -14060,15 +14211,15 @@ div#notebook {
  23             https://github.com/mozilla/gecko-dev.git           6.0   Gecko  
  80        https://github.com/mozilla/gecko-projects.git           6.0   Gecko  
  13        https://github.com/mozilla/gecko-projects.git           6.0   Gecko  
- 196            https://github.com/mozilla/gecko-dev.git           5.0   Gecko  
+ 196   https://github.com/mozilla/universal-search-ge...           5.0   Gecko  
  40    https://github.com/mozilla/universal-search-ge...           6.0   Gecko  
- 59        https://github.com/mozilla/gecko-projects.git           5.0   Gecko  
+ 59             https://github.com/mozilla/gecko-dev.git           5.0   Gecko  
  130            https://github.com/mozilla/gecko-dev.git           6.0   Gecko  
  67             https://github.com/mozilla/gecko-dev.git           6.0   Gecko  
  20        https://github.com/mozilla/gecko-projects.git           6.0   Gecko  
  51             https://github.com/mozilla/gecko-dev.git           6.0   Gecko  
  4         https://github.com/mozilla/gecko-projects.git           6.0   Gecko  
- 19        https://github.com/mozilla/gecko-projects.git           6.0   Gecko  
+ 19    https://github.com/mozilla/universal-search-ge...           6.0   Gecko  
  84        https://github.com/mozilla/gecko-projects.git           6.0   Gecko  
  45    https://github.com/mozilla/universal-search-ge...           6.0   Gecko  
  5         https://github.com/mozilla/gecko-projects.git           8.0   Gecko  
@@ -14207,15 +14358,15 @@ div#notebook {
  1   2012-12-28 16:09:25  Mozilla Staff   
  
                                               repo_name  active_years project  
- 699  https://github.com/mozilla/universal-search-ge...           0.0   Gecko  
+ 699      https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
  563  https://github.com/mozilla/universal-search-ge...           0.0   Gecko  
  511           https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
  847           https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
  683      https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
- 657  https://github.com/mozilla/universal-search-ge...           0.0   Gecko  
+ 657      https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
  678           https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
  840      https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
- 718  https://github.com/mozilla/universal-search-ge...           0.0   Gecko  
+ 718           https://github.com/mozilla/gecko-dev.git           0.0   Gecko  
  774      https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
  740  https://github.com/mozilla/universal-search-ge...           0.0   Gecko  
  584      https://github.com/mozilla/gecko-projects.git           0.0   Gecko  
@@ -14247,16 +14398,16 @@ div#notebook {
  32            https://github.com/mozilla/gecko-dev.git           5.0   Gecko  
  70       https://github.com/mozilla/gecko-projects.git           5.0   Gecko  
  10       https://github.com/mozilla/gecko-projects.git           5.0   Gecko  
- 152           https://github.com/mozilla/gecko-dev.git           5.0   Gecko  
+ 152  https://github.com/mozilla/universal-search-ge...           5.0   Gecko  
  41   https://github.com/mozilla/universal-search-ge...           5.0   Gecko  
- 45       https://github.com/mozilla/gecko-projects.git           5.0   Gecko  
+ 45            https://github.com/mozilla/gecko-dev.git           5.0   Gecko  
  107           https://github.com/mozilla/gecko-dev.git           5.0   Gecko  
  53            https://github.com/mozilla/gecko-dev.git           5.0   Gecko  
  13       https://github.com/mozilla/gecko-projects.git           5.0   Gecko  
  46            https://github.com/mozilla/gecko-dev.git           5.0   Gecko  
  5        https://github.com/mozilla/gecko-projects.git           5.0   Gecko  
  89   https://github.com/mozilla/universal-search-ge...           5.0   Gecko  
- 20       https://github.com/mozilla/gecko-projects.git           5.0   Gecko  
+ 20   https://github.com/mozilla/universal-search-ge...           5.0   Gecko  
  63       https://github.com/mozilla/gecko-projects.git           5.0   Gecko  
  34   https://github.com/mozilla/universal-search-ge...           5.0   Gecko  
  4        https://github.com/mozilla/gecko-projects.git           7.0   Gecko  
@@ -14280,7 +14431,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Plot bar charts for each dataframe</span>
@@ -14310,7 +14461,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="b4abb48d-bf9c-484d-b9a3-1cf865036175" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("b4abb48d-bf9c-484d-b9a3-1cf865036175", [{"type": "bar", "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], "x": [741, 135, 89, 91, 75, 50, 42, 39, 55, 43, 0, 1, 0, 0, 0, 1, 1], "orientation": "h"}], {"barmode": "group", "title": "Gecko 2016"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="10a818ff-f3e1-4fa6-bc02-a88ee01a912f" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("10a818ff-f3e1-4fa6-bc02-a88ee01a912f", [{"type": "bar", "orientation": "h", "x": [741, 135, 89, 91, 75, 50, 42, 39, 55, 43, 0, 1, 0, 0, 0, 1, 1], "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]}], {"title": "Gecko 2016", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -14326,7 +14477,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="c3674946-613b-426a-b42f-3e46f2c3dfcc" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("c3674946-613b-426a-b42f-3e46f2c3dfcc", [{"type": "bar", "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], "x": [743, 131, 127, 89, 65, 36, 45, 54, 56, 1, 1, 0, 1, 0, 2, 1], "orientation": "h"}], {"barmode": "group", "title": "Gecko 2015"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="56275a78-d853-4508-8c96-b41beed76eaf" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("56275a78-d853-4508-8c96-b41beed76eaf", [{"type": "bar", "orientation": "h", "x": [743, 131, 127, 89, 65, 36, 45, 54, 56, 1, 1, 0, 1, 0, 2, 1], "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]}], {"title": "Gecko 2015", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -14342,7 +14493,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="35ad9e11-5248-4854-a4d6-9fccc1d27d8c" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("35ad9e11-5248-4854-a4d6-9fccc1d27d8c", [{"type": "bar", "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "x": [728, 165, 119, 75, 41, 53, 57, 57, 0, 2, 0, 0, 1, 1, 2], "orientation": "h"}], {"barmode": "group", "title": "Gecko 2014"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="d1a2ed19-0a9e-4ad1-b350-e39687deff33" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("d1a2ed19-0a9e-4ad1-b350-e39687deff33", [{"type": "bar", "orientation": "h", "x": [728, 165, 119, 75, 41, 53, 57, 57, 0, 2, 0, 0, 1, 1, 2], "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]}], {"title": "Gecko 2014", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -14358,7 +14509,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="6e480fe2-4309-4849-b42f-b4ef5d8aca96" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("6e480fe2-4309-4849-b42f-b4ef5d8aca96", [{"type": "bar", "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], "x": [580, 149, 95, 50, 62, 69, 53, 0, 2, 0, 1, 0, 2, 2], "orientation": "h"}], {"barmode": "group", "title": "Gecko 2013"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="141be272-02a9-42cc-a360-e9f5f08719e4" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("141be272-02a9-42cc-a360-e9f5f08719e4", [{"type": "bar", "orientation": "h", "x": [580, 149, 95, 50, 62, 69, 53, 0, 2, 0, 1, 0, 2, 2], "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]}], {"title": "Gecko 2013", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -14374,7 +14525,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="27d3961a-df6c-4b87-acf4-9390a9633b1d" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("27d3961a-df6c-4b87-acf4-9390a9633b1d", [{"type": "bar", "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], "x": [488, 105, 63, 69, 68, 63, 0, 3, 0, 1, 0, 3, 1, 1], "orientation": "h"}], {"barmode": "group", "title": "Gecko 2012"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="8445115b-2e81-4ddc-abea-1f27e9a7ff91" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("8445115b-2e81-4ddc-abea-1f27e9a7ff91", [{"type": "bar", "orientation": "h", "x": [488, 105, 63, 69, 68, 63, 0, 3, 0, 1, 0, 3, 1, 1], "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]}], {"title": "Gecko 2012", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -14402,7 +14553,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">###</span>
@@ -14450,7 +14601,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">###</span>
@@ -14495,7 +14646,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[13]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[15]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -15154,7 +15305,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="prompt input_prompt">In&nbsp;[16]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Plot bar charts for each dataframe</span>
@@ -15194,7 +15345,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="c04d042d-9958-4557-a314-fb3a694847c6" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("c04d042d-9958-4557-a314-fb3a694847c6", [{"type": "bar", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "x": [126, 59, 54, 43, 55, 30, 28, 18, 18, 24, 0, 0, 0, 1], "orientation": "h"}], {"barmode": "group", "title": "Gecko 2016"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="2f8a7324-1ff1-425a-82b3-380f1b02bbc7" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("2f8a7324-1ff1-425a-82b3-380f1b02bbc7", [{"type": "bar", "orientation": "h", "x": [126, 59, 54, 43, 55, 30, 28, 18, 18, 24, 0, 0, 0, 1], "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]}], {"title": "Gecko 2016", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15210,7 +15361,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="ad31cd8b-8399-4ea3-98fb-4f3c15bf56ae" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("ad31cd8b-8399-4ea3-98fb-4f3c15bf56ae", [{"type": "bar", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "x": [75, 47, 50, 41, 53, 27, 25, 14, 17, 23, 0, 0, 0, 1], "orientation": "h"}], {"barmode": "group", "title": "Gecko employees 2016"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="825a8b50-ba29-4c91-a3e3-803661cfe7cd" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("825a8b50-ba29-4c91-a3e3-803661cfe7cd", [{"type": "bar", "orientation": "h", "x": [75, 47, 50, 41, 53, 27, 25, 14, 17, 23, 0, 0, 0, 1], "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]}], {"title": "Gecko employees 2016", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15226,7 +15377,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="227bdb30-794d-4c2e-90cf-3a1898b325f4" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("227bdb30-794d-4c2e-90cf-3a1898b325f4", [{"type": "bar", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "x": [51, 12, 4, 2, 2, 3, 3, 4, 1, 1], "orientation": "h"}], {"barmode": "group", "title": "Gecko non-employees 2016"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="fbf3c6f4-822d-4323-90b0-c3ada397fe83" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("fbf3c6f4-822d-4323-90b0-c3ada397fe83", [{"type": "bar", "orientation": "h", "x": [51, 12, 4, 2, 2, 3, 3, 4, 1, 1], "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}], {"title": "Gecko non-employees 2016", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15242,7 +15393,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="a078df6d-20e1-4c96-8276-cced777e7eec" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("a078df6d-20e1-4c96-8276-cced777e7eec", [{"type": "bar", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "x": [103, 75, 55, 66, 38, 32, 23, 21, 30, 0, 1, 0, 0, 1], "orientation": "h"}], {"barmode": "group", "title": "Gecko 2015"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="c0f38647-0140-4d50-a7e5-cfe77245112f" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("c0f38647-0140-4d50-a7e5-cfe77245112f", [{"type": "bar", "orientation": "h", "x": [103, 75, 55, 66, 38, 32, 23, 21, 30, 0, 1, 0, 0, 1], "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]}], {"title": "Gecko 2015", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15258,7 +15409,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="18fce0be-aa4a-4d6b-a54e-f07bb940700c" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("18fce0be-aa4a-4d6b-a54e-f07bb940700c", [{"type": "bar", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "x": [61, 69, 53, 64, 35, 29, 18, 20, 28, 0, 1, 0, 0, 1], "orientation": "h"}], {"barmode": "group", "title": "Gecko employees 2015"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="a8e9d1a6-5cd7-4350-9f5a-ce8029bb6916" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("a8e9d1a6-5cd7-4350-9f5a-ce8029bb6916", [{"type": "bar", "orientation": "h", "x": [61, 69, 53, 64, 35, 29, 18, 20, 28, 0, 1, 0, 0, 1], "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]}], {"title": "Gecko employees 2015", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15274,7 +15425,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="dc097d48-a278-462c-afed-4c9c94575099" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("dc097d48-a278-462c-afed-4c9c94575099", [{"type": "bar", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9], "x": [42, 6, 2, 2, 3, 3, 5, 1, 2], "orientation": "h"}], {"barmode": "group", "title": "Gecko non-employees 2015"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="4a42b960-903d-4b69-b2bd-50e1705a569b" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("4a42b960-903d-4b69-b2bd-50e1705a569b", [{"type": "bar", "orientation": "h", "x": [42, 6, 2, 2, 3, 3, 5, 1, 2], "y": [1, 2, 3, 4, 5, 6, 7, 8, 9]}], {"title": "Gecko non-employees 2015", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15290,7 +15441,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="037f3bcf-7d40-4e43-a52e-55f04ff460d8" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("037f3bcf-7d40-4e43-a52e-55f04ff460d8", [{"type": "bar", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], "x": [128, 77, 98, 43, 36, 27, 23, 33, 0, 1, 0, 0, 1], "orientation": "h"}], {"barmode": "group", "title": "Gecko 2014"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="7713e642-fdbf-4df6-84a2-686ef6b880ca" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("7713e642-fdbf-4df6-84a2-686ef6b880ca", [{"type": "bar", "orientation": "h", "x": [128, 77, 98, 43, 36, 27, 23, 33, 0, 1, 0, 0, 1], "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]}], {"title": "Gecko 2014", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15306,7 +15457,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="59a58cb8-11f0-44d9-bcc2-01e22462cffb" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("59a58cb8-11f0-44d9-bcc2-01e22462cffb", [{"type": "bar", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], "x": [113, 76, 96, 40, 33, 23, 22, 30, 0, 1, 0, 0, 1], "orientation": "h"}], {"barmode": "group", "title": "Gecko employees 2014"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="4887ed99-e9ce-4fa0-9d7b-2a0ee2262096" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("4887ed99-e9ce-4fa0-9d7b-2a0ee2262096", [{"type": "bar", "orientation": "h", "x": [113, 76, 96, 40, 33, 23, 22, 30, 0, 1, 0, 0, 1], "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]}], {"title": "Gecko employees 2014", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15322,7 +15473,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="495e4195-c7bd-4c30-9036-666cd22b3726" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("495e4195-c7bd-4c30-9036-666cd22b3726", [{"type": "bar", "y": [1, 2, 3, 4, 5, 6, 7, 8], "x": [15, 1, 2, 3, 3, 4, 1, 3], "orientation": "h"}], {"barmode": "group", "title": "Gecko non-employees 2014"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="7666fe25-a1f5-4f9b-970d-03fcf48b5922" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("7666fe25-a1f5-4f9b-970d-03fcf48b5922", [{"type": "bar", "orientation": "h", "x": [15, 1, 2, 3, 3, 4, 1, 3], "y": [1, 2, 3, 4, 5, 6, 7, 8]}], {"title": "Gecko non-employees 2014", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15338,7 +15489,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="0b90c3f7-7fba-4cf8-a9ac-ab224be303af" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("0b90c3f7-7fba-4cf8-a9ac-ab224be303af", [{"type": "bar", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], "x": [128, 112, 49, 39, 25, 27, 33, 0, 1, 0, 0, 0, 1], "orientation": "h"}], {"barmode": "group", "title": "Gecko 2013"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="5077ab92-9644-473d-8937-688d6e3306b2" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("5077ab92-9644-473d-8937-688d6e3306b2", [{"type": "bar", "orientation": "h", "x": [128, 112, 49, 39, 25, 27, 33, 0, 1, 0, 0, 0, 1], "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]}], {"title": "Gecko 2013", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15354,7 +15505,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="57ca62a0-01ac-4dc3-b6f1-dd8d0c81271d" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("57ca62a0-01ac-4dc3-b6f1-dd8d0c81271d", [{"type": "bar", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], "x": [116, 110, 46, 34, 23, 25, 30, 0, 1, 0, 0, 0, 1], "orientation": "h"}], {"barmode": "group", "title": "Gecko employees 2013"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="e6b977f2-b68f-4d1c-81a2-2d745a075d9e" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("e6b977f2-b68f-4d1c-81a2-2d745a075d9e", [{"type": "bar", "orientation": "h", "x": [116, 110, 46, 34, 23, 25, 30, 0, 1, 0, 0, 0, 1], "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]}], {"title": "Gecko employees 2013", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15370,7 +15521,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="2f91733c-d817-4d14-9ed3-424275cb40d2" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("2f91733c-d817-4d14-9ed3-424275cb40d2", [{"type": "bar", "y": [1, 2, 3, 4, 5, 6, 7], "x": [12, 2, 3, 5, 2, 2, 3], "orientation": "h"}], {"barmode": "group", "title": "Gecko non-employees 2013"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="b63fee28-f465-4ec6-9a51-46d06b29e0f4" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("b63fee28-f465-4ec6-9a51-46d06b29e0f4", [{"type": "bar", "orientation": "h", "x": [12, 2, 3, 5, 2, 2, 3], "y": [1, 2, 3, 4, 5, 6, 7]}], {"title": "Gecko non-employees 2013", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15386,7 +15537,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="3153f651-3597-4b34-b842-3323025ff9de" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("3153f651-3597-4b34-b842-3323025ff9de", [{"type": "bar", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], "x": [129, 56, 41, 33, 34, 36, 0, 1, 0, 0, 0, 2], "orientation": "h"}], {"barmode": "group", "title": "Gecko 2012"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="5a9d968f-2640-4fdd-ae0d-ad75887af04d" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("5a9d968f-2640-4fdd-ae0d-ad75887af04d", [{"type": "bar", "orientation": "h", "x": [129, 56, 41, 33, 34, 36, 0, 1, 0, 0, 0, 2], "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}], {"title": "Gecko 2012", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15402,7 +15553,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="d526d0c0-aaaf-4db3-88c9-dc057f7b3fd3" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("d526d0c0-aaaf-4db3-88c9-dc057f7b3fd3", [{"type": "bar", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], "x": [119, 54, 36, 30, 30, 33, 0, 1, 0, 0, 0, 2], "orientation": "h"}], {"barmode": "group", "title": "Gecko employees 2012"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="995e24d8-9e0d-4bbf-9df7-d12238396122" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("995e24d8-9e0d-4bbf-9df7-d12238396122", [{"type": "bar", "orientation": "h", "x": [119, 54, 36, 30, 30, 33, 0, 1, 0, 0, 0, 2], "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}], {"title": "Gecko employees 2012", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15418,7 +15569,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="fc99b5a2-2a0d-4240-bd7c-20e52f73e282" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("fc99b5a2-2a0d-4240-bd7c-20e52f73e282", [{"type": "bar", "y": [1, 2, 3, 4, 5, 6], "x": [10, 2, 5, 3, 4, 3], "orientation": "h"}], {"barmode": "group", "title": "Gecko non-employees 2012"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="ec816442-1d05-47ba-b466-2406ea787852" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("ec816442-1d05-47ba-b466-2406ea787852", [{"type": "bar", "orientation": "h", "x": [10, 2, 5, 3, 4, 3], "y": [1, 2, 3, 4, 5, 6]}], {"title": "Gecko non-employees 2012", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15446,7 +15597,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[15]:</div>
+<div class="prompt input_prompt">In&nbsp;[17]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">exp_groups_evo_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">])</span>
@@ -15488,7 +15639,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[15]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[17]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 <div>
@@ -15646,7 +15797,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[16]:</div>
+<div class="prompt input_prompt">In&nbsp;[18]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">exp_groups_evo_moz_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">])</span>
@@ -15690,7 +15841,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[16]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[18]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 <div>
@@ -15848,7 +15999,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[17]:</div>
+<div class="prompt input_prompt">In&nbsp;[19]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">exp_groups_evo_others_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">])</span>
@@ -15895,7 +16046,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[17]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[19]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 <div>
@@ -16027,7 +16178,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[18]:</div>
+<div class="prompt input_prompt">In&nbsp;[20]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">plotly</span><span class="o">.</span><span class="n">offline</span><span class="o">.</span><span class="n">init_notebook_mode</span><span class="p">(</span><span class="n">connected</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -16068,7 +16219,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="b72cb9ed-af63-426d-986f-69a28455cd41" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("b72cb9ed-af63-426d-986f-69a28455cd41", [{"type": "scatter", "name": "1 years", "x": ["2012", "2013", "2014", "2015", "2016"], "y": [129.0, 128.0, 128.0, 103.0, 126.0], "mode": "lines+markers"}, {"type": "scatter", "name": "2 years", "x": ["2012", "2013", "2014", "2015", "2016"], "y": [56.0, 112.0, 77.0, 75.0, 59.0], "mode": "lines+markers"}, {"type": "scatter", "name": "3 years", "x": ["2012", "2013", "2014", "2015", "2016"], "y": [41.0, 49.0, 98.0, 55.0, 54.0], "mode": "lines+markers"}, {"type": "scatter", "name": "4 years", "x": ["2012", "2013", "2014", "2015", "2016"], "y": [33.0, 39.0, 43.0, 66.0, 43.0], "mode": "lines+markers"}, {"type": "scatter", "name": "5 years", "x": ["2012", "2013", "2014", "2015", "2016"], "y": [34.0, 25.0, 36.0, 38.0, 55.0], "mode": "lines+markers"}, {"type": "scatter", "name": "6 years", "x": ["2012", "2013", "2014", "2015", "2016"], "y": [36.0, 27.0, 27.0, 32.0, 30.0], "mode": "lines+markers"}, {"type": "scatter", "name": "7 years", "x": ["2012", "2013", "2014", "2015", "2016"], "y": [0.0, 33.0, 23.0, 23.0, 28.0], "mode": "lines+markers"}, {"type": "scatter", "name": "8 years", "x": ["2012", "2013", "2014", "2015", "2016"], "y": [1.0, 0.0, 33.0, 21.0, 18.0], "mode": "lines+markers"}, {"type": "scatter", "name": "9 years", "x": ["2012", "2013", "2014", "2015", "2016"], "y": [0.0, 1.0, 0.0, 30.0, 18.0], "mode": "lines+markers"}, {"type": "scatter", "name": "10 years", "x": ["2012", "2013", "2014", "2015", "2016"], "y": [0.0, 0.0, 1.0, 0.0, 24.0], "mode": "lines+markers"}, {"type": "scatter", "name": "11 years", "x": ["2012", "2013", "2014", "2015", "2016"], "y": [0.0, 0.0, 0.0, 1.0, 0.0], "mode": "lines+markers"}, {"type": "scatter", "name": "12 years", "x": ["2012", "2013", "2014", "2015", "2016"], "y": [2.0, 0.0, 0.0, 0.0, 0.0], "mode": "lines+markers"}, {"type": "scatter", "name": "13 years", "x": ["2012", "2013", "2014", "2015", "2016"], "y": [0.0, 1.0, 1.0, 0.0, 0.0], "mode": "lines+markers"}, {"type": "scatter", "name": "14 years", "x": ["2012", "2013", "2014", "2015", "2016"], "y": [0.0, 0.0, 0.0, 1.0, 1.0], "mode": "lines+markers"}], {}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="51a0b97d-d9de-485e-ad1e-08a7e7c79ac2" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("51a0b97d-d9de-485e-ad1e-08a7e7c79ac2", [{"mode": "lines+markers", "type": "scatter", "name": "1 years", "y": [129.0, 128.0, 128.0, 103.0, 126.0], "x": ["2012", "2013", "2014", "2015", "2016"]}, {"mode": "lines+markers", "type": "scatter", "name": "2 years", "y": [56.0, 112.0, 77.0, 75.0, 59.0], "x": ["2012", "2013", "2014", "2015", "2016"]}, {"mode": "lines+markers", "type": "scatter", "name": "3 years", "y": [41.0, 49.0, 98.0, 55.0, 54.0], "x": ["2012", "2013", "2014", "2015", "2016"]}, {"mode": "lines+markers", "type": "scatter", "name": "4 years", "y": [33.0, 39.0, 43.0, 66.0, 43.0], "x": ["2012", "2013", "2014", "2015", "2016"]}, {"mode": "lines+markers", "type": "scatter", "name": "5 years", "y": [34.0, 25.0, 36.0, 38.0, 55.0], "x": ["2012", "2013", "2014", "2015", "2016"]}, {"mode": "lines+markers", "type": "scatter", "name": "6 years", "y": [36.0, 27.0, 27.0, 32.0, 30.0], "x": ["2012", "2013", "2014", "2015", "2016"]}, {"mode": "lines+markers", "type": "scatter", "name": "7 years", "y": [0.0, 33.0, 23.0, 23.0, 28.0], "x": ["2012", "2013", "2014", "2015", "2016"]}, {"mode": "lines+markers", "type": "scatter", "name": "8 years", "y": [1.0, 0.0, 33.0, 21.0, 18.0], "x": ["2012", "2013", "2014", "2015", "2016"]}, {"mode": "lines+markers", "type": "scatter", "name": "9 years", "y": [0.0, 1.0, 0.0, 30.0, 18.0], "x": ["2012", "2013", "2014", "2015", "2016"]}, {"mode": "lines+markers", "type": "scatter", "name": "10 years", "y": [0.0, 0.0, 1.0, 0.0, 24.0], "x": ["2012", "2013", "2014", "2015", "2016"]}, {"mode": "lines+markers", "type": "scatter", "name": "11 years", "y": [0.0, 0.0, 0.0, 1.0, 0.0], "x": ["2012", "2013", "2014", "2015", "2016"]}, {"mode": "lines+markers", "type": "scatter", "name": "12 years", "y": [2.0, 0.0, 0.0, 0.0, 0.0], "x": ["2012", "2013", "2014", "2015", "2016"]}, {"mode": "lines+markers", "type": "scatter", "name": "13 years", "y": [0.0, 1.0, 1.0, 0.0, 0.0], "x": ["2012", "2013", "2014", "2015", "2016"]}, {"mode": "lines+markers", "type": "scatter", "name": "14 years", "y": [0.0, 0.0, 0.0, 1.0, 1.0], "x": ["2012", "2013", "2014", "2015", "2016"]}], {}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>

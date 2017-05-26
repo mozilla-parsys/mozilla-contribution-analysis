@@ -11777,6 +11777,7 @@ div#notebook {
 <span class="kn">import</span> <span class="nn">os</span>
 
 <span class="kn">import</span> <span class="nn">plotly</span> <span class="k">as</span> <span class="nn">plotly</span>
+<span class="kn">import</span> <span class="nn">plotly.figure_factory</span> <span class="k">as</span> <span class="nn">ff</span>
 <span class="kn">import</span> <span class="nn">plotly.graph_objs</span> <span class="k">as</span> <span class="nn">go</span>
 
 <span class="kn">import</span> <span class="nn">util</span> <span class="k">as</span> <span class="nn">ut</span>
@@ -11962,16 +11963,166 @@ div#notebook {
 </div>
 
 </div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="First-project">First project<a class="anchor-link" href="#First-project">&#182;</a></h2><p>Get the project in which auhtors made their first contribution to Mozilla. Show a ranking of top 5 projects in number of newcomers to Mozilla per year.</p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[6]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#results = []</span>
+<span class="c1">#for i in analyzed_range:</span>
+
+<span class="c1"># Buckets by author name, finding first commit for each of them</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">create_search</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
+
+<span class="c1"># General filters</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">add_general_date_filters</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">add_bot_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">add_merges_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+<span class="c1"># Filter commits to the Project Repos</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">add_project_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+
+<span class="c1"># Retrieve commits before given year</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;range&#39;</span><span class="p">,</span> <span class="n">grimoire_creation_date</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;lt&#39;</span><span class="p">:</span> <span class="s1">&#39;now/y&#39;</span><span class="p">})</span>
+
+<span class="c1"># Bucketize by uuid and get first and last commit</span>
+<span class="n">s</span><span class="o">.</span><span class="n">aggs</span><span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;authors&#39;</span><span class="p">,</span> <span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_uuid&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s1">&#39;first&#39;</span><span class="p">,</span> <span class="s1">&#39;top_hits&#39;</span><span class="p">,</span> <span class="n">_source</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;author_date&#39;</span><span class="p">,</span> <span class="s1">&#39;author_org_name&#39;</span><span class="p">,</span> <span class="s1">&#39;author_uuid&#39;</span><span class="p">,</span> <span class="s1">&#39;repo_name&#39;</span><span class="p">],</span>
+            <span class="n">size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;author_date&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;order&quot;</span><span class="p">:</span> <span class="s2">&quot;asc&quot;</span><span class="p">}}])</span> \
+    <span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s1">&#39;last_commit&#39;</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_date&#39;</span><span class="p">)</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="s2">&quot;author_date&quot;</span><span class="p">)</span>
+<span class="c1">#print(s.to_dict())</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+
+<span class="n">authors_df</span> <span class="o">=</span> <span class="n">get_authors_df</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">author_bucket_field</span><span class="o">=</span><span class="s1">&#39;authors&#39;</span><span class="p">)</span>
+<span class="c1">#authors_df[&#39;active_years&#39;] = (authors_df.last_commit-authors_df.first_commit).astype(&#39;timedelta64[Y]&#39;)</span>
+<span class="n">authors_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;repo_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Repo&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Merge Spreadsheet data to get project names</span>
+<span class="n">authors_project_df</span> <span class="o">=</span> <span class="n">authors_df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">projects</span><span class="p">[</span><span class="s1">&#39;Github&#39;</span><span class="p">],</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;Repo&#39;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+<span class="n">authors_project_df</span><span class="p">[</span><span class="s1">&#39;first_commit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">authors_project_df</span><span class="p">[</span><span class="s1">&#39;first_commit&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">()</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
+
+
+<span class="n">projects_df</span> <span class="o">=</span> <span class="n">authors_project_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;first_commit&#39;</span><span class="p">,</span> <span class="s1">&#39;Project&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s1">&#39;author&#39;</span><span class="p">:</span> <span class="n">pandas</span><span class="o">.</span><span class="n">Series</span><span class="o">.</span><span class="n">nunique</span><span class="p">})</span>
+<span class="n">projects_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;author&quot;</span><span class="p">:</span> <span class="s2">&quot;# authors&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">projects_df</span> <span class="o">=</span> <span class="n">projects_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;first_commit&#39;</span><span class="p">,</span> <span class="s1">&#39;# authors&#39;</span><span class="p">],</span> <span class="n">ascending</span><span class="o">=</span><span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">])</span>
+
+<span class="n">rankings_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">projects_df</span><span class="p">[</span><span class="s1">&#39;first_commit&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">year</span> <span class="o">&gt;</span> <span class="mi">2011</span><span class="p">:</span>
+        <span class="n">year_df</span> <span class="o">=</span> <span class="n">projects_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">projects_df</span><span class="p">[</span><span class="s1">&#39;first_commit&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">year</span><span class="p">]</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+        <span class="n">rankings_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">rankings_df</span><span class="p">,</span> <span class="n">year_df</span><span class="p">])</span> 
+
+<span class="c1"># Print a table</span>
+<span class="n">plotly</span><span class="o">.</span><span class="n">offline</span><span class="o">.</span><span class="n">init_notebook_mode</span><span class="p">(</span><span class="n">connected</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">table</span> <span class="o">=</span> <span class="n">ff</span><span class="o">.</span><span class="n">create_table</span><span class="p">(</span><span class="n">rankings_df</span><span class="p">)</span>
+<span class="n">plotly</span><span class="o">.</span><span class="n">offline</span><span class="o">.</span><span class="n">iplot</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;git-top-projects-newcomers-table&#39;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<div id="5e131a87-cd1b-4587-91d2-8fdb0146efd5" style="height: 230px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("5e131a87-cd1b-4587-91d2-8fdb0146efd5", [{"opacity": 0.75, "z": [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1], [0.5, 0.5, 0.5], [1, 1, 1], [0.5, 0.5, 0.5]], "showscale": false, "type": "heatmap", "hoverinfo": "none", "colorscale": [[0, "#00083e"], [0.5, "#ededee"], [1, "#ffffff"]]}], {"xaxis": {"tick0": -0.5, "zeroline": false, "dtick": 1, "showticklabels": false, "gridwidth": 2, "ticks": ""}, "margin": {"t": 0, "l": 0, "r": 0, "b": 0}, "annotations": [{"text": "<b>first_commit</b>", "showarrow": false, "y": 0, "align": "left", "yref": "y1", "xref": "x1", "x": -0.45, "font": {"color": "#ffffff"}, "xanchor": "left"}, {"text": "<b>Project</b>", "showarrow": false, "y": 0, "align": "left", "yref": "y1", "xref": "x1", "x": 0.55, "font": {"color": "#ffffff"}, "xanchor": "left"}, {"text": "<b># authors</b>", "showarrow": false, "y": 0, "align": "left", "yref": "y1", "xref": "x1", "x": 1.55, "font": {"color": "#ffffff"}, "xanchor": "left"}, {"text": "2016", "showarrow": false, "y": 1, "align": "left", "yref": "y1", "xref": "x1", "x": -0.45, "font": {"color": "#000000"}, "xanchor": "left"}, {"text": "Servo", "showarrow": false, "y": 1, "align": "left", "yref": "y1", "xref": "x1", "x": 0.55, "font": {"color": "#000000"}, "xanchor": "left"}, {"text": "343", "showarrow": false, "y": 1, "align": "left", "yref": "y1", "xref": "x1", "x": 1.55, "font": {"color": "#000000"}, "xanchor": "left"}, {"text": "2015", "showarrow": false, "y": 2, "align": "left", "yref": "y1", "xref": "x1", "x": -0.45, "font": {"color": "#000000"}, "xanchor": "left"}, {"text": "Servo", "showarrow": false, "y": 2, "align": "left", "yref": "y1", "xref": "x1", "x": 0.55, "font": {"color": "#000000"}, "xanchor": "left"}, {"text": "298", "showarrow": false, "y": 2, "align": "left", "yref": "y1", "xref": "x1", "x": 1.55, "font": {"color": "#000000"}, "xanchor": "left"}, {"text": "2014", "showarrow": false, "y": 3, "align": "left", "yref": "y1", "xref": "x1", "x": -0.45, "font": {"color": "#000000"}, "xanchor": "left"}, {"text": "Servo", "showarrow": false, "y": 3, "align": "left", "yref": "y1", "xref": "x1", "x": 0.55, "font": {"color": "#000000"}, "xanchor": "left"}, {"text": "218", "showarrow": false, "y": 3, "align": "left", "yref": "y1", "xref": "x1", "x": 1.55, "font": {"color": "#000000"}, "xanchor": "left"}, {"text": "2013", "showarrow": false, "y": 4, "align": "left", "yref": "y1", "xref": "x1", "x": -0.45, "font": {"color": "#000000"}, "xanchor": "left"}, {"text": "Servo", "showarrow": false, "y": 4, "align": "left", "yref": "y1", "xref": "x1", "x": 0.55, "font": {"color": "#000000"}, "xanchor": "left"}, {"text": "101", "showarrow": false, "y": 4, "align": "left", "yref": "y1", "xref": "x1", "x": 1.55, "font": {"color": "#000000"}, "xanchor": "left"}, {"text": "2012", "showarrow": false, "y": 5, "align": "left", "yref": "y1", "xref": "x1", "x": -0.45, "font": {"color": "#000000"}, "xanchor": "left"}, {"text": "Servo", "showarrow": false, "y": 5, "align": "left", "yref": "y1", "xref": "x1", "x": 0.55, "font": {"color": "#000000"}, "xanchor": "left"}, {"text": "64", "showarrow": false, "y": 5, "align": "left", "yref": "y1", "xref": "x1", "x": 1.55, "font": {"color": "#000000"}, "xanchor": "left"}], "yaxis": {"tick0": 0.5, "zeroline": false, "autorange": "reversed", "dtick": 1, "showticklabels": false, "gridwidth": 2, "ticks": ""}, "height": 230}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">plotly</span><span class="o">.</span><span class="n">offline</span><span class="o">.</span><span class="n">init_notebook_mode</span><span class="p">(</span><span class="n">connected</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">project</span> <span class="ow">in</span> <span class="n">rankings_df</span><span class="p">[</span><span class="s1">&#39;Project&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
+    <span class="c1">#print(exp, &#39;\n&#39;, exp_groups_evo_df.loc[exp].tolist(), &#39;\n&#39;, exp_groups_evo_df.loc[exp].index.values)</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">rankings_df</span><span class="p">[</span><span class="s1">&#39;first_commit&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">(),</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">rankings_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">rankings_df</span><span class="p">[</span><span class="s1">&#39;Project&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">project</span><span class="p">),</span> <span class="s1">&#39;# authors&#39;</span><span class="p">],</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;lines+markers&#39;</span><span class="p">,</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">project</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    
+
+
+<span class="n">plotly</span><span class="o">.</span><span class="n">offline</span><span class="o">.</span><span class="n">iplot</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;line-mode&#39;</span><span class="p">)</span>    
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<div id="93e8d9ef-7e9a-472c-a517-1dbc8ee4712f" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("93e8d9ef-7e9a-472c-a517-1dbc8ee4712f", [{"x": [2016, 2015, 2014, 2013, 2012], "mode": "lines+markers", "name": "Servo", "type": "scatter", "y": [343, 298, 218, 101, 64]}], {}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">### DIFFERENCE BETWEEN FIRST AND LAST CONTRIBUTION</span>
+<span class="c1">### GET SNAPSHOTS FOR DIFFERENT YEARS</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">analyzed_range</span><span class="p">:</span>
 
     <span class="c1"># Buckets by author name, finding first commit for each of them</span>
-    <span class="n">s</span> <span class="o">=</span> <span class="n">Search</span><span class="p">(</span><span class="n">using</span><span class="o">=</span><span class="n">es_conn</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">create_search</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
     <span class="n">s</span><span class="o">.</span><span class="n">params</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
 
     <span class="c1"># General filters</span>
@@ -12014,7 +12165,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[6]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[8]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -12978,7 +13129,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># AUTHORS GROUPED BY FIRST COMMIT DATE</span>
@@ -13003,7 +13154,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[7]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[9]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -13088,7 +13239,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Plot bar charts for each dataframe</span>
@@ -13130,7 +13281,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="5fbbfc4e-084f-4121-a4f2-faad9f4f4b7d" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("5fbbfc4e-084f-4121-a4f2-faad9f4f4b7d", [{"type": "bar", "x": [343, 298, 218, 101, 64, 41, 45, 40, 40, 40, 37, 16, 6, 9, 2, 1], "orientation": "h", "y": [-2016, -2015, -2014, -2013, -2012, -2011, -2010, -2009, -2008, -2007, -2006, -2005, -2004, -2003, -2002, -1998]}], {"title": "Servo 2016", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="f4453857-95aa-478a-ac9b-2715c03b19bc" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("f4453857-95aa-478a-ac9b-2715c03b19bc", [{"x": [343, 298, 218, 101, 64, 41, 45, 40, 40, 40, 37, 16, 6, 9, 2, 1], "y": [-2016, -2015, -2014, -2013, -2012, -2011, -2010, -2009, -2008, -2007, -2006, -2005, -2004, -2003, -2002, -1998], "orientation": "h", "type": "bar"}], {"title": "Servo 2016", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -13157,7 +13308,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Plot bar charts for each dataframe</span>
@@ -13187,7 +13338,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="6ab3553b-c023-4080-8e54-330b71cdc20f" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("6ab3553b-c023-4080-8e54-330b71cdc20f", [{"type": "bar", "x": [1093, 113, 37, 27, 13, 8, 3, 1, 0, 3, 0, 2, 0, 0, 0, 1], "orientation": "h", "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]}], {"title": "Servo 2016", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="5331f845-ecc1-4f99-a2bc-ecf19ebf9dcb" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("5331f845-ecc1-4f99-a2bc-ecf19ebf9dcb", [{"x": [1093, 113, 37, 27, 13, 8, 3, 1, 0, 3, 0, 2, 0, 0, 0, 1], "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], "orientation": "h", "type": "bar"}], {"title": "Servo 2016", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -13203,7 +13354,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="901619b5-a3cd-43a0-a435-a2b11dc39244" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("901619b5-a3cd-43a0-a435-a2b11dc39244", [{"type": "bar", "x": [802, 80, 29, 22, 9, 8, 3, 2, 0, 1, 1, 0, 0, 0, 0, 1], "orientation": "h", "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]}], {"title": "Servo 2015", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="af3d79bc-5527-45ec-b56e-36d44d6b7ed8" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("af3d79bc-5527-45ec-b56e-36d44d6b7ed8", [{"x": [802, 80, 29, 22, 9, 8, 3, 2, 0, 1, 1, 0, 0, 0, 0, 1], "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], "orientation": "h", "type": "bar"}], {"title": "Servo 2015", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -13219,7 +13370,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="c397240c-2b56-4e00-83db-9786f46f64d2" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("c397240c-2b56-4e00-83db-9786f46f64d2", [{"type": "bar", "x": [534, 63, 21, 19, 8, 8, 3, 2, 0, 1, 0, 0, 0, 0, 0, 1], "orientation": "h", "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]}], {"title": "Servo 2014", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="1892e39f-2966-42bf-82b4-3ae6eb1c0566" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("1892e39f-2966-42bf-82b4-3ae6eb1c0566", [{"x": [534, 63, 21, 19, 8, 8, 3, 2, 0, 1, 0, 0, 0, 0, 0, 1], "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], "orientation": "h", "type": "bar"}], {"title": "Servo 2014", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -13235,7 +13386,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="569b54da-76d6-4a52-ace8-7140ac2eb1bc" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("569b54da-76d6-4a52-ace8-7140ac2eb1bc", [{"type": "bar", "x": [341, 47, 17, 14, 8, 8, 3, 2, 0, 1, 0, 0, 0, 0, 0, 1], "orientation": "h", "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]}], {"title": "Servo 2013", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="f226019d-cd83-4379-917a-a5645bf59f4d" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("f226019d-cd83-4379-917a-a5645bf59f4d", [{"x": [341, 47, 17, 14, 8, 8, 3, 2, 0, 1, 0, 0, 0, 0, 0, 1], "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], "orientation": "h", "type": "bar"}], {"title": "Servo 2013", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -13251,7 +13402,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="c61bc503-8507-4126-ba41-3edda7c19c79" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("c61bc503-8507-4126-ba41-3edda7c19c79", [{"type": "bar", "x": [257, 38, 11, 13, 7, 10, 2, 1, 0, 1, 0, 0, 0, 0, 1], "orientation": "h", "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]}], {"title": "Servo 2012", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="32d15195-3685-470a-90cc-fe91f13c7e93" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("32d15195-3685-470a-90cc-fe91f13c7e93", [{"x": [257, 38, 11, 13, 7, 10, 2, 1, 0, 1, 0, 0, 0, 0, 1], "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "orientation": "h", "type": "bar"}], {"title": "Servo 2012", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -13278,7 +13429,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">active_authors_dfs</span> <span class="o">=</span> <span class="p">[]</span>
@@ -13301,7 +13452,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[10]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[12]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -14265,7 +14416,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Plot bar charts for each dataframe</span>
@@ -14295,7 +14446,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="0be436d2-d8c6-4115-a3ba-a537091cf76b" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("0be436d2-d8c6-4115-a3ba-a537091cf76b", [{"type": "bar", "x": [378, 47, 17, 9, 5, 1, 0, 0, 0, 2, 0, 2], "orientation": "h", "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]}], {"title": "Servo 2016", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="2908da53-718a-4455-b784-dad81848b4f0" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("2908da53-718a-4455-b784-dad81848b4f0", [{"x": [378, 47, 17, 9, 5, 1, 0, 0, 0, 2, 0, 2], "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], "orientation": "h", "type": "bar"}], {"title": "Servo 2016", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -14311,7 +14462,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="4c8f127a-86c0-455f-98fc-6d8a0568c4b6" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("4c8f127a-86c0-455f-98fc-6d8a0568c4b6", [{"type": "bar", "x": [330, 31, 13, 5, 1, 0, 0, 0, 0, 0, 1], "orientation": "h", "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}], {"title": "Servo 2015", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="1f545e2f-5e7a-44c2-8a1f-9aef8e08c918" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("1f545e2f-5e7a-44c2-8a1f-9aef8e08c918", [{"x": [330, 31, 13, 5, 1, 0, 0, 0, 0, 0, 1], "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "orientation": "h", "type": "bar"}], {"title": "Servo 2015", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -14327,7 +14478,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="a554a1eb-9e39-444a-bb8b-d20f2f126f56" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("a554a1eb-9e39-444a-bb8b-d20f2f126f56", [{"type": "bar", "x": [239, 28, 8, 6, 1], "orientation": "h", "y": [0, 1, 2, 3, 4]}], {"title": "Servo 2014", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="162b54ae-9165-42ff-9e40-8ff6852fbcdb" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("162b54ae-9165-42ff-9e40-8ff6852fbcdb", [{"x": [239, 28, 8, 6, 1], "y": [0, 1, 2, 3, 4], "orientation": "h", "type": "bar"}], {"title": "Servo 2014", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -14343,7 +14494,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="e991cbf4-096c-4980-8b73-103a0916c1c0" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("e991cbf4-096c-4980-8b73-103a0916c1c0", [{"type": "bar", "x": [107, 19, 9, 2, 1, 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 1], "orientation": "h", "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]}], {"title": "Servo 2013", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="ab0704a8-1f1d-42f1-a768-7ecefe39f43a" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("ab0704a8-1f1d-42f1-a768-7ecefe39f43a", [{"x": [107, 19, 9, 2, 1, 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 1], "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], "orientation": "h", "type": "bar"}], {"title": "Servo 2013", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -14359,7 +14510,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="54182182-d3de-4b73-bac5-8111320d04d8" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("54182182-d3de-4b73-bac5-8111320d04d8", [{"type": "bar", "x": [70, 20, 4, 6, 4, 5, 1, 0, 0, 0, 0, 0, 0, 0, 1], "orientation": "h", "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]}], {"title": "Servo 2012", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="4c731175-59ed-4f57-bc93-0de046bb7f42" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("4c731175-59ed-4f57-bc93-0de046bb7f42", [{"x": [70, 20, 4, 6, 4, 5, 1, 0, 0, 0, 0, 0, 0, 0, 1], "y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "orientation": "h", "type": "bar"}], {"title": "Servo 2012", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -14387,7 +14538,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">###</span>
@@ -14435,7 +14586,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">###</span>
@@ -14480,7 +14631,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[13]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[15]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -15077,7 +15228,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="prompt input_prompt">In&nbsp;[16]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Plot bar charts for each dataframe</span>
@@ -15117,7 +15268,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="e6a9e0ae-345e-4377-b5a0-07bdf19f9fb0" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("e6a9e0ae-345e-4377-b5a0-07bdf19f9fb0", [{"type": "bar", "x": [44, 16, 5, 5, 3], "orientation": "h", "y": [1, 2, 3, 4, 5]}], {"title": "Servo 2016", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="d1d821b3-4ac8-4c9f-946e-12ee11dfe831" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("d1d821b3-4ac8-4c9f-946e-12ee11dfe831", [{"x": [44, 16, 5, 5, 3], "y": [1, 2, 3, 4, 5], "orientation": "h", "type": "bar"}], {"title": "Servo 2016", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15133,7 +15284,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="dd2da781-34e5-41ce-929d-584eb5e134c7" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("dd2da781-34e5-41ce-929d-584eb5e134c7", [{"type": "bar", "x": [11, 9, 4, 3, 3], "orientation": "h", "y": [1, 2, 3, 4, 5]}], {"title": "Servo employees 2016", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="8fc50f5c-3c73-41d5-98e1-e18943cc0021" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("8fc50f5c-3c73-41d5-98e1-e18943cc0021", [{"x": [11, 9, 4, 3, 3], "y": [1, 2, 3, 4, 5], "orientation": "h", "type": "bar"}], {"title": "Servo employees 2016", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15149,7 +15300,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="565aca0f-7cb1-4369-93b0-415a2ec0ee64" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("565aca0f-7cb1-4369-93b0-415a2ec0ee64", [{"type": "bar", "x": [33, 7, 1, 2], "orientation": "h", "y": [1, 2, 3, 4]}], {"title": "Servo non-employees 2016", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="c381ebb7-8390-4ad0-87eb-b74f6f84a597" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("c381ebb7-8390-4ad0-87eb-b74f6f84a597", [{"x": [33, 7, 1, 2], "y": [1, 2, 3, 4], "orientation": "h", "type": "bar"}], {"title": "Servo non-employees 2016", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15165,7 +15316,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="f0d8c621-a528-4c42-a2b4-05bbd0b37eba" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("f0d8c621-a528-4c42-a2b4-05bbd0b37eba", [{"type": "bar", "x": [40, 11, 7, 4], "orientation": "h", "y": [1, 2, 3, 4]}], {"title": "Servo 2015", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="bde7d829-3553-41fa-b041-ab071021dc45" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("bde7d829-3553-41fa-b041-ab071021dc45", [{"x": [40, 11, 7, 4], "y": [1, 2, 3, 4], "orientation": "h", "type": "bar"}], {"title": "Servo 2015", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15181,7 +15332,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="c922122f-8b91-4fb0-a129-7d96127e8075" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("c922122f-8b91-4fb0-a129-7d96127e8075", [{"type": "bar", "x": [13, 6, 5, 4], "orientation": "h", "y": [1, 2, 3, 4]}], {"title": "Servo employees 2015", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="af618b09-3e30-4b18-9120-a89c5952a0ae" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("af618b09-3e30-4b18-9120-a89c5952a0ae", [{"x": [13, 6, 5, 4], "y": [1, 2, 3, 4], "orientation": "h", "type": "bar"}], {"title": "Servo employees 2015", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15197,7 +15348,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="945b1623-f052-4df0-b7c3-26010196fda2" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("945b1623-f052-4df0-b7c3-26010196fda2", [{"type": "bar", "x": [27, 5, 2], "orientation": "h", "y": [1, 2, 3]}], {"title": "Servo non-employees 2015", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="a7b59954-dd5a-4dad-ac53-561b050b0ab7" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("a7b59954-dd5a-4dad-ac53-561b050b0ab7", [{"x": [27, 5, 2], "y": [1, 2, 3], "orientation": "h", "type": "bar"}], {"title": "Servo non-employees 2015", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15213,7 +15364,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="625f4c96-f48b-42d8-9154-547cc081a571" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("625f4c96-f48b-42d8-9154-547cc081a571", [{"type": "bar", "x": [30, 10, 7, 3, 1, 1], "orientation": "h", "y": [1, 2, 3, 4, 5, 6]}], {"title": "Servo 2014", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="bfc45712-a98e-48c7-a2e2-c63a5b39b808" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("bfc45712-a98e-48c7-a2e2-c63a5b39b808", [{"x": [30, 10, 7, 3, 1, 1], "y": [1, 2, 3, 4, 5, 6], "orientation": "h", "type": "bar"}], {"title": "Servo 2014", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15229,7 +15380,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="bea19db1-97c6-4639-b640-c55998c5184a" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("bea19db1-97c6-4639-b640-c55998c5184a", [{"type": "bar", "x": [11, 5, 3], "orientation": "h", "y": [1, 2, 3]}], {"title": "Servo employees 2014", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="f8041911-31d1-4f1a-b126-7bc4083a704c" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("f8041911-31d1-4f1a-b126-7bc4083a704c", [{"x": [11, 5, 3], "y": [1, 2, 3], "orientation": "h", "type": "bar"}], {"title": "Servo employees 2014", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15245,7 +15396,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="c7ea90df-8eaa-4e0c-8284-5c7d17eb6b5b" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("c7ea90df-8eaa-4e0c-8284-5c7d17eb6b5b", [{"type": "bar", "x": [19, 5, 4, 3, 1, 1], "orientation": "h", "y": [1, 2, 3, 4, 5, 6]}], {"title": "Servo non-employees 2014", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="880caede-c9ad-434a-b3e3-c11a359b3660" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("880caede-c9ad-434a-b3e3-c11a359b3660", [{"x": [19, 5, 4, 3, 1, 1], "y": [1, 2, 3, 4, 5, 6], "orientation": "h", "type": "bar"}], {"title": "Servo non-employees 2014", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15261,7 +15412,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="a11463bb-1960-48ca-9998-7541d59218ce" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("a11463bb-1960-48ca-9998-7541d59218ce", [{"type": "bar", "x": [30, 13, 7, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1], "orientation": "h", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]}], {"title": "Servo 2013", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="4c6c100b-ed2d-46ab-a714-23e76b151586" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("4c6c100b-ed2d-46ab-a714-23e76b151586", [{"x": [30, 13, 7, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1], "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "orientation": "h", "type": "bar"}], {"title": "Servo 2013", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15277,7 +15428,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="89685848-27aa-42b1-be82-b5957901e298" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("89685848-27aa-42b1-be82-b5957901e298", [{"type": "bar", "x": [7, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], "orientation": "h", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]}], {"title": "Servo employees 2013", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="a2b4003f-d9ce-468c-96a2-14d2409d4a77" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("a2b4003f-d9ce-468c-96a2-14d2409d4a77", [{"x": [7, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "orientation": "h", "type": "bar"}], {"title": "Servo employees 2013", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15293,7 +15444,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="f2aa7a0f-6c72-49f3-a6df-f06d41280819" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("f2aa7a0f-6c72-49f3-a6df-f06d41280819", [{"type": "bar", "x": [23, 10, 7, 2, 1], "orientation": "h", "y": [1, 2, 3, 4, 5]}], {"title": "Servo non-employees 2013", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="0c010df5-6768-4174-9ff5-44d5ca94f0a6" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("0c010df5-6768-4174-9ff5-44d5ca94f0a6", [{"x": [23, 10, 7, 2, 1], "y": [1, 2, 3, 4, 5], "orientation": "h", "type": "bar"}], {"title": "Servo non-employees 2013", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15309,7 +15460,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="96ddac9f-4f6c-4e71-b705-5aacc5b31418" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("96ddac9f-4f6c-4e71-b705-5aacc5b31418", [{"type": "bar", "x": [26, 11, 5, 3, 0, 2, 1, 0, 0, 0, 0, 0, 1], "orientation": "h", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]}], {"title": "Servo 2012", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="85e1c55f-d17e-46d3-a3cb-c40f6e171a4e" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("85e1c55f-d17e-46d3-a3cb-c40f6e171a4e", [{"x": [26, 11, 5, 3, 0, 2, 1, 0, 0, 0, 0, 0, 1], "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], "orientation": "h", "type": "bar"}], {"title": "Servo 2012", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15325,7 +15476,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="e697cdea-84d0-4f81-93fe-eee9c4704f07" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("e697cdea-84d0-4f81-93fe-eee9c4704f07", [{"type": "bar", "x": [6, 0, 0, 0, 0, 2, 1, 0, 0, 0, 0, 0, 1], "orientation": "h", "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]}], {"title": "Servo employees 2012", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="a643312a-7e65-409a-80f2-e2d1f825979a" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("a643312a-7e65-409a-80f2-e2d1f825979a", [{"x": [6, 0, 0, 0, 0, 2, 1, 0, 0, 0, 0, 0, 1], "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], "orientation": "h", "type": "bar"}], {"title": "Servo employees 2012", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15341,7 +15492,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="9d6a72ff-a873-43d9-ab42-6c588e8cce9b" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("9d6a72ff-a873-43d9-ab42-6c588e8cce9b", [{"type": "bar", "x": [20, 11, 5, 3], "orientation": "h", "y": [1, 2, 3, 4]}], {"title": "Servo non-employees 2012", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="d128aa17-b070-496a-86de-efa696bc1526" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("d128aa17-b070-496a-86de-efa696bc1526", [{"x": [20, 11, 5, 3], "y": [1, 2, 3, 4], "orientation": "h", "type": "bar"}], {"title": "Servo non-employees 2012", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>
@@ -15369,7 +15520,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[15]:</div>
+<div class="prompt input_prompt">In&nbsp;[17]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">exp_groups_evo_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">])</span>
@@ -15411,7 +15562,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[15]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[17]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 <div>
@@ -15569,7 +15720,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[16]:</div>
+<div class="prompt input_prompt">In&nbsp;[18]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">exp_groups_evo_moz_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">])</span>
@@ -15613,7 +15764,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[16]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[18]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 <div>
@@ -15771,7 +15922,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[17]:</div>
+<div class="prompt input_prompt">In&nbsp;[19]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">exp_groups_evo_others_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">])</span>
@@ -15818,7 +15969,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[17]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[19]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 <div>
@@ -15918,7 +16069,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[18]:</div>
+<div class="prompt input_prompt">In&nbsp;[20]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">plotly</span><span class="o">.</span><span class="n">offline</span><span class="o">.</span><span class="n">init_notebook_mode</span><span class="p">(</span><span class="n">connected</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -15959,7 +16110,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="4b992e6e-3d55-4c33-a315-94fd74b97295" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("4b992e6e-3d55-4c33-a315-94fd74b97295", [{"type": "scatter", "x": ["2012", "2013", "2014", "2015", "2016"], "name": "1 years", "mode": "lines+markers", "y": [26.0, 30.0, 30.0, 40.0, 44.0]}, {"type": "scatter", "x": ["2012", "2013", "2014", "2015", "2016"], "name": "2 years", "mode": "lines+markers", "y": [11.0, 13.0, 10.0, 11.0, 16.0]}, {"type": "scatter", "x": ["2012", "2013", "2014", "2015", "2016"], "name": "3 years", "mode": "lines+markers", "y": [5.0, 7.0, 7.0, 7.0, 5.0]}, {"type": "scatter", "x": ["2012", "2013", "2014", "2015", "2016"], "name": "4 years", "mode": "lines+markers", "y": [3.0, 2.0, 3.0, 4.0, 5.0]}, {"type": "scatter", "x": ["2012", "2013", "2014", "2015", "2016"], "name": "5 years", "mode": "lines+markers", "y": [0.0, 1.0, 1.0, 0.0, 3.0]}, {"type": "scatter", "x": ["2012", "2013", "2014", "2015", "2016"], "name": "6 years", "mode": "lines+markers", "y": [2.0, 0.0, 1.0, 0.0, 0.0]}, {"type": "scatter", "x": ["2012", "2013", "2014", "2015", "2016"], "name": "7 years", "mode": "lines+markers", "y": [1.0, 0.0, 0.0, 0.0, 0.0]}, {"type": "scatter", "x": ["2012", "2013", "2014", "2015", "2016"], "name": "8 years", "mode": "lines+markers", "y": [0.0, 0.0, 0.0, 0.0, 0.0]}, {"type": "scatter", "x": ["2012", "2013", "2014", "2015", "2016"], "name": "9 years", "mode": "lines+markers", "y": [0.0, 0.0, 0.0, 0.0, 0.0]}, {"type": "scatter", "x": ["2012", "2013", "2014", "2015", "2016"], "name": "10 years", "mode": "lines+markers", "y": [0.0, 0.0, 0.0, 0.0, 0.0]}, {"type": "scatter", "x": ["2012", "2013", "2014", "2015", "2016"], "name": "11 years", "mode": "lines+markers", "y": [0.0, 0.0, 0.0, 0.0, 0.0]}, {"type": "scatter", "x": ["2012", "2013", "2014", "2015", "2016"], "name": "12 years", "mode": "lines+markers", "y": [0.0, 0.0, 0.0, 0.0, 0.0]}, {"type": "scatter", "x": ["2012", "2013", "2014", "2015", "2016"], "name": "13 years", "mode": "lines+markers", "y": [1.0, 0.0, 0.0, 0.0, 0.0]}, {"type": "scatter", "x": ["2012", "2013", "2014", "2015", "2016"], "name": "14 years", "mode": "lines+markers", "y": [0.0, 1.0, 0.0, 0.0, 0.0]}], {}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+<div id="f50ea0c8-67cf-408e-9363-18909ca48a23" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("f50ea0c8-67cf-408e-9363-18909ca48a23", [{"x": ["2012", "2013", "2014", "2015", "2016"], "mode": "lines+markers", "name": "1 years", "type": "scatter", "y": [26.0, 30.0, 30.0, 40.0, 44.0]}, {"x": ["2012", "2013", "2014", "2015", "2016"], "mode": "lines+markers", "name": "2 years", "type": "scatter", "y": [11.0, 13.0, 10.0, 11.0, 16.0]}, {"x": ["2012", "2013", "2014", "2015", "2016"], "mode": "lines+markers", "name": "3 years", "type": "scatter", "y": [5.0, 7.0, 7.0, 7.0, 5.0]}, {"x": ["2012", "2013", "2014", "2015", "2016"], "mode": "lines+markers", "name": "4 years", "type": "scatter", "y": [3.0, 2.0, 3.0, 4.0, 5.0]}, {"x": ["2012", "2013", "2014", "2015", "2016"], "mode": "lines+markers", "name": "5 years", "type": "scatter", "y": [0.0, 1.0, 1.0, 0.0, 3.0]}, {"x": ["2012", "2013", "2014", "2015", "2016"], "mode": "lines+markers", "name": "6 years", "type": "scatter", "y": [2.0, 0.0, 1.0, 0.0, 0.0]}, {"x": ["2012", "2013", "2014", "2015", "2016"], "mode": "lines+markers", "name": "7 years", "type": "scatter", "y": [1.0, 0.0, 0.0, 0.0, 0.0]}, {"x": ["2012", "2013", "2014", "2015", "2016"], "mode": "lines+markers", "name": "8 years", "type": "scatter", "y": [0.0, 0.0, 0.0, 0.0, 0.0]}, {"x": ["2012", "2013", "2014", "2015", "2016"], "mode": "lines+markers", "name": "9 years", "type": "scatter", "y": [0.0, 0.0, 0.0, 0.0, 0.0]}, {"x": ["2012", "2013", "2014", "2015", "2016"], "mode": "lines+markers", "name": "10 years", "type": "scatter", "y": [0.0, 0.0, 0.0, 0.0, 0.0]}, {"x": ["2012", "2013", "2014", "2015", "2016"], "mode": "lines+markers", "name": "11 years", "type": "scatter", "y": [0.0, 0.0, 0.0, 0.0, 0.0]}, {"x": ["2012", "2013", "2014", "2015", "2016"], "mode": "lines+markers", "name": "12 years", "type": "scatter", "y": [0.0, 0.0, 0.0, 0.0, 0.0]}, {"x": ["2012", "2013", "2014", "2015", "2016"], "mode": "lines+markers", "name": "13 years", "type": "scatter", "y": [1.0, 0.0, 0.0, 0.0, 0.0]}, {"x": ["2012", "2013", "2014", "2015", "2016"], "mode": "lines+markers", "name": "14 years", "type": "scatter", "y": [0.0, 1.0, 0.0, 0.0, 0.0]}], {}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
 </div>
 
 </div>

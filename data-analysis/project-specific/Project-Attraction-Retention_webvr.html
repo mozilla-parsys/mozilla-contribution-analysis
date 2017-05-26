@@ -11777,6 +11777,7 @@ div#notebook {
 <span class="kn">import</span> <span class="nn">os</span>
 
 <span class="kn">import</span> <span class="nn">plotly</span> <span class="k">as</span> <span class="nn">plotly</span>
+<span class="kn">import</span> <span class="nn">plotly.figure_factory</span> <span class="k">as</span> <span class="nn">ff</span>
 <span class="kn">import</span> <span class="nn">plotly.graph_objs</span> <span class="k">as</span> <span class="nn">go</span>
 
 <span class="kn">import</span> <span class="nn">util</span> <span class="k">as</span> <span class="nn">ut</span>
@@ -11962,16 +11963,166 @@ div#notebook {
 </div>
 
 </div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="First-project">First project<a class="anchor-link" href="#First-project">&#182;</a></h2><p>Get the project in which auhtors made their first contribution to Mozilla. Show a ranking of top 5 projects in number of newcomers to Mozilla per year.</p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[6]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#results = []</span>
+<span class="c1">#for i in analyzed_range:</span>
+
+<span class="c1"># Buckets by author name, finding first commit for each of them</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">create_search</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
+
+<span class="c1"># General filters</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">add_general_date_filters</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">add_bot_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">add_merges_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+<span class="c1"># Filter commits to the Project Repos</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">add_project_filter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+
+<span class="c1"># Retrieve commits before given year</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;range&#39;</span><span class="p">,</span> <span class="n">grimoire_creation_date</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;lt&#39;</span><span class="p">:</span> <span class="s1">&#39;now/y&#39;</span><span class="p">})</span>
+
+<span class="c1"># Bucketize by uuid and get first and last commit</span>
+<span class="n">s</span><span class="o">.</span><span class="n">aggs</span><span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="s1">&#39;authors&#39;</span><span class="p">,</span> <span class="s1">&#39;terms&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_uuid&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s1">&#39;first&#39;</span><span class="p">,</span> <span class="s1">&#39;top_hits&#39;</span><span class="p">,</span> <span class="n">_source</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;author_date&#39;</span><span class="p">,</span> <span class="s1">&#39;author_org_name&#39;</span><span class="p">,</span> <span class="s1">&#39;author_uuid&#39;</span><span class="p">,</span> <span class="s1">&#39;repo_name&#39;</span><span class="p">],</span>
+            <span class="n">size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;author_date&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;order&quot;</span><span class="p">:</span> <span class="s2">&quot;asc&quot;</span><span class="p">}}])</span> \
+    <span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s1">&#39;last_commit&#39;</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;author_date&#39;</span><span class="p">)</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="s2">&quot;author_date&quot;</span><span class="p">)</span>
+<span class="c1">#print(s.to_dict())</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+
+<span class="n">authors_df</span> <span class="o">=</span> <span class="n">get_authors_df</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">author_bucket_field</span><span class="o">=</span><span class="s1">&#39;authors&#39;</span><span class="p">)</span>
+<span class="c1">#authors_df[&#39;active_years&#39;] = (authors_df.last_commit-authors_df.first_commit).astype(&#39;timedelta64[Y]&#39;)</span>
+<span class="n">authors_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;repo_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Repo&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Merge Spreadsheet data to get project names</span>
+<span class="n">authors_project_df</span> <span class="o">=</span> <span class="n">authors_df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">projects</span><span class="p">[</span><span class="s1">&#39;Github&#39;</span><span class="p">],</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;Repo&#39;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+<span class="n">authors_project_df</span><span class="p">[</span><span class="s1">&#39;first_commit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">authors_project_df</span><span class="p">[</span><span class="s1">&#39;first_commit&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">()</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
+
+
+<span class="n">projects_df</span> <span class="o">=</span> <span class="n">authors_project_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;first_commit&#39;</span><span class="p">,</span> <span class="s1">&#39;Project&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s1">&#39;author&#39;</span><span class="p">:</span> <span class="n">pandas</span><span class="o">.</span><span class="n">Series</span><span class="o">.</span><span class="n">nunique</span><span class="p">})</span>
+<span class="n">projects_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;author&quot;</span><span class="p">:</span> <span class="s2">&quot;# authors&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">projects_df</span> <span class="o">=</span> <span class="n">projects_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;first_commit&#39;</span><span class="p">,</span> <span class="s1">&#39;# authors&#39;</span><span class="p">],</span> <span class="n">ascending</span><span class="o">=</span><span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">])</span>
+
+<span class="n">rankings_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">projects_df</span><span class="p">[</span><span class="s1">&#39;first_commit&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">year</span> <span class="o">&gt;</span> <span class="mi">2011</span><span class="p">:</span>
+        <span class="n">year_df</span> <span class="o">=</span> <span class="n">projects_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">projects_df</span><span class="p">[</span><span class="s1">&#39;first_commit&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">year</span><span class="p">]</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+        <span class="n">rankings_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">rankings_df</span><span class="p">,</span> <span class="n">year_df</span><span class="p">])</span> 
+
+<span class="c1"># Print a table</span>
+<span class="n">plotly</span><span class="o">.</span><span class="n">offline</span><span class="o">.</span><span class="n">init_notebook_mode</span><span class="p">(</span><span class="n">connected</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">table</span> <span class="o">=</span> <span class="n">ff</span><span class="o">.</span><span class="n">create_table</span><span class="p">(</span><span class="n">rankings_df</span><span class="p">)</span>
+<span class="n">plotly</span><span class="o">.</span><span class="n">offline</span><span class="o">.</span><span class="n">iplot</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;git-top-projects-newcomers-table&#39;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<div id="36662a25-9898-47e6-9cfa-e268528b854e" style="height: 170px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("36662a25-9898-47e6-9cfa-e268528b854e", [{"z": [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1], [0.5, 0.5, 0.5]], "colorscale": [[0, "#00083e"], [0.5, "#ededee"], [1, "#ffffff"]], "showscale": false, "opacity": 0.75, "hoverinfo": "none", "type": "heatmap"}], {"margin": {"l": 0, "b": 0, "t": 0, "r": 0}, "xaxis": {"showticklabels": false, "zeroline": false, "dtick": 1, "tick0": -0.5, "ticks": "", "gridwidth": 2}, "annotations": [{"x": -0.45, "xref": "x1", "align": "left", "xanchor": "left", "text": "<b>first_commit</b>", "yref": "y1", "showarrow": false, "font": {"color": "#ffffff"}, "y": 0}, {"x": 0.55, "xref": "x1", "align": "left", "xanchor": "left", "text": "<b>Project</b>", "yref": "y1", "showarrow": false, "font": {"color": "#ffffff"}, "y": 0}, {"x": 1.55, "xref": "x1", "align": "left", "xanchor": "left", "text": "<b># authors</b>", "yref": "y1", "showarrow": false, "font": {"color": "#ffffff"}, "y": 0}, {"x": -0.45, "xref": "x1", "align": "left", "xanchor": "left", "text": "2016", "yref": "y1", "showarrow": false, "font": {"color": "#000000"}, "y": 1}, {"x": 0.55, "xref": "x1", "align": "left", "xanchor": "left", "text": "WebVR", "yref": "y1", "showarrow": false, "font": {"color": "#000000"}, "y": 1}, {"x": 1.55, "xref": "x1", "align": "left", "xanchor": "left", "text": "129", "yref": "y1", "showarrow": false, "font": {"color": "#000000"}, "y": 1}, {"x": -0.45, "xref": "x1", "align": "left", "xanchor": "left", "text": "2015", "yref": "y1", "showarrow": false, "font": {"color": "#000000"}, "y": 2}, {"x": 0.55, "xref": "x1", "align": "left", "xanchor": "left", "text": "WebVR", "yref": "y1", "showarrow": false, "font": {"color": "#000000"}, "y": 2}, {"x": 1.55, "xref": "x1", "align": "left", "xanchor": "left", "text": "26", "yref": "y1", "showarrow": false, "font": {"color": "#000000"}, "y": 2}, {"x": -0.45, "xref": "x1", "align": "left", "xanchor": "left", "text": "2014", "yref": "y1", "showarrow": false, "font": {"color": "#000000"}, "y": 3}, {"x": 0.55, "xref": "x1", "align": "left", "xanchor": "left", "text": "WebVR", "yref": "y1", "showarrow": false, "font": {"color": "#000000"}, "y": 3}, {"x": 1.55, "xref": "x1", "align": "left", "xanchor": "left", "text": "6", "yref": "y1", "showarrow": false, "font": {"color": "#000000"}, "y": 3}], "yaxis": {"showticklabels": false, "zeroline": false, "dtick": 1, "autorange": "reversed", "tick0": 0.5, "ticks": "", "gridwidth": 2}, "height": 170}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">plotly</span><span class="o">.</span><span class="n">offline</span><span class="o">.</span><span class="n">init_notebook_mode</span><span class="p">(</span><span class="n">connected</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">project</span> <span class="ow">in</span> <span class="n">rankings_df</span><span class="p">[</span><span class="s1">&#39;Project&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
+    <span class="c1">#print(exp, &#39;\n&#39;, exp_groups_evo_df.loc[exp].tolist(), &#39;\n&#39;, exp_groups_evo_df.loc[exp].index.values)</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">rankings_df</span><span class="p">[</span><span class="s1">&#39;first_commit&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">(),</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">rankings_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">rankings_df</span><span class="p">[</span><span class="s1">&#39;Project&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">project</span><span class="p">),</span> <span class="s1">&#39;# authors&#39;</span><span class="p">],</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;lines+markers&#39;</span><span class="p">,</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">project</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    
+
+
+<span class="n">plotly</span><span class="o">.</span><span class="n">offline</span><span class="o">.</span><span class="n">iplot</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;line-mode&#39;</span><span class="p">)</span>    
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<script>requirejs.config({paths: { 'plotly': ['https://cdn.plot.ly/plotly-latest.min']},});if(!window.Plotly) {{require(['plotly'],function(plotly) {window.Plotly=plotly;});}}</script>
+</div>
+
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+
+<div class="output_html rendered_html output_subarea ">
+<div id="4d2b9dd5-33b5-4355-bc65-66d44498ff4f" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("4d2b9dd5-33b5-4355-bc65-66d44498ff4f", [{"mode": "lines+markers", "x": [2016, 2015, 2014], "name": "WebVR", "type": "scatter", "y": [129, 26, 6]}], {}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">### DIFFERENCE BETWEEN FIRST AND LAST CONTRIBUTION</span>
+<span class="c1">### GET SNAPSHOTS FOR DIFFERENT YEARS</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">analyzed_range</span><span class="p">:</span>
 
     <span class="c1"># Buckets by author name, finding first commit for each of them</span>
-    <span class="n">s</span> <span class="o">=</span> <span class="n">Search</span><span class="p">(</span><span class="n">using</span><span class="o">=</span><span class="n">es_conn</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">create_search</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s1">&#39;git&#39;</span><span class="p">)</span>
     <span class="n">s</span><span class="o">.</span><span class="n">params</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
 
     <span class="c1"># General filters</span>
@@ -12014,7 +12165,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[6]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[8]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -12342,7 +12493,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># AUTHORS GROUPED BY FIRST COMMIT DATE</span>
@@ -12367,7 +12518,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[7]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[9]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -12388,7 +12539,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Plot bar charts for each dataframe</span>
@@ -12430,7 +12581,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="b188dab1-88e2-44f5-9ab1-43a5da247e14" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("b188dab1-88e2-44f5-9ab1-43a5da247e14", [{"orientation": "h", "type": "bar", "y": [-2016, -2015, -2014], "x": [129, 26, 6]}], {"title": "WebVR 2016", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+<div id="829540fe-4a63-4d86-a83e-7bc3926b947a" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("829540fe-4a63-4d86-a83e-7bc3926b947a", [{"x": [129, 26, 6], "type": "bar", "orientation": "h", "y": [-2016, -2015, -2014]}], {"title": "WebVR 2016", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
 </div>
 
 </div>
@@ -12457,7 +12608,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Plot bar charts for each dataframe</span>
@@ -12487,7 +12638,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="c64965ba-06c1-4e1d-9ba6-af6cf8e2a3d0" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("c64965ba-06c1-4e1d-9ba6-af6cf8e2a3d0", [{"orientation": "h", "type": "bar", "y": [0, 1, 2], "x": [152, 6, 3]}], {"title": "WebVR 2016", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+<div id="2485e9ff-8b51-458e-ab6d-262adb1f3992" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("2485e9ff-8b51-458e-ab6d-262adb1f3992", [{"x": [152, 6, 3], "type": "bar", "orientation": "h", "y": [0, 1, 2]}], {"title": "WebVR 2016", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
 </div>
 
 </div>
@@ -12503,7 +12654,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="7d1cc07c-8535-4a9b-91ea-6d99ffe691ff" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("7d1cc07c-8535-4a9b-91ea-6d99ffe691ff", [{"orientation": "h", "type": "bar", "y": [0, 1], "x": [27, 5]}], {"title": "WebVR 2015", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+<div id="083c43a4-291d-4050-a989-3b451ef81800" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("083c43a4-291d-4050-a989-3b451ef81800", [{"x": [27, 5], "type": "bar", "orientation": "h", "y": [0, 1]}], {"title": "WebVR 2015", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
 </div>
 
 </div>
@@ -12519,7 +12670,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="e59ac2fd-4c06-495d-9536-97993346d6a0" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("e59ac2fd-4c06-495d-9536-97993346d6a0", [{"orientation": "h", "type": "bar", "y": [0], "x": [6]}], {"title": "WebVR 2014", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+<div id="034620ec-370d-4bb6-bc1f-16274a52b288" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("034620ec-370d-4bb6-bc1f-16274a52b288", [{"x": [6], "type": "bar", "orientation": "h", "y": [0]}], {"title": "WebVR 2014", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
 </div>
 
 </div>
@@ -12546,7 +12697,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">active_authors_dfs</span> <span class="o">=</span> <span class="p">[]</span>
@@ -12569,7 +12720,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[10]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[12]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -12894,7 +13045,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Plot bar charts for each dataframe</span>
@@ -12924,7 +13075,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="1b27ae4a-00e0-4727-b621-c2d19aa4d3e1" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("1b27ae4a-00e0-4727-b621-c2d19aa4d3e1", [{"orientation": "h", "type": "bar", "y": [0, 1, 2], "x": [135, 4, 3]}], {"title": "WebVR 2016", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+<div id="82537d24-7768-446c-90cd-769bc0dea79a" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("82537d24-7768-446c-90cd-769bc0dea79a", [{"x": [135, 4, 3], "type": "bar", "orientation": "h", "y": [0, 1, 2]}], {"title": "WebVR 2016", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
 </div>
 
 </div>
@@ -12940,7 +13091,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="8bf7c707-c3d2-4cfb-b445-e7726742575e" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("8bf7c707-c3d2-4cfb-b445-e7726742575e", [{"orientation": "h", "type": "bar", "y": [0, 1], "x": [26, 5]}], {"title": "WebVR 2015", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+<div id="08b3c70b-fa93-4b3b-94c9-f3eb74624e84" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("08b3c70b-fa93-4b3b-94c9-f3eb74624e84", [{"x": [26, 5], "type": "bar", "orientation": "h", "y": [0, 1]}], {"title": "WebVR 2015", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
 </div>
 
 </div>
@@ -12956,7 +13107,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="d3377de8-c405-432f-b59f-b61d63ded900" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("d3377de8-c405-432f-b59f-b61d63ded900", [{"orientation": "h", "type": "bar", "y": [0], "x": [6]}], {"title": "WebVR 2014", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+<div id="94fb6863-c14e-46f6-beac-c4fdb12f53f9" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("94fb6863-c14e-46f6-beac-c4fdb12f53f9", [{"x": [6], "type": "bar", "orientation": "h", "y": [0]}], {"title": "WebVR 2014", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
 </div>
 
 </div>
@@ -12984,7 +13135,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">###</span>
@@ -13032,7 +13183,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">###</span>
@@ -13077,7 +13228,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[13]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[15]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -13160,7 +13311,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="prompt input_prompt">In&nbsp;[16]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Plot bar charts for each dataframe</span>
@@ -13200,7 +13351,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="10b9fa0c-3712-4b0e-b43f-34cf6b2ca598" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("10b9fa0c-3712-4b0e-b43f-34cf6b2ca598", [{"orientation": "h", "type": "bar", "y": [1, 2, 3], "x": [11, 2, 2]}], {"title": "WebVR 2016", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+<div id="27776653-a283-4d9b-bd54-9d64ae26442f" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("27776653-a283-4d9b-bd54-9d64ae26442f", [{"x": [11, 2, 2], "type": "bar", "orientation": "h", "y": [1, 2, 3]}], {"title": "WebVR 2016", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
 </div>
 
 </div>
@@ -13216,7 +13367,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="f7b3f3f4-ffb9-4ba3-ab23-bd1723e9f55d" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("f7b3f3f4-ffb9-4ba3-ab23-bd1723e9f55d", [{"orientation": "h", "type": "bar", "y": [1, 2, 3], "x": [3, 2, 2]}], {"title": "WebVR employees 2016", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+<div id="c02d2b17-ed12-48d3-86c6-97b889ed3d30" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("c02d2b17-ed12-48d3-86c6-97b889ed3d30", [{"x": [3, 2, 2], "type": "bar", "orientation": "h", "y": [1, 2, 3]}], {"title": "WebVR employees 2016", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
 </div>
 
 </div>
@@ -13232,7 +13383,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="ff944193-f932-430c-9f48-c1ae3843c050" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("ff944193-f932-430c-9f48-c1ae3843c050", [{"orientation": "h", "type": "bar", "y": [1], "x": [8]}], {"title": "WebVR non-employees 2016", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+<div id="e570dbf5-e56b-45c7-a2a5-6423ce887f07" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("e570dbf5-e56b-45c7-a2a5-6423ce887f07", [{"x": [8], "type": "bar", "orientation": "h", "y": [1]}], {"title": "WebVR non-employees 2016", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
 </div>
 
 </div>
@@ -13248,7 +13399,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="8e127424-b4f8-4ff7-8314-425a05929edf" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("8e127424-b4f8-4ff7-8314-425a05929edf", [{"orientation": "h", "type": "bar", "y": [1, 2], "x": [4, 3]}], {"title": "WebVR 2015", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+<div id="9e8fb4b5-c210-4fee-a912-692ef1c31532" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("9e8fb4b5-c210-4fee-a912-692ef1c31532", [{"x": [4, 3], "type": "bar", "orientation": "h", "y": [1, 2]}], {"title": "WebVR 2015", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
 </div>
 
 </div>
@@ -13264,7 +13415,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="aa8703d2-3686-4494-9cbd-f35ec4c2542b" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("aa8703d2-3686-4494-9cbd-f35ec4c2542b", [{"orientation": "h", "type": "bar", "y": [1, 2], "x": [3, 3]}], {"title": "WebVR employees 2015", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+<div id="78decebf-3754-4c84-aec5-0682cc9eedee" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("78decebf-3754-4c84-aec5-0682cc9eedee", [{"x": [3, 3], "type": "bar", "orientation": "h", "y": [1, 2]}], {"title": "WebVR employees 2015", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
 </div>
 
 </div>
@@ -13280,7 +13431,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="bd10de03-51d1-4fce-b3b4-844f45cad470" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("bd10de03-51d1-4fce-b3b4-844f45cad470", [{"orientation": "h", "type": "bar", "y": [1], "x": [1]}], {"title": "WebVR non-employees 2015", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+<div id="4f852aa6-2231-4dcb-878f-d178df00f9f7" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("4f852aa6-2231-4dcb-878f-d178df00f9f7", [{"x": [1], "type": "bar", "orientation": "h", "y": [1]}], {"title": "WebVR non-employees 2015", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
 </div>
 
 </div>
@@ -13296,7 +13447,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="4a83154e-4ad5-40a3-8a51-8358baffc5cf" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("4a83154e-4ad5-40a3-8a51-8358baffc5cf", [{"orientation": "h", "type": "bar", "y": [1], "x": [5]}], {"title": "WebVR 2014", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+<div id="3a11e519-b924-40b1-bbad-5354488de15a" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("3a11e519-b924-40b1-bbad-5354488de15a", [{"x": [5], "type": "bar", "orientation": "h", "y": [1]}], {"title": "WebVR 2014", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
 </div>
 
 </div>
@@ -13312,7 +13463,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="18983e32-b179-4492-84fe-ac22c1ca7414" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("18983e32-b179-4492-84fe-ac22c1ca7414", [{"orientation": "h", "type": "bar", "y": [1], "x": [4]}], {"title": "WebVR employees 2014", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+<div id="ef5c2d15-bc54-450a-8d16-31468a2f38d5" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("ef5c2d15-bc54-450a-8d16-31468a2f38d5", [{"x": [4], "type": "bar", "orientation": "h", "y": [1]}], {"title": "WebVR employees 2014", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
 </div>
 
 </div>
@@ -13328,7 +13479,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="eacfc988-bda4-43fd-992c-19eb1bd6da09" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("eacfc988-bda4-43fd-992c-19eb1bd6da09", [{"orientation": "h", "type": "bar", "y": [1], "x": [1]}], {"title": "WebVR non-employees 2014", "barmode": "group"}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+<div id="c2e90fb5-f640-4725-ae06-0db4d661021f" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("c2e90fb5-f640-4725-ae06-0db4d661021f", [{"x": [1], "type": "bar", "orientation": "h", "y": [1]}], {"title": "WebVR non-employees 2014", "barmode": "group"}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
 </div>
 
 </div>
@@ -13356,7 +13507,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[15]:</div>
+<div class="prompt input_prompt">In&nbsp;[17]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">exp_groups_evo_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">])</span>
@@ -13398,7 +13549,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[15]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[17]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 <div>
@@ -13458,7 +13609,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[16]:</div>
+<div class="prompt input_prompt">In&nbsp;[18]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">exp_groups_evo_moz_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">])</span>
@@ -13502,7 +13653,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[16]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[18]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 <div>
@@ -13562,7 +13713,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[17]:</div>
+<div class="prompt input_prompt">In&nbsp;[19]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">exp_groups_evo_others_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;exp&#39;</span><span class="p">])</span>
@@ -13609,7 +13760,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[17]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[19]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 <div>
@@ -13663,7 +13814,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[18]:</div>
+<div class="prompt input_prompt">In&nbsp;[20]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">plotly</span><span class="o">.</span><span class="n">offline</span><span class="o">.</span><span class="n">init_notebook_mode</span><span class="p">(</span><span class="n">connected</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -13704,7 +13855,7 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
-<div id="959a655c-26b5-49fd-81ed-0035e005af7f" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("959a655c-26b5-49fd-81ed-0035e005af7f", [{"name": "1 years", "type": "scatter", "mode": "lines+markers", "y": [5.0, 4.0, 11.0], "x": ["2014", "2015", "2016"]}, {"name": "2 years", "type": "scatter", "mode": "lines+markers", "y": [0.0, 3.0, 2.0], "x": ["2014", "2015", "2016"]}, {"name": "3 years", "type": "scatter", "mode": "lines+markers", "y": [0.0, 0.0, 2.0], "x": ["2014", "2015", "2016"]}], {}, {"linkText": "Export to plot.ly", "showLink": true})});</script>
+<div id="428503ea-a61d-4608-9301-ad5f75b6aa16" style="height: 525px; width: 100%;" class="plotly-graph-div"></div><script type="text/javascript">require(["plotly"], function(Plotly) { window.PLOTLYENV=window.PLOTLYENV || {};window.PLOTLYENV.BASE_URL="https://plot.ly";Plotly.newPlot("428503ea-a61d-4608-9301-ad5f75b6aa16", [{"mode": "lines+markers", "x": ["2014", "2015", "2016"], "name": "1 years", "type": "scatter", "y": [5.0, 4.0, 11.0]}, {"mode": "lines+markers", "x": ["2014", "2015", "2016"], "name": "2 years", "type": "scatter", "y": [0.0, 3.0, 2.0]}, {"mode": "lines+markers", "x": ["2014", "2015", "2016"], "name": "3 years", "type": "scatter", "y": [0.0, 0.0, 2.0]}], {}, {"showLink": true, "linkText": "Export to plot.ly"})});</script>
 </div>
 
 </div>
