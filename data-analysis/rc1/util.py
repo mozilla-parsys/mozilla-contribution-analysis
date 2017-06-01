@@ -4,6 +4,10 @@ import configparser
 
 import pandas as pd
 
+import plotly as plotly
+import plotly.figure_factory as ff
+import plotly.graph_objs as go
+
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search
 
@@ -76,6 +80,11 @@ def print_result(result):
     """In case you need to check query response, call this function
     """
     print(result.to_dict()['aggregations'])
+
+
+############################
+# PANDAS RELATED FUNCTIONS #
+############################
 
 def to_simple_df(result, group_field, value_field, group_column, value_column):
     """Create a DataFrame from an ES result with 1 BUCKET and 1 METRIC.
@@ -167,6 +176,63 @@ def to_df_by_time(result, group_column, time_column, value_column,subgroup_colum
 
     return df
 
+
+############################
+# PLOTLY RELATED FUNCTIONS #
+############################
+
+def print_table(df, filename='table.html'):
+    plotly.offline.init_notebook_mode(connected=True)
+    table = ff.create_table(df)
+    plotly.offline.iplot(table, filename=filename)
+
+def print_stacked_bar(df, time_column, value_column, group_column):
+    """Print stacked bar chart from dataframe based on time_field,
+    grouped by group field.
+    """
+    plotly.offline.init_notebook_mode(connected=True)
+
+    bars = []
+    for group in df[group_column].unique():
+        group_slice_df = df.loc[df[group_column] == group]
+        bars.append(go.Bar(
+            x=group_slice_df[time_column].tolist(),
+            y=group_slice_df[value_column].tolist(),
+            name=group))
+
+    layout = go.Layout(
+        barmode='stack'
+    )
+
+    fig = go.Figure(data=bars, layout=layout)
+    plotly.offline.iplot(fig, filename='stacked-bar')
+
+def print_grouped_bar(df, time_column, value_column, group_column):
+    """Print grouped bar chart from dataframe based on time_field,
+    grouped by group field.
+    """
+    plotly.offline.init_notebook_mode(connected=True)
+
+    bars = []
+    for group in df[group_column].unique():
+        group_slice_df = df.loc[df[group_column] == group]
+        bars.append(go.Bar(
+            x=group_slice_df[time_column].tolist(),
+            y=group_slice_df[value_column].tolist(),
+            name=group))
+
+    layout = go.Layout(
+        barmode='group'
+    )
+
+    fig = go.Figure(data=bars, layout=layout)
+    plotly.offline.iplot(fig, filename='grouped-bar')
+
+
+
+########
+# TEST #
+########
 
 def test():
     es_conn = ESConnection()
