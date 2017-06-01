@@ -54,13 +54,18 @@ def add_bot_filter(s):
 def add_merges_filter(s):
     return s.filter('range', files={'gt': 0})
 
+
+def get_projects():
+    return read_projects("../data/Contributors and Communities Analysis - Project grouping.xlsx")
+
 def create_search(es_conn, source):
     """ Standard function to create an ES search for a
     given data source using a given connection
     """
 
     # Let's load projects from the REVIEWED SPREADSHEET
-    projects = read_projects("../data/Contributors and Communities Analysis - Project grouping.xlsx")
+    projects = get_projects()
+
     s = Search(using=es_conn, index=source)
 
     if source == 'git' or source == 'github':
@@ -99,67 +104,110 @@ def to_simple_df(result, group_field, value_field, group_column, value_column):
 
     return df
 
-# def stack_by_time(result, group_column, time_column, value_column,
-#                     group_field, time_field, value_field):
-#     """Creates a dataframe based on group and time values
-#     """
-#     df = pd.DataFrame(columns=[group_column, time_column, value_column])
-#
-#     for b in result.to_dict()['aggregations'][group_field]['buckets']:
-#         for i in b[time_field]['buckets']:
-#             df.loc[len(df)] = [b['key'], i['key_as_string'], i[value_field]['value']]
-#
-#     return df
-
-def stack_by(result, group_column, subgroup_column, value_column, group_field, subgroup_field, value_field):
-    """Creates a dataframe based on group and subgroup values
+def stack_by(result, group_column, subgroup_column, value_column,
+             group_field, subgroup_field, value_field = None):
+    """Creates a dataframe based on group and subgroup values.
+    If value_field is provided, then a metric is expected, if not,
+    use doc_count as value.
     """
     df = pd.DataFrame(columns=[group_column, subgroup_column, value_column])
 
     for group in result.to_dict()['aggregations'][group_field]['buckets']:
         for subgroup in group[subgroup_field]['buckets']:
+            group_key = group['key']
             if 'key_as_string' in subgroup:
-                df.loc[len(df)] = [group['key'],
-                                    subgroup['key_as_string'],
-                                    subgroup[value_field]['value']]
+                subgroup_key = subgroup['key_as_string']
             else:
-                df.loc[len(df)] = [group['key'],
-                                    subgroup['key'],
-                                    subgroup[value_field]['value']]
+                subgroup_key = subgroup['key']
+
+            if value_field is not None:
+                value = subgroup[value_field]['value']
+            else:
+                value = subgroup['doc_count']
+
+            df.loc[len(df)] = [group_key,
+                               subgroup_key,
+                               value]
 
     return df
 
-def stack_by_cusum(result, group_column, time_column, value_column, group_field, time_field, value_field,\
-                   staff_org_names, staff_org):
-    authors_org_df = pd.DataFrame(columns=[group_column, time_column, value_column])
+# def stack_by_terms_cusum(result, group_column, subgroup_column, value_column,\
+#                          group_field, subgroup_field, value_field,\
+#                          staff_org_names, staff_org):
+#     """Creates a dataframe based on group and subgroup values
+#     aggregating Non-mozilla staff numbers together
+#     """
+#     df = pandas.DataFrame(columns=[group_column, subgroup_column, value_column])
+#
+#     for b in result.to_dict()['aggregations'][group_field]['buckets']:
+#
+#         key = b['key']
+#         if key in staff_org_names:
+#             key = staff_org
+#         else:
+#             key  = 'Other'
+#
+#         print(b['key'], '->' ,key)
+#
+#         for i in b[subgroup_field]['buckets']:
+#
+#             subgroup = i['key']
+#             count = i[value_field]
+#
+#             if key in df[group_column].unique() \
+#                 and subgroup in df[df[group_column] == key][subgroup_column].tolist():
+#
+#                 df.loc[(df[group_column] == key) & (df[subgroup_column] == subgroup),\
+#                         value_column] += count
+#                 #print('1', key,  subgroup, count)
+#
+#             else:
+#                 df.loc[len(df)] = [key, subgroup, count]
+#                 #print('2', key,  subgroup, count)
+#
+#     return df
 
-    for b in result.to_dict()['aggregations'][group_field]['buckets']:
-        key = b['key']
-        if key in staff_org_names:
-            key = staff_org
+def stack_by_cusum(result, group_column, subgroup_column, value_column,
+                   group_field, subgroup_field,
+                   staff_org_names, staff_org,
+                   metric_field=None):
+
+    df = pd.DataFrame(columns=[group_column, subgroup_column, value_column])
+
+    for group in result.to_dict()['aggregations'][group_field]['buckets']:
+        group_key = group['key']
+        if group_key in staff_org_names:
+            group_key = staff_org
         else:
-            key  = 'Non-Employees'
+            group_key = 'Non-Employees'
 
-        print(b['key'], '->' ,key)
+        print(group['key'], '->', group_key)
 
-        for i in b[time_field]['buckets']:
+        for subgroup in group[subgroup_field]['buckets']:
 
-            time = i['key_as_string']
-            contributors = i[value_field]['value']
+            if 'key_as_string' in subgroup:
+                subgroup_key = subgroup['key_as_string']
+            else:
+                subgroup_key = subgroup['key']
 
-            if key in authors_org_df[group_column].unique() \
-                and time in authors_org_df[authors_org_df[group_column] == key][time_column].tolist():
+            if metric_field is not None:
+                value = subgroup[metric_field]['value']
+            else:
+                value = subgroup['doc_count']
 
-                authors_org_df.loc[(authors_org_df[group_column] == key) \
-                                     & (authors_org_df[time_column] == time),\
-                                   value_column] += contributors
-                #print('1', key,  time, contributors)
+            subgroup_key_list = df[df[group_column] == group_key][subgroup_column]\
+                        .tolist()
+            if group_key in df[group_column].unique() \
+                and subgroup_key in subgroup_key_list:
+
+                df.loc[(df[group_column] == group_key) \
+                        & (df[subgroup_column] == subgroup_key),
+                       value_column] += value
 
             else:
-                authors_org_df.loc[len(authors_org_df)] = [key, time, contributors]
-                #print('2', key,  time, contributors)
+                df.loc[len(df)] = [group_key, subgroup_key, value]
 
-    return authors_org_df
+    return df
 
 
 
