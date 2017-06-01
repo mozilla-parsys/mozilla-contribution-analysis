@@ -1,6 +1,7 @@
 
 import certifi
 import configparser
+from datetime import datetime
 
 import pandas as pd
 
@@ -43,6 +44,9 @@ def ESConnection():
 
     return es_read
 
+def get_projects():
+    return read_projects("../data/Contributors and Communities Analysis - Project grouping.xlsx")
+
 def add_general_date_filters(s):
     # 01/01/1998
     initial_ts = '883609200000'
@@ -54,9 +58,17 @@ def add_bot_filter(s):
 def add_merges_filter(s):
     return s.filter('range', files={'gt': 0})
 
+def add_project_filter(s, project_name):
 
-def get_projects():
-    return read_projects("../data/Contributors and Communities Analysis - Project grouping.xlsx")
+    # Let's load projects from the REVIEWED SPREADSHEET
+    projects = get_projects()
+
+    if project_name.lower() != 'all':
+        github = projects['Github']
+        repos = github[github['Project'] == project_name]['Repo'].tolist()
+        #print(repos)
+        s = s.filter('terms', repo_name=repos)
+    return s
 
 def create_search(es_conn, source):
     """ Standard function to create an ES search for a
@@ -131,42 +143,6 @@ def stack_by(result, group_column, subgroup_column, value_column,
 
     return df
 
-# def stack_by_terms_cusum(result, group_column, subgroup_column, value_column,\
-#                          group_field, subgroup_field, value_field,\
-#                          staff_org_names, staff_org):
-#     """Creates a dataframe based on group and subgroup values
-#     aggregating Non-mozilla staff numbers together
-#     """
-#     df = pandas.DataFrame(columns=[group_column, subgroup_column, value_column])
-#
-#     for b in result.to_dict()['aggregations'][group_field]['buckets']:
-#
-#         key = b['key']
-#         if key in staff_org_names:
-#             key = staff_org
-#         else:
-#             key  = 'Other'
-#
-#         print(b['key'], '->' ,key)
-#
-#         for i in b[subgroup_field]['buckets']:
-#
-#             subgroup = i['key']
-#             count = i[value_field]
-#
-#             if key in df[group_column].unique() \
-#                 and subgroup in df[df[group_column] == key][subgroup_column].tolist():
-#
-#                 df.loc[(df[group_column] == key) & (df[subgroup_column] == subgroup),\
-#                         value_column] += count
-#                 #print('1', key,  subgroup, count)
-#
-#             else:
-#                 df.loc[len(df)] = [key, subgroup, count]
-#                 #print('2', key,  subgroup, count)
-#
-#     return df
-
 def stack_by_cusum(result, group_column, subgroup_column, value_column,
                    group_field, subgroup_field,
                    staff_org_names, staff_org,
@@ -209,6 +185,64 @@ def stack_by_cusum(result, group_column, subgroup_column, value_column,
 
     return df
 
+def get_authors_df(result, author_bucket_field):
+
+    # Get a dataframe with each author and their first commit
+    buckets_result = result['aggregations'][author_bucket_field]['buckets']
+
+    buckets = []
+    for bucket_author in buckets_result:
+        author = bucket_author['key']
+
+        first = bucket_author['first']['hits']['hits'][0]
+        first_commit = first['sort'][0]/1000
+        last_commit = bucket_author['last_commit']['value']/1000
+        org_name = first['_source']['author_org_name']
+        project = first['_source']['project']
+        #uuid = first['_source']['author_uuid']
+        buckets.append({
+                'first_commit': datetime.utcfromtimestamp(first_commit),
+                'last_commit': datetime.utcfromtimestamp(last_commit),
+                'author': author,
+                #'uuid': uuid,
+                'org': org_name,
+                'project': project
+        })
+    authors_df = pd.DataFrame.from_records(buckets)
+    authors_df.sort_values(by='first_commit', ascending=False,
+                            inplace=True)
+    return authors_df
+
+def get_active_authors_df(result, author_bucket_field, year):
+    """Returns a dataframe with first and last commit of those authors
+    whose last commit was made within a given year"""
+
+    # Get a dataframe with each author and their first commit
+    buckets_result = result['aggregations'][author_bucket_field]['buckets']
+
+    buckets = []
+    for bucket_author in buckets_result:
+        author = bucket_author['key']
+
+        first = bucket_author['first']['hits']['hits'][0]
+        first_commit = first['sort'][0]/1000
+        last_commit = bucket_author['last_commit']['value']/1000
+        org_name = first['_source']['author_org_name']
+        project = first['_source']['project']
+        #uuid = first['_source']['author_uuid']
+        if datetime.utcfromtimestamp(last_commit).year == year:
+            buckets.append({
+                    'first_commit': datetime.utcfromtimestamp(first_commit),
+                    'last_commit': datetime.utcfromtimestamp(last_commit),
+                    'author': author,
+                    #'uuid': uuid,
+                    'org': org_name,
+                    'project': project
+            })
+    authors_df = pd.DataFrame.from_records(buckets)
+    authors_df.sort_values(by='first_commit', ascending=False,
+                            inplace=True)
+    return authors_df
 
 
 def to_df_by_time(result, group_column, time_column, value_column,subgroup_column,
@@ -276,6 +310,29 @@ def print_grouped_bar(df, time_column, value_column, group_column):
     fig = go.Figure(data=bars, layout=layout)
     plotly.offline.iplot(fig, filename='grouped-bar')
 
+def print_horizontal_bar_chart(df, experience_field, title, min_range = 0):
+
+    plotly.offline.init_notebook_mode(connected=True)
+
+    experience = list(range(min_range, int(df[experience_field].max()) + 1))
+
+    people_count = []
+    for exp in experience:
+        people_count.append(len(df.loc[df[experience_field] == exp]))
+
+    data = [go.Bar(
+            x=people_count,
+            y=experience,
+            orientation = 'h'
+    )]
+
+    layout = go.Layout(
+        barmode='group',
+        title= title
+    )
+
+    fig = go.Figure(data=data, layout=layout)
+    plotly.offline.iplot(fig, filename='horizontal-bar')
 
 
 ########
