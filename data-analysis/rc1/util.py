@@ -1,5 +1,6 @@
 
 import certifi
+import csv
 import configparser
 from datetime import datetime
 
@@ -12,6 +13,11 @@ import plotly.graph_objs as go
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search
 
+GITHUB_HANDLE = 'github_handle'
+EMAIL = 'email'
+BUGZILLA_EMAIL = 'bugzilla_email'
+UUID = 'uuid'
+
 def read_projects(filepath):
     xl = pd.ExcelFile(filepath)
     project_groups = {}
@@ -23,6 +29,13 @@ def read_projects(filepath):
     project_groups['Github']['Repo'] = project_groups['Github']['Repo'] + '.git'
 
     return project_groups
+
+def normalize_github_handle(handle):
+    github_handle = handle.replace('https://github.com/', '')
+    github_handle = github_handle.replace('/', '')
+    github_handle = github_handle.replace('@', '')
+
+    return github_handle
 
 def ESConnection():
 
@@ -46,6 +59,18 @@ def ESConnection():
 
 def get_projects():
     return read_projects("../data/Contributors and Communities Analysis - Project grouping.xlsx")
+
+def parse_csv(filepath):
+    """Parse CSV files.
+    The method parses the CSV file and returns an iterator of
+    dictionaries. Each one of this, contains the summary of a response.
+    :param raw_csv: CSV string to parse
+    :returns: a generator of parsed responses
+    """
+    with open(filepath) as csvfile:
+        reader = csv.DictReader(csvfile, delimiter=',', quotechar='"')
+        for row in reader:
+            yield row
 
 def add_general_date_filters(s):
     # 01/01/1998
@@ -102,6 +127,57 @@ def print_result(result):
 ############################
 # PANDAS RELATED FUNCTIONS #
 ############################
+
+def load_survey_df(survey_filepath, uuids_filepath):
+
+    # Get UUIDS from correspondences file
+    email_uuid = {}
+    github_uuid = {}
+    bugzilla_uuid = {}
+    for row in parse_csv(uuids_filepath):
+        row_uuid = row[UUID]
+        if row[EMAIL] is not None and row[EMAIL] != '':
+            email_uuid[row[EMAIL]] = row_uuid
+        if row[GITHUB_HANDLE] is not None and row[GITHUB_HANDLE] != '':
+            github_uuid[row[GITHUB_HANDLE]] = row_uuid
+        if row[BUGZILLA_EMAIL] is not None and row[BUGZILLA_EMAIL] != '':
+            bugzilla_uuid[row[BUGZILLA_EMAIL]] = row_uuid
+
+    # Read survey and add corresponding UUIDs
+    survey_df = pd.DataFrame(columns=['uuid', 'active', 'age', 'country', 'gender', 'disability',
+                                      'education level', 'language', 'english proficiency',
+                                      'coding'])
+
+    for row in parse_csv(survey_filepath):
+        github_handle = row['Please provide us with your GitHub handle']
+        github_handle = normalize_github_handle(github_handle)
+        email = row['Please provide us with your email']
+        bugzilla_email = row['Please provide us with your Bugzilla email']
+
+        uuid = None
+        if email in email_uuid:
+            uuid = email_uuid[email]
+        elif github_handle in github_uuid:
+            uuid = github_uuid[github_handle]
+        elif bugzilla_email in bugzilla_uuid:
+            uuid = bugzilla_uuid[bugzilla_email]
+
+        if uuid is not None:
+            active = row['Have you contributed to a Mozilla or related project within the past year? ']
+            age = row['How old are you? ']
+            country = row['In which country are you currently based?']
+            gender = row['With which gender do you identify? ']
+            disability = row['Do you identify with any of the below statements']
+            education_level = row['What is your current level of education?']
+            language = row['Which language do you speak most often? ']
+            english_prof = row['How would you rate your proficiency in English?']
+            coding = row['Coding:Please select all the ways in which you have contributed to Mozilla or related projects in the past year (Select all that apply.)']
+            survey_df.loc[len(survey_df)] = [uuid, active, age, country, gender, disability,
+                                             education_level, language, english_prof, coding]
+        #else:
+        #    print('Not found: ', email, github_handle, bugzilla_email)
+
+    return survey_df
 
 def to_simple_df(result, group_field, value_field, group_column, value_column):
     """Create a DataFrame from an ES result with 1 BUCKET and 1 METRIC.

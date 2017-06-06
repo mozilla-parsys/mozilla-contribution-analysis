@@ -7,13 +7,21 @@ from sortinghat.db.database import Database
 from sortinghat.db.model import Identity, UniqueIdentity
 from sortinghat.exceptions import NotFoundError
 
+import sys
+
+sys.path.insert(0, '../rc1/')
+
+import util as ut
+
 
 GITHUB_HANDLE = 'github_handle'
 EMAIL = 'email'
 BUGZILLA_EMAIL = 'bugzilla_email'
 UUID = 'uuid'
-RESPONSE_ID = 'Response ID'
+FAKE_ID = 'fake_id'
 
+IDENTITIES_CSV_FILE = '../data/identities.csv'
+#IDENTITIES_CSV_FILE = '../data/survey-fake.csv'
 OUT_FILEPATH = 'output.csv'
 
 def parse_survey(filepath):
@@ -36,17 +44,17 @@ def read_survey(survey_filepath):
     and bugzilla email.
     """
     survey_dict = {}
+    fake_id = 0
     for row in parse_survey(survey_filepath):
         github_handle = row['Please provide us with your GitHub handle']
-        github_handle = github_handle.replace('https://github.com/', '')
-        github_handle = github_handle.replace('/', '')
-        github_handle = github_handle.replace('@', '')
+        github_handle = ut.normalize_github_handle(github_handle)
         email = row['Please provide us with your email']
         bugzilla_email = row['Please provide us with your Bugzilla email']
 
-        survey_dict[row[RESPONSE_ID]] = {GITHUB_HANDLE: github_handle,
-                                         EMAIL: email,
-                                         BUGZILLA_EMAIL: bugzilla_email}
+        survey_dict[fake_id] = {GITHUB_HANDLE: github_handle,
+                                EMAIL: email,
+                                BUGZILLA_EMAIL: bugzilla_email}
+        fake_id += 1
 
     return survey_dict
 
@@ -157,36 +165,39 @@ def main():
         print('Done! Entities in Bugzilla emails dict: ', len(bugzilla_email_dict), ' Dups: ', dups)
 
 
-    survey_dict = read_survey('../data/survey-fake.csv')
+    survey_dict = read_survey(IDENTITIES_CSV_FILE)
     print(len(survey_dict), ' entries read from survey')
 
     # Find UUIDS for survey responses
     matches = {}
-    for response_id, survey_entry in survey_dict.items():
+    for fake_id, survey_entry in survey_dict.items():
         email = survey_entry[EMAIL]
         handle = survey_entry[GITHUB_HANDLE]
         bugzilla_email = survey_entry[BUGZILLA_EMAIL]
-        if response_id not in matches and email in email_dict:
-            matches[response_id] = survey_entry
-            matches[response_id][UUID] = email_dict[email]
-        elif response_id not in matches and handle in github_dict:
-            matches[response_id] = survey_entry
-            matches[response_id][UUID] = github_dict[handle]
-        elif response_id not in matches and bugzilla_email in bugzilla_email_dict:
-            matches[response_id] = survey_entry
-            matches[response_id][UUID] = bugzilla_email_dict[bugzilla_email]
+        if fake_id not in matches and email in email_dict:
+            matches[fake_id] = survey_entry
+            matches[fake_id][UUID] = email_dict[email]
+        elif fake_id not in matches and handle in github_dict:
+            matches[fake_id] = survey_entry
+            matches[fake_id][UUID] = github_dict[handle]
+        elif fake_id not in matches and bugzilla_email in bugzilla_email_dict:
+            matches[fake_id] = survey_entry
+            matches[fake_id][UUID] = bugzilla_email_dict[bugzilla_email]
+        else:
+            print('Not Found: E-Mail:', survey_entry[EMAIL],
+            'Github:', survey_entry[GITHUB_HANDLE],
+            'Bugzilla:', survey_entry[BUGZILLA_EMAIL])
 
     print('Found: ', len(matches))
 
     # Export results
     print('Writing results...')
     csv_array = []
-    for response_id, entry in matches.items():
+    for fake_id, entry in matches.items():
         row_dict = entry
-        row_dict[RESPONSE_ID] = response_id
         csv_array.append(row_dict)
 
-    fieldnames = [RESPONSE_ID, UUID, EMAIL, GITHUB_HANDLE, BUGZILLA_EMAIL]
+    fieldnames = [UUID, EMAIL, GITHUB_HANDLE, BUGZILLA_EMAIL]
     with open(OUT_FILEPATH, 'w') as csv_out:
         csvwriter = csv.DictWriter(csv_out, delimiter=',', fieldnames=fieldnames)
         csvwriter.writeheader()
