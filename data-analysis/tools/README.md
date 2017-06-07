@@ -7,6 +7,7 @@ Before running the scripts, install the `elasticsearch` Python package in a Pyth
 ```
 % python3 -m venv ~/venvs/elastic-env
 % source ~/venvs/elastic-env/bin/activate
+(elastic-env) % pip install elasticsearch
 (elastic-env) % python elastic_cp.py ...
 ```
 
