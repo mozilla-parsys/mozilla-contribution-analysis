@@ -1,6 +1,14 @@
 # Some tools used in producing indexes for this analysis
 
-All of these tools have a --help option for learning about their command line interface.
+All of these scripts have a --help option for learning about their command line interface.
+
+Before running the scripts, install the `elasticsearch` Python package in a Python3 environment. Ensure you run them with python3. For example:
+
+```
+% python3 -m venv ~/venvs/elastic-env
+% source ~/venvs/elastic-env/bin/activate
+(elastic-env) % python elastic_cp.py ...
+```
 
 ## elastic_cp.py
 
@@ -35,6 +43,97 @@ Very specific tool that uses a raw git index with documents corresponding to all
 Example: annotate with `Firefox` as project the enriched index `git` in `mozilla-test.biterg.io/data`, based on the information in the raw index `git_raw_gecko_dev` in `mozilla-test.biterg.io/data`.
 
 ```
+python elastic_split_repo.py \
+  --es_raw https://user:pass@mozilla-test.biterg.io/data \
+  --index_raw git_raw_gecko_dev \
+  --es_enriched https://user:pass@mozilla-test.biterg.io/data \
+  --index_enriched git
+```
+
+## Complete process
+
+This is intended to represent the complete process of producing the indexes needed for the analysis (but it is still work in progress):
+
+```
+# Copy enriched indexes from production to mozilla-test
+#
+# Git
+time python elastic_cp.py \
+  --src https://user:passwd@analytics.mozilla.community/data \
+  --src_index git \
+  --dest https://user:passw@mozilla-test.biterg.io/data
+  --dest_index git --with_mapping \
+# GitHub
+time python elastic_cp.py \
+  --src https://user:passwd@analytics.mozilla.community/data \
+  --src_index github_issues \
+  --dest https://user:passw@mozilla-test.biterg.io/data
+  --dest_index github_issues --with_mapping \
+# Bugzilla
+time python elastic_cp.py \
+  --src https://user:passwd@analytics.mozilla.community/data \
+  --src_index bugzilla \
+  --dest https://user:passw@mozilla-test.biterg.io/data
+  --dest_index bugzilla --with_mapping \
+# Mailing lists
+time python elastic_cp.py \
+  --src https://user:passwd@analytics.mozilla.community/data \
+  --src_index mbox \
+  --dest https://user:passw@mozilla-test.biterg.io/data
+  --dest_index mbox --with_mapping \
+# Discourse
+time python elastic_cp.py \
+  --src https://user:passwd@analytics.mozilla.community/data \
+  --src_index discourse \
+  --dest https://user:passw@mozilla-test.biterg.io/data
+  --dest_index discourse --with_mapping \
+
+# Produce project fields for enriched indexes according to spreadsheet
+# (maybe all the following commands could be run in one, but that has
+# not been tested).
+#
+# Git
+time python elastic_projects.py \\
+  --es https://user:passw@mozilla-test.biterg.io/data \
+  --index_git git --projects projects.xlsx --show_projects \
+  -l info --logfile /tmp/log
+# GitHub
+time python elastic_projects.py \\
+  --es https://user:passw@mozilla-test.biterg.io/data \
+  --index_github github_issues --projects projects.xlsx --show_projects \
+  -l info --logfile /tmp/log
+# Bugzilla
+time python elastic_projects.py \\
+  --es https://user:passw@mozilla-test.biterg.io/data \
+  --index_bugzilla bugzilla --projects projects.xlsx --show_projects \
+  -l info --logfile /tmp/log
+# Mailing lists
+time python elastic_projects.py \\
+  --es https://user:passw@mozilla-test.biterg.io/data \
+  --index_email mbox --projects projects.xlsx --show_projects \
+  -l info --logfile /tmp/log
+# Discourse
+time python elastic_projects.py \\
+  --es https://user:passw@mozilla-test.biterg.io/data \
+  --index_discourse discourse --projects projects.xlsx --show_projects \
+  -l info --logfile /tmp/log
+
+# Now, let's split gecko-dev annotating some of its commmits as Firefox
+#
+# Get a file with the raw index for gecko-dev
+time python elastic_cp.py \
+  --src https://user:passwd@analytics.mozilla.community/data \
+  --src_index git_gecko_dev_and_projects_170520  \
+  --dest mozilla_git_raw_gecko-dev.json --with_mapping \
+  --match origin https://github.com/mozilla/gecko-dev.git
+# Delete the raw index in mozilla-test before uploading (just in case)
+curl -XDELETE https://user:passwd@mozilla-test.biterg.io/data/git_raw_gecko_dev
+# Upload that file to a raw index in mozilla-test
+time python elastic_cp.py \
+  --dest https://user:passwd@mozilla-test.biterg.io/data \
+  --dest_index git_raw_gecko_dev  \
+  --src mozilla_git_raw_gecko-dev.json --with_mapping
+# Annotate some commits in gecko-dev repo as Firefox
 python elastic_split_repo.py \
   --es_raw https://user:pass@mozilla-test.biterg.io/data \
   --index_raw git_raw_gecko_dev \
