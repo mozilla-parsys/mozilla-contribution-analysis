@@ -334,6 +334,19 @@ def to_df_by_time(result, group_column, time_column, value_column,subgroup_colum
 
     return df
 
+def to_simple_df_by_time(result, group_column, time_column, value_column,
+		 group_field, time_field, value_field):
+    """Creates a dataframe based on group and time values
+    """
+    df = pd.DataFrame(columns=[group_column, time_column, value_column])
+
+    for time in result.to_dict()['aggregations'][time_field]['buckets']:
+        for group in time[group_field]['buckets']:
+            df.loc[len(df)] = [group['key'], time['key_as_string'],
+                group[value_field]['value']]
+
+    return df
+
 
 ############################
 # PLOTLY RELATED FUNCTIONS #
