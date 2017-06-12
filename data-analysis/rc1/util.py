@@ -95,6 +95,12 @@ def add_project_filter(s, project_name):
         s = s.filter('terms', repo_name=repos)
     return s
 
+def add_survey_filters(s, survey_df):
+    s = s.filter('terms', author_uuid=survey_df['uuid'].tolist())
+    # EXCLUDE MOZILLA EMPLOYEES
+    s = s.exclude('terms', author_org_name=['Mozilla Staff', 'Code Sheriff'])
+    return s
+
 def create_search(es_conn, source):
     """ Standard function to create an ES search for a
     given data source using a given connection
@@ -422,6 +428,128 @@ def print_horizontal_bar_chart(df, experience_field, title, min_range = 0):
 
     fig = go.Figure(data=data, layout=layout)
     plotly.offline.iplot(fig, filename='horizontal-bar')
+
+def print_histogram(traces, activity_field):
+
+    plotly.offline.init_notebook_mode(connected=True)
+
+    values = []
+    for trace_key in traces:
+        values.extend(traces[trace_key])
+
+    data = [go.Histogram(x=values)]
+
+    layout = {
+        'xaxis': {
+            'title': activity_field
+        },
+        'yaxis': {
+            'title': 'Population'
+        },
+        'title': 'Distribution of ' + activity_field
+    }
+    fig = go.Figure(data=data, layout=layout)
+
+    plotly.offline.iplot(fig, filename='histogram')
+
+def print_hammer_plot(traces, nonemp_commits_df, activity_field, survey_field):
+
+    plotly.offline.init_notebook_mode(connected=True)
+
+    values = []
+    for trace_key in traces:
+        values.extend(traces[trace_key])
+
+    trace1 = go.Box(
+        y = nonemp_commits_df['commits'],
+        name = 'Non-employees ' +  activity_field,
+        boxpoints=False
+    )
+    trace2 = go.Box(
+        y = values,
+        name = 'Survey ' +  activity_field,
+        boxpoints=False
+    )
+
+    data = [trace1, trace2]
+
+    layout = {
+        'xaxis': {
+            'title': survey_field
+        },
+        'yaxis': {
+            'title': activity_field,
+            'range': ['0', '100']
+
+        },
+        'title': survey_field + ' vs ' + activity_field
+    }
+    fig = go.Figure(data=data, layout=layout)
+
+    plotly.offline.iplot(fig, filename='scatter-plot-with-colorscale')
+
+def print_pie_chart(traces, survey_field, min_population=10):
+
+    plotly.offline.init_notebook_mode(connected=True)
+
+    labels = []
+    values = []
+    others = 0
+    for trace_key in traces:
+        if len(traces[trace_key]) >= min_population:
+            labels.append(trace_key)
+            values.append(len(traces[trace_key]))
+        else:
+            others += len(traces[trace_key])
+
+    if others > 0:
+        labels.append('others')
+        values.append(others)
+
+    data = go.Pie(labels=labels, values=values)
+
+    layout = {
+        'title': 'Population Distribution of ' + survey_field
+    }
+    fig = go.Figure(data=[data], layout=layout)
+
+    plotly.offline.iplot(fig, filename='pie-chart')
+
+
+def print_boxplot(traces, survey_field, activity_field, min_population=10):
+
+    plotly.offline.init_notebook_mode(connected=True)
+
+    trace_list = []
+    for trace_key in traces:
+
+        # Traces with population less than min_population are discarded
+        if len(traces[trace_key]) >= min_population:
+            trace_list.append(
+                go.Box(
+                    y = traces[trace_key],
+                    name = trace_key + '(' + str(len(traces[trace_key])) + ')',
+                    boxpoints='all',
+                    jitter=0.5,
+                    marker=dict(
+                        size=2
+                    )
+                ))
+
+    layout = {
+        'xaxis': {
+            'title': survey_field
+        },
+        'yaxis': {
+            'title': activity_field
+        },
+        'title': survey_field + ' vs ' + activity_field
+    }
+    fig = go.Figure(data=trace_list, layout=layout)
+
+
+    plotly.offline.iplot(fig, filename='scatter-plot-with-colorscale')
+
 
 
 ########
