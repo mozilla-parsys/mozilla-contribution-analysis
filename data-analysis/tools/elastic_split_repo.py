@@ -126,7 +126,7 @@ class RawIndex(Index):
 
         """
 
-        fields=['data.files']
+        fields=['ocean-unique-id','data.files']
         # _source parameter to get only the fields we need
         reader = elasticsearch.helpers.scan(client=self.es,
                                 index=self.index,
@@ -162,7 +162,7 @@ class RawIndex(Index):
                     project = 'Firefox'
             # print(project, len(files), num_in_dirs)
             # pprint(item)
-            yield (item['_id'], project)
+            yield (item['_source']['ocean-unique-id'], project)
         print()
         print("Items retrieved:", self.retrieved)
 
@@ -192,7 +192,7 @@ class EnrichedIndex(Index):
                 self.updated += 1
                 yield to_write
             if (self.updated % 1000) == 0:
-                print("Items updated: {}".format(self.updated),
+                print("Items to update: {}".format(self.updated),
                         end='\r')
         print()
 
@@ -205,9 +205,9 @@ class EnrichedIndex(Index):
         actions = self.update(items)
         result = elasticsearch.helpers.bulk(self.es, actions,
             max_chunk_bytes=self.max_chunk,
-            raise_on_error=False,
+            raise_on_error=True,
             stats_only=True)
-        print("Bulk result: ", result)
+        print("Bulk result (succesful / errors): ", result)
         print("Items updated:", self.updated)
 
 def main():
