@@ -8,7 +8,7 @@ Notebooks and other data to reproduce the Mozilla Contributions Analysis, perfor
 
 ```bash
 % python3 -m venv moz-contrib
-% bash moz-contrib/bin/activate
+% . moz-contrib/bin/activate
 ```
 
 * Install Pypi packages for jupyter, pandas (needed) and jupyter-runner (convenient). Install some auxiliary packages as well. The easies way of doing this is by running the requirements.txt file (remember to do that in the activated environment, see above):
