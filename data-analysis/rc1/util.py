@@ -85,15 +85,20 @@ def add_merges_filter(s):
 
 def add_project_filter(s, project_name):
 
-    # Let's load projects from the REVIEWED SPREADSHEET
-    projects = get_projects()
-
     if project_name.lower() != 'all':
-        github = projects['Github']
-        repos = github[github['Project'] == project_name]['Repo'].tolist()
-        #print(repos)
-        s = s.filter('terms', repo_name=repos)
+        s = s.filter('term', project=project_name)
+
     return s
+
+    # Let's load projects from the REVIEWED SPREADSHEET
+    #projects = get_projects()
+    #
+    # if project_name.lower() != 'all':
+    #     github = projects['Github']
+    #     repos = github[github['Project'] == project_name]['Repo'].tolist()
+    #     #print(repos)
+    #     s = s.filter('terms', repo_name=repos)
+    # return s
 
 def add_survey_filters(s, survey_df):
     s = s.filter('terms', author_uuid=survey_df['uuid'].tolist())
