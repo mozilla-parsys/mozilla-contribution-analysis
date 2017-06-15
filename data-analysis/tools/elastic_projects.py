@@ -132,7 +132,7 @@ class Index():
         self.reader = elasticsearch.helpers.scan(client=self.es,
                                 index=self.index,
                                 scroll=self.scroll_period,
-                                request_timeout=30, 
+                                request_timeout=30,
                                 _source=self.to_check+self.to_change)
 
 
@@ -180,13 +180,13 @@ class Index():
 #            pprint(item)
             self.retrieved += 1
             (repo, project) = self._get_from_item(item)
-            logging.info("Repo to update: " + repo)
+            logging.info("Repo to update: " + str(repo))
             if repo in self.projects:
                 project_new = self.projects[repo]
                 logging.info("Project: " + project_new)
             else:
                 project_new = 'Not tracked'
-                logging.info("Repo not found in spreadsheet: " + repo)
+                logging.info("Repo not found in spreadsheet: " + str(repo))
             if project != project_new:
                 to_write = {
                     '_op_type': 'update',
@@ -318,7 +318,7 @@ class Index_Discourse(Index):
 
         """
 
-        self.to_check = ['category_name']
+        self.to_check = ['category_id']
         self.to_change = ['project']
 
 
@@ -477,20 +477,20 @@ class DiscourseSheet (Sheet):
 
     def _init_columns(self):
 
-        self.repo_columns = [0]
+        self.repo_columns = [1]
         self.project_column = 2
 
-    def _normalize_repo(self, repo):
-        """Repos may start with '-> '
+#    def _normalize_repo(self, repo):
+#        """Repos may start with '-> '
+#
+#        Remove '-> ' when that's in the category name.
+#
+#        :param repo: repo to normalize
+#
+#        """
 
-        Remove '-> ' when that's in the category name.
-
-        :param repo: repo to normalize
-
-        """
-
-        normalized = repo.replace('-> ','',1)
-        return normalized
+#        normalized = repo.replace('-> ','',1)
+#        return normalized
 
 
 def main():
