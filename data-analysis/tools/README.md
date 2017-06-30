@@ -1,3 +1,66 @@
+# Tools for retrieving info from SortingHat
+
+## get_uuids_from_emails.py
+
+Given a list of emails, retrieves as many UUIDs as found in SortingHat database.
+
+```
+> python3 get_uuids_from_emails.py
+usage: get_uuids_from_emails.py [-h] -i INPUT -o OUTPUT
+get_uuids_from_emails.py: error: the following arguments are required: -i/--input, -o/--output
+```
+Use `-h` options for more information:
+
+```
+> python3 get_uuids_from_emails.py -h
+usage: get_uuids_from_emails.py [-h] -i INPUT -o OUTPUT
+
+Look for UUIDS in SortingHat from a list of emails.
+
+Reads a CSV file containing emails (one per row in a column titled email)
+and returns another CSV with emails and their associated UUID (if found).
+
+DB configuration should be stored in '.settings' file with following format:
+
+--------
+[SortingHat]
+
+db_user=<database_user>
+password=<database_password>
+db_name=<database_name>
+host=<host_name>
+port=<port_number>
+--------
+
+Example:
+    get_uuids_from_emails --input path_to_input_emails_csv --output path_to_output_csv
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -i INPUT, --input INPUT
+                        path to emails CSV to read
+  -o OUTPUT, --output OUTPUT
+                        path to output CSV to write UUIDs associated to emails
+```
+
+Example:
+```
+> python3 get_uuids_from_emails.py -i ../data/emails.csv -o emails-uuids.csv 
+Reading email blacklist from SH
+Searching for E-Mails in SH...
+21770  entities read from SH
+Creating E-Mails dict...
+Done! Entities in emails dict:  29064  Dups:  402
+29064  emails read from file
+dups in csv: 81
+Not found: 1629
+Found         :  1092
+Found (unique):  1076
+Writing results...
+Results wrote to file  emails-uuids.csv
+This is the End.
+```
+
 # Some tools used in producing indexes for this analysis
 
 All of these scripts have a --help option for learning about their command line interface.
