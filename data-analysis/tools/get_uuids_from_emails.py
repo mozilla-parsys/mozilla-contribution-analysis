@@ -3,6 +3,7 @@ import configparser
 import csv
 
 import argparse
+from argparse import RawTextHelpFormatter
 
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Q
@@ -21,7 +22,7 @@ sys.path.insert(0, '../rc1/')
 
 import util as ut
 
-description = """Look for UUIDS in SortingHat from a list of emails.
+DESCRIPTION = """Look for UUIDS in SortingHat from a list of emails.
 
 Reads a CSV file containing emails (one per row in a column titled email)
 and returns another CSV with emails and their associated UUID (if found).
@@ -39,8 +40,7 @@ port=<port_number>
 --------
 
 Example:
-    get_uuids_from_emails --input path_to_input_emails_csv \
-    --output path_to_output_csv
+    get_uuids_from_emails --input path_to_input_emails_csv --output path_to_output_csv
 
 """
 
@@ -74,14 +74,14 @@ def read_emails(emails_filepath):
 def parse_args():
     """Parse command line args
     """
-    parser = argparse.ArgumentParser(description=description)
+    parser = argparse.ArgumentParser(description=DESCRIPTION,
+                                     formatter_class=RawTextHelpFormatter)
 
     parser.add_argument("-i", "--input", type=str, required=True,
                         help="path to emails CSV to read")
 
     parser.add_argument("-o", "--output", type=str, required=True,
-                        help="path to output CSV to write UUIDs\
-                                associated to emails")
+                        help="path to output CSV to write UUIDs associated to emails")
 
     args = parser.parse_args()
     return args
