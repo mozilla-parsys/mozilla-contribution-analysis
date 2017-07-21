@@ -20,8 +20,6 @@ from sortinghat.exceptions import NotFoundError
 
 sys.path.insert(0, '../rc1/')
 
-import util as ut
-
 DESCRIPTION = """Look for UUIDS in SortingHat from a list of emails.
 
 Reads a CSV file containing emails (one per row in a column titled email)
