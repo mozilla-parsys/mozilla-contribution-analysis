@@ -4,6 +4,11 @@ Notebooks and other data to reproduce the Mozilla Contributions Analysis, perfor
 
 ## Configuration
 
+* Install python3-venv package:
+```
+apt-get install python3-venv
+```
+
 * Create and activate a Python3 virtual environment:
 
 ```bash
