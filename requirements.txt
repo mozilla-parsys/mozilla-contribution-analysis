@@ -4,3 +4,4 @@ plotly
 certifi
 elasticsearch-dsl
 xlrd
+wheel
