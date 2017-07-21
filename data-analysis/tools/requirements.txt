@@ -1,0 +1,6 @@
+elasticsearch
+certifi
+elasticsearch_dsl
+pandas
+sortinghat
+requests
