@@ -8,7 +8,9 @@ Notebooks and other data to reproduce the Mozilla Contributions Analysis, perfor
 ```
 apt-get install python3-venv
 ```
-
+```for mac
+brew install python3_venv 
+```
 * Create and activate a Python3 virtual environment:
 
 ```bash
